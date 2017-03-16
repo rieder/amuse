@@ -96,7 +96,7 @@ class ReboundInterface(CodeInterface,
         return function  
     
 
-    INTEGRATORS = {"ias15": 0, "whfast": 1, "whfast-helio": 2, "sei": 3, "leapfrog": 4, "hermes": 5, "none": 6}
+    INTEGRATORS = {"ias15": 0, "whfast": 1, "sei": 2, "leapfrog": 4, "hermes": 5, "whfast-helio": 6, "none": 7}
     def set_integrator(self, name, code_index = 0 ):
         return self._set_integrator(self.INTEGRATORS[name], code_index)
     
@@ -141,7 +141,8 @@ class ReboundInterface(CodeInterface,
     @legacy_function
     def get_opening_angle2():
         function = LegacyFunctionSpecification()
-        function.addParameter('code_index', dtype='int32', direction=function.IN, description = "Index of the code in rebound", default = 0)
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
         function.addParameter('opening_angle2', dtype='float64', direction=function.OUT,
                 description = "theta, the opening angle for building the tree: between 0 and 1")
         function.result_type = 'int32'
@@ -152,7 +153,8 @@ class ReboundInterface(CodeInterface,
         function = LegacyFunctionSpecification()
         function.addParameter('opening_angle2', dtype='float64', direction=function.IN,
                 description = "theta, the opening angle for building the tree: between 0 and 1")
-        function.addParameter('code_index', dtype='int32', direction=function.IN, description = "Index of the code in rebound", default = 0)
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
         function.result_type = 'int32'
         return function
 
@@ -532,7 +534,6 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             default_value = 0.0001 | nbody_system.time
         )
 
-
         object.add_method_parameter(
             "get_integrator",
             "set_integrator",
@@ -540,7 +541,6 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "name of the integrator to use ({0})".format(sorted(self.INTEGRATORS.keys())), 
             default_value = "ias15"
         )
-
 
         object.add_method_parameter(
             "get_solver",
@@ -550,7 +550,6 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             default_value = "compensated"
         )
 
-
         object.add_method_parameter(
             "get_eps2",
             "set_eps2",
@@ -558,7 +557,6 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "smoothing parameter for gravity calculations", 
             default_value = 0.0 | nbody_system.length * nbody_system.length
         )
-
 
         object.add_method_parameter(
             "get_opening_angle2",

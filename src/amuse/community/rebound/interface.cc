@@ -815,6 +815,7 @@ int stop_subset(int code_index) {
     }
     return 0;
 }
+
 int _set_integrator(int value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
@@ -826,15 +827,12 @@ int _set_integrator(int value, int code_index){
     
     switch(value){
         case 0:
-             code->integrator = reb_simulation::REB_INTEGRATOR_IAS15;
+            code->integrator = reb_simulation::REB_INTEGRATOR_IAS15;
             break;
         case 1:
             code->integrator = reb_simulation::REB_INTEGRATOR_WHFAST;
             break;
         case 2:
-            code->integrator = reb_simulation::REB_INTEGRATOR_WHFASTHELIO;
-            break;
-        case 3:
             code->integrator = reb_simulation::REB_INTEGRATOR_SEI;
             break;
         case 4:
@@ -844,6 +842,9 @@ int _set_integrator(int value, int code_index){
             code->integrator = reb_simulation::REB_INTEGRATOR_HERMES;
             break;
         case 6:
+            code->integrator = reb_simulation::REB_INTEGRATOR_WHFASTHELIO;
+            break;
+        case 7:
             code->integrator = reb_simulation::REB_INTEGRATOR_NONE;
             break;
         default:
