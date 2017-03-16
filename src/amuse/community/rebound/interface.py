@@ -135,8 +135,8 @@ class ReboundInterface(CodeInterface,
         value, error = self._get_solver(code_index)
         for key, index in self.SOLVERS.iteritems():
             if value == index:
-                return key, error
-        return "none", error
+                return key
+        return "none"
 
     @legacy_function
     def get_opening_angle2():
