@@ -139,6 +139,26 @@ class ReboundInterface(CodeInterface,
         return "none"
 
     @legacy_function
+    def get_whfast_corrector():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('whfast_corrector', dtype='int32', direction=function.OUT,
+                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_whfast_corrector():
+        function = LegacyFunctionSpecification()
+        function.addParameter('whfast_corrector', dtype='int32', direction=function.IN,
+                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_opening_angle2():
         function = LegacyFunctionSpecification()
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
@@ -582,6 +602,13 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             default_value = 1.0 | nbody_system.length
         )
 
+        object.add_method_parameter(
+            "get_whfast_corrector",
+            "set_whfast_corrector",
+            "whfast_corrector",
+            "order of symplectic correctors to use in whfast/whfast-helio",
+            default_value = 0
+        )
 
 
     def define_methods(self, object):

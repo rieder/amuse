@@ -939,6 +939,91 @@ int set_opening_angle2(double opening_angle2, int code_index){
     return 0;
 }
 
+int set_whfast_corrector(int value, int code_index){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+    
+    switch(code->integrator){
+        case reb_simulation::REB_INTEGRATOR_WHFAST:
+            switch(value){
+                case 0:
+                    code->ri_whfast.corrector = 0;
+                    break;
+                case 3:
+                    code->ri_whfast.corrector = 3;
+                    break;
+                case 5:
+                    code->ri_whfast.corrector = 5;
+                    break;
+                case 7:
+                    code->ri_whfast.corrector = 7;
+                    break;
+                case 11:
+                    code->ri_whfast.corrector = 11;
+                    break;
+                default:
+                    code->ri_whfast.corrector = 0;
+                    return -1;
+                    break;
+            }
+            break;
+        case reb_simulation::REB_INTEGRATOR_WHFASTHELIO:
+            switch(value){
+                case 0:
+                    code->ri_whfasthelio.corrector = 0;
+                    break;
+                case 3:
+                    code->ri_whfasthelio.corrector = 3;
+                    break;
+                case 5:
+                    code->ri_whfasthelio.corrector = 5;
+                    break;
+                case 7:
+                    code->ri_whfasthelio.corrector = 7;
+                    break;
+                case 11:
+                    code->ri_whfasthelio.corrector = 11;
+                    break;
+                default:
+                    code->ri_whfasthelio.corrector = 0;
+                    return -1;
+                    break;
+            }
+            break;
+        default:
+            break;
+        }
+    return 0;
+}
+
+int get_whfast_corrector(int code_index, int * value){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    switch(code->integrator){
+        case reb_simulation::REB_INTEGRATOR_WHFAST:
+            *value = code->ri_whfast.corrector;
+            break;
+        case reb_simulation::REB_INTEGRATOR_WHFASTHELIO:
+            *value = code->ri_whfasthelio.corrector;
+            break;
+        default:
+            *value = -1;
+            break;
+    }
+    return 0;
+}
+
 int _set_boundary(int value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
