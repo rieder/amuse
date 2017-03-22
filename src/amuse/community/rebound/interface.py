@@ -144,7 +144,7 @@ class ReboundInterface(CodeInterface,
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
                 description = "Index of the code in rebound", default = 0)
         function.addParameter('hermes_solar_switch_factor', dtype='float64', direction=function.OUT,
-                description = "value (times the first particle's radius) for switching between IAS15 and WHFast")
+                description = "value (in terms of the first particle's radius) for switching between IAS15 and WHFast (for the first particle)")
         function.result_type = 'int32'
         return function
 
@@ -152,7 +152,27 @@ class ReboundInterface(CodeInterface,
     def set_hermes_solar_switch_factor():
         function = LegacyFunctionSpecification()
         function.addParameter('hermes_solar_switch_factor', dtype='float64', direction=function.IN,
-                description = "value (times the first particle's radius) for switching between IAS15 and WHFast")
+                description = "value (in terms of the first particle's radius) for switching between IAS15 and WHFast (for the first particle)")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_hermes_hill_switch_factor():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('hermes_hill_switch_factor', dtype='float64', direction=function.OUT,
+                description = "value (in terms of Hill radii) for switching between IAS15 and WHFast (for all particles except the first)")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_hermes_hill_switch_factor():
+        function = LegacyFunctionSpecification()
+        function.addParameter('hermes_hill_switch_factor', dtype='float64', direction=function.IN,
+                description = "value (in terms of Hill radii) for switching between IAS15 and WHFast (for all particles except the first)")
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
                 description = "Index of the code in rebound", default = 0)
         function.result_type = 'int32'
@@ -636,6 +656,14 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "hermes_solar_switch_factor",
             "value (times the first particle's radius) for switching between IAS15 and WHFast",
             default_value = 15.
+        )
+
+        object.add_method_parameter(
+            "get_hermes_hill_switch_factor",
+            "set_hermes_hill_switch_factor",
+            "hermes_solar_switch_factor",
+            "value (times the first particle's radius) for switching between IAS15 and WHFast",
+            default_value = 3.
         )
 
 
