@@ -994,7 +994,7 @@ int set_opening_angle2(double opening_angle2, int code_index){
 }
 
 
-int set_hermes_solar_switch_factor(float value, int code_index){
+int set_hermes_solar_switch_factor(double value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
     }
@@ -1014,7 +1014,7 @@ int set_hermes_solar_switch_factor(float value, int code_index){
     return 0;
 }
 
-int get_hermes_solar_switch_factor(int code_index, float * value){
+int get_hermes_solar_switch_factor(int code_index, double * value){
     
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
