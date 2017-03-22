@@ -139,6 +139,26 @@ class ReboundInterface(CodeInterface,
         return "none"
 
     @legacy_function
+    def get_hermes_solar_switch_factor():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('hermes_solar_switch_factor', dtype='float64', direction=function.OUT,
+                description = "value (times the first particle's radius) for switching between IAS15 and WHFast")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_hermes_solar_switch_factor():
+        function = LegacyFunctionSpecification()
+        function.addParameter('hermes_solar_switch_factor', dtype='float64', direction=function.IN,
+                description = "value (times the first particle's radius) for switching between IAS15 and WHFast")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_whfast_corrector():
         function = LegacyFunctionSpecification()
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
@@ -608,6 +628,14 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "whfast_corrector",
             "order of symplectic correctors to use in whfast/whfast-helio",
             default_value = 0
+        )
+
+        object.add_method_parameter(
+            "get_hermes_solar_switch_factor",
+            "set_hermes_solar_switch_factor",
+            "hermes_solar_switch_factor",
+            "value (times the first particle's radius) for switching between IAS15 and WHFast",
+            default_value = 15.
         )
 
 

@@ -993,6 +993,47 @@ int set_opening_angle2(double opening_angle2, int code_index){
     return 0;
 }
 
+
+int set_hermes_solar_switch_factor(float value, int code_index){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    if(code->integrator==reb_simulation::REB_INTEGRATOR_HERMES) {
+        code->ri_hermes.solar_switch_factor = value;
+    }
+    else {
+        // Current code is not Hermes, so not setting this value
+        //FIXME Which error code should be used here?
+        return -1;
+    }
+    return 0;
+}
+
+int get_hermes_solar_switch_factor(int code_index, float * value){
+    
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+    
+    if(code->integrator==reb_simulation::REB_INTEGRATOR_HERMES) {
+        *value = code->ri_hermes.solar_switch_factor;
+    }
+    else {
+        return -1;
+    }
+    return 0;
+}
+
+
 int set_whfast_corrector(int value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
