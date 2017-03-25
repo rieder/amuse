@@ -29,6 +29,78 @@ class HermiteInterface(CodeInterface,
         self.recommit_particles()
     
     @legacy_function
+    def get_dt_min():
+        """
+        Get the minimum timestep.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('dt_min', dtype='float64',
+                              direction=function.OUT,
+            description = "minimum timestep to use")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was retrieved
+        -1 - ERROR
+            could not retrieve parameter
+        """
+        return function
+        
+    @legacy_function
+    def set_dt_min():
+        """
+        Set the minimum timestep.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('dt_min', dtype='float64',
+                              direction=function.IN,
+            description = "minimum timestep to use")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was set
+        -1 - ERROR
+            could not set parameter
+        """
+        return function
+    
+    @legacy_function
+    def get_dt_max():
+        """
+        Get the maximum timestep.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('dt_max', dtype='float64',
+                              direction=function.OUT,
+            description = "maximum timestep to use")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was retrieved
+        -1 - ERROR
+            could not retrieve parameter
+        """
+        return function
+        
+    @legacy_function
+    def set_dt_max():
+        """
+        Set the maximum timestep.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('dt_max', dtype='float64',
+                              direction=function.IN,
+            description = "maximum timestep to use")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was set
+        -1 - ERROR
+            could not set parameter
+        """
+        return function 
+
+    @legacy_function
     def get_dt_dia():
         """
         Get the time interval between diagnostics output.
@@ -70,7 +142,7 @@ class HermiteInterface(CodeInterface,
         Get the timestep scaling factor.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter('dt_dia', dtype='float64',
+        function.addParameter('dt_param', dtype='float64',
                               direction=function.OUT,
             description = "the timestep scaling factor")
         function.result_type = 'int32'
@@ -88,7 +160,7 @@ class HermiteInterface(CodeInterface,
         Set the timestep scaling factor.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter('dt_dia', dtype='float64',
+        function.addParameter('dt_param', dtype='float64',
                               direction=function.IN,
             description = "the timestep scaling factor")
         function.result_type = 'int32'
@@ -231,6 +303,20 @@ class Hermite(GravitationalDynamics, GravityFieldCode):
             default_value = 0.0 | nbody_system.length * nbody_system.length
         )
         object.add_method_parameter(
+            "get_dt_min",
+            "set_dt_min",
+            "dt_min",
+            "minimum timestep", 
+            default_value = 0.0 | nbody_system.time
+        )
+        object.add_method_parameter(
+            "get_dt_max",
+            "set_dt_max",
+            "dt_max",
+            "maximum timestep", 
+            default_value = 1.0 | nbody_system.time
+        )
+        object.add_method_parameter(
             "get_dt_param",
             "set_dt_param",
             "dt_param",
@@ -288,6 +374,30 @@ class Hermite(GravitationalDynamics, GravityFieldCode):
         object.add_method(
             "set_eps2",
             (nbody_system.length * nbody_system.length, ),
+            (object.ERROR_CODE,)
+        )
+        
+        object.add_method(
+            "get_dt_min",
+            (),
+            (nbody_system.time, object.ERROR_CODE,)
+        )
+        
+        object.add_method(
+            "set_dt_min",
+            (nbody_system.time, ),
+            (object.ERROR_CODE,)
+        )
+        
+        object.add_method(
+            "get_dt_max",
+            (),
+            (nbody_system.time, object.ERROR_CODE,)
+        )
+        
+        object.add_method(
+            "set_dt_max",
+            (nbody_system.time, ),
             (object.ERROR_CODE,)
         )
         

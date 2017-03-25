@@ -86,6 +86,8 @@ static vector<real> potential_reduced;
 const real DT_PARAM = 0.03;
 const real DT_DIA = 1;
 
+static real dt_min = 0; // minimum timestep allowed
+static real dt_max = 1; // maximum timestep allowed
 static real dt_param = DT_PARAM;        // control parameter to determine time step size
 static real dt_dia = DT_DIA;                // time interval between diagnostic output
 
@@ -139,6 +141,34 @@ int set_is_time_reversed_allowed(int value){
 }
 
 
+int get_dt_min(double *_dt_min)
+{
+  *_dt_min = dt_min;
+  return 0;
+}
+int set_dt_min(double _dt_min)
+{
+  dt_min = _dt_min;
+  if (dt_max < dt_min)
+  {
+    dt_max = dt_min;
+  }
+  return 0;
+}
+int get_dt_max(double *_dt_max)
+{
+  *_dt_max = dt_max;
+  return 0;
+}
+int set_dt_max(double _dt_max)
+{
+  dt_max = _dt_max;
+  if (dt_max < dt_min)
+  {
+    dt_min = dt_max;
+  }
+  return 0;
+}
 int get_dt_param(double *_dt_param)
 {
   *_dt_param = dt_param;
@@ -632,6 +662,14 @@ real calculate_step(real coll_time)
         step = step2;
 #endif
       }
+    if (step < dt_min)
+    {
+      step = dt_min;
+    }
+    if (step > dt_max)
+    {
+      step = dt_max;
+    }
 
     return step;
 }
