@@ -45,6 +45,7 @@ typedef struct _particle_location {
 typedef struct _code_state {
     reb_simulation * code;
     bool has_removal;
+    bool has_collision;
     bool has_unsorted_massless_particles;
     double time_offset;
     int subset;
@@ -318,6 +319,17 @@ int _evolve_code(double _tmax, code_state * cs){
         COLLISION_DETECTION, 
         &is_collision_detection_enabled
     );
+    if(is_collision_detection_enabled){
+        if(code->gravity==reb_simulation::REB_GRAVITY_TREE){
+            code->collision = reb_simulation::REB_COLLISION_TREE;
+        }
+        else {
+            code->collision = reb_simulation::REB_COLLISION_DIRECT;
+        }
+    }
+    else {
+        code->collision = reb_simulation::REB_COLLISION_NONE;
+    }
     error = is_stopping_condition_enabled(
         TIMEOUT_DETECTION, 
         &is_timeout_detection_enabled
@@ -374,33 +386,6 @@ int _evolve_code(double _tmax, code_state * cs){
             }
         }
         if (is_collision_detection_enabled){
-            // Check for close encounters
-            for (int i=0;i<code->N-code->N_var;i++){
-                struct reb_particle pi = code->particles[i];
-                for (int j=0;j<i;j++){
-                    struct reb_particle pj = code->particles[j];
-                    const double x = pi.x-pj.x;
-                    const double y = pi.y-pj.y;
-                    const double z = pi.z-pj.z;
-                    const double r2 = x*x + y*y + z*z;
-                    
-                    const double rsum = pi.r+pj.r;
-                    if (r2<(rsum*rsum)){
-                        int stopping_index  = next_index_for_stopping_condition();
-                        if(stopping_index < 0)
-                        {
-                            
-                        }
-                        else
-                        {
-                            set_stopping_condition_info(stopping_index, COLLISION_DETECTION);
-                            set_stopping_condition_particle_index(stopping_index, 0, pi.hash);
-                            set_stopping_condition_particle_index(stopping_index, 1, pj.hash);
-                        }
-                        is_condition_set = 1;
-                    }
-                }
-            }
             if(is_condition_set) {
                 break;
             }
@@ -470,6 +455,31 @@ int _evolve_code(double _tmax, code_state * cs){
     double timing = timing_final-timing_initial;
     return ret_value;
 }
+
+int collision_to_stopping_condition(reb_simulation * code, struct reb_collision pair){
+    if(pair.p1 > pair.p2){
+      return 0;
+    }
+    const struct reb_particle* const particles = code->particles;
+    int stopping_index  = next_index_for_stopping_condition();
+    if(stopping_index < 0)
+    {
+    }
+    else
+    {
+        set_stopping_condition_info(stopping_index, COLLISION_DETECTION);
+        set_stopping_condition_particle_index(stopping_index, 0, particles[pair.p1].hash);
+        set_stopping_condition_particle_index(stopping_index, 1, particles[pair.p2].hash);
+    }
+
+    int i = 0;
+    while(codes[i].code != code){
+        i++;
+    }
+    codes[i].has_collision = 1;
+    return 0;
+}
+
 
 int set_eps2(double epsilon_squared, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
@@ -746,6 +756,7 @@ int initialize_code(){
     set_support_for_condition(TIMEOUT_DETECTION);
     //set_support_for_condition(NUMBER_OF_STEPS_DETECTION);
     set_support_for_condition(OUT_OF_BOX_DETECTION);
+    code->collision_resolve=collision_to_stopping_condition;
     
     return 0;
 }
@@ -862,6 +873,7 @@ int stop_subset(int code_index) {
     }
     return 0;
 }
+
 int _set_integrator(int value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
@@ -873,7 +885,7 @@ int _set_integrator(int value, int code_index){
     
     switch(value){
         case 0:
-             code->integrator = reb_simulation::REB_INTEGRATOR_IAS15;
+            code->integrator = reb_simulation::REB_INTEGRATOR_IAS15;
             break;
         case 1:
             code->integrator = reb_simulation::REB_INTEGRATOR_WHFAST;
