@@ -339,6 +339,7 @@ int _evolve_code(double _tmax, code_state * cs){
         &is_out_of_box_detection_enabled
     );
     int is_condition_set = 0;
+    cs->has_collision = 0;
     
     
     // original : rebound_integrate
@@ -386,7 +387,7 @@ int _evolve_code(double _tmax, code_state * cs){
             }
         }
         if (is_collision_detection_enabled){
-            if(is_condition_set) {
+            if(cs->has_collision) {
                 break;
             }
         }
