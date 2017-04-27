@@ -15,6 +15,13 @@ class ReboundInterface(CodeInterface,
     
     .. [#] Rein, H., Liu, S.F., *Astronomy and Astrophysics* , **Volume 537**, A128 (2012)
     
+    For different integrators, cite:
+    ... IAS15:  Rein, H., Spiegel, D.S., *MNRAS* , **Volume 446**, Issue 2, p.1424-1437 (2015)
+    ... WHFast: Rein, H., Tamayo, D., *MNRAS* , **Volume 452**, Issue 1, p.376-388 (2015)
+    ... Hermes: Silburt, A., et al., in prep.
+    ... SEI:    Rein, H., Tremaine, S., *MNRAS* , **Volume 415**, Issue 4, p.3168-3176 (2011)
+    ... JANUS:  Rein, H., Tamayo, D., *arXiv* , 1704.07715 (2017)
+        
     """
     include_headers = ['worker_code.h', 'stopcond.h']
     __so_module__ = 'rebound_cython'
@@ -96,7 +103,7 @@ class ReboundInterface(CodeInterface,
         return function  
     
 
-    INTEGRATORS = {"ias15": 0, "whfast": 1, "sei": 2, "leapfrog": 4, "hermes": 5, "whfast-helio": 6, "none": 7}
+    INTEGRATORS = {"ias15": 0, "whfast": 1, "sei": 2, "leapfrog": 4, "hermes": 5, "whfast-helio": 6, "none": 7, "janus": 8}
     def set_integrator(self, name, code_index = 0 ):
         return self._set_integrator(self.INTEGRATORS[name], code_index)
     
