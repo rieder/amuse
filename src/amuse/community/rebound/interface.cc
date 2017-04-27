@@ -1143,7 +1143,7 @@ int set_hermes_solar_switch_factor(double hermes_solar_switch_factor, int code_i
  * Parameters specific for the Janus integrator
  */
 
-int get_janus_order(int code_index, double * janus_order){
+int get_janus_order(int code_index, int * janus_order){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
     }
@@ -1156,7 +1156,7 @@ int get_janus_order(int code_index, double * janus_order){
     return 0;
 }
 
-int set_janus_order(double janus_order, int code_index){
+int set_janus_order(int janus_order, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
     }
