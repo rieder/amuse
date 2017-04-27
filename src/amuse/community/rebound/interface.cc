@@ -1153,7 +1153,7 @@ int get_janus_order(int code_index, double * janus_order){
     reb_simulation * code = codes[code_index].code;
 
     *janus_order = code->ri_janus.order;
-    return 0
+    return 0;
 }
 
 int set_janus_order(double janus_order, int code_index){
@@ -1166,7 +1166,7 @@ int set_janus_order(double janus_order, int code_index){
     reb_simulation * code = codes[code_index].code;
 
     code->ri_janus.order = janus_order;
-    return 0
+    return 0;
 }
 
 int get_janus_scale_pos(int code_index, double * janus_scale_pos){
@@ -1179,7 +1179,7 @@ int get_janus_scale_pos(int code_index, double * janus_scale_pos){
     reb_simulation * code = codes[code_index].code;
 
     *janus_scale_pos = code->ri_janus.scale_pos;
-    return 0
+    return 0;
 }
 
 int set_janus_scale_pos(double janus_scale_pos, int code_index){
@@ -1192,7 +1192,7 @@ int set_janus_scale_pos(double janus_scale_pos, int code_index){
     reb_simulation * code = codes[code_index].code;
 
     code->ri_janus.scale_pos = janus_scale_pos;
-    return 0
+    return 0;
 }
 
 int get_janus_scale_vel(int code_index, double * janus_scale_vel){
@@ -1205,7 +1205,7 @@ int get_janus_scale_vel(int code_index, double * janus_scale_vel){
     reb_simulation * code = codes[code_index].code;
 
     *janus_scale_vel = code->ri_janus.scale_vel;
-    return 0
+    return 0;
 }
 
 int set_janus_scale_vel(double janus_scale_vel, int code_index){
@@ -1218,7 +1218,7 @@ int set_janus_scale_vel(double janus_scale_vel, int code_index){
     reb_simulation * code = codes[code_index].code;
 
     code->ri_janus.scale_vel = janus_scale_vel;
-    return 0
+    return 0;
 }
 
 //*this one is set automatically when velocities/positions are changed in AMUSE*
