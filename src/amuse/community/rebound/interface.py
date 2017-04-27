@@ -653,7 +653,7 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "get_whfast_corrector",
             "set_whfast_corrector",
             "whfast_corrector",
-            "order of symplectic correctors to use in whfast/whfast-helio",
+            "order of symplectic correctors to use in WHFast",
             default_value = 0
         )
 

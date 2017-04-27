@@ -994,7 +994,7 @@ int _get_boundary(int code_index, int * value){
 }
 
 int get_boundary_size(int code_index, double * boundary_size){
-        if(code_index < 0 || code_index >= (signed) codes.size()){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
     }
     if(!codes[code_index].code) {
@@ -1014,7 +1014,145 @@ int set_boundary_size(double boundary_size, int code_index){
         return -11;
     }
     reb_simulation * code = codes[code_index].code;
+
     reb_configure_box(code,boundary_size,1,1,1);
     return 0;
 }
 
+/*
+ * Parameters specific for the IAS15 integrator
+ */
+
+//epsilon
+
+//min_dt
+
+//epsilon_global
+
+/*
+ * Parameters specific for the WHFast integrator
+ */
+
+int get_whfast_corrector(int code_index, int * whfast_corrector){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    *whfast_corrector = code->ri_whfast.corrector;
+    return 0;
+}
+
+int set_whfast_corrector(int whfast_corrector, int code_index){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    code->ri_whfast.corrector = whfast_corrector;
+    return 0;
+}
+
+//recalculate_jacobi_this_timestep
+
+//safe_mode
+
+//keep_unsynchronized
+
+/*
+ * Parameters specific for the SEI integrator
+ */
+
+//
+
+/*
+ * Parameters specific for the HERMES integrator
+ */
+
+int get_hermes_hill_switch_factor(int code_index, double * hermes_hill_switch_factor){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    *hermes_hill_switch_factor = code->ri_hermes.hill_switch_factor;
+    return 0;
+}
+
+int set_hermes_hill_switch_factor(double hermes_hill_switch_factor, int code_index){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    code->ri_hermes.hill_switch_factor = hermes_hill_switch_factor;
+    return 0;
+}
+
+int get_hermes_solar_switch_factor(int code_index, double * hermes_solar_switch_factor){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    *hermes_solar_switch_factor = code->ri_hermes.solar_switch_factor;
+    return 0;
+}
+
+int set_hermes_solar_switch_factor(double hermes_solar_switch_factor, int code_index){
+    if(code_index < 0 || code_index >= (signed) codes.size()){
+        return -10;
+    }
+    if(!codes[code_index].code) {
+        return -11;
+    }
+    reb_simulation * code = codes[code_index].code;
+
+    code->ri_hermes.solar_switch_factor = hermes_solar_switch_factor;
+    return 0;
+}
+
+//adaptive_hill_switch_factor
+
+/*
+ * Parameters specific for the WHFast-Helio integrator
+ */
+
+//recalculate_heliocentric_this_timestep
+
+//safe_mode
+
+//keep_unsynchronized
+
+/*
+ * Parameters specific for the Janus integrator
+ */
+
+int get_janus_order(int code_index, double * janus_order){
+    return 0
+}
+
+int set_janus_order(double janus_order, int code_index){
+    return 0
+}
+
+//scale_pos
+
+//scale_vel
+
+//recalculate_integer_coordinates_this_timestep
