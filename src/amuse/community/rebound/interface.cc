@@ -879,7 +879,7 @@ int _get_integrator(int code_index, int * value){
     return 0;
 }
 
-int _set_solver(int value, int code_index){
+int _set_gravity(int value, int code_index){
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;
     }
@@ -910,7 +910,7 @@ int _set_solver(int value, int code_index){
     return 0;
 }
 
-int _get_solver(int code_index, int * value){
+int _get_gravity(int code_index, int * value){
     
     if(code_index < 0 || code_index >= (signed) codes.size()){
         return -10;

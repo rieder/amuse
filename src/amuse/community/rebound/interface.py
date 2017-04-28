@@ -115,9 +115,9 @@ class ReboundInterface(CodeInterface,
         return "none"
 
     @legacy_function
-    def _set_solver():
+    def _set_gravity():
         function = LegacyFunctionSpecification()      
-        function.addParameter('solver_name', dtype='i', direction=function.IN)
+        function.addParameter('gravity_name', dtype='i', direction=function.IN)
         function.addParameter('code_index', dtype='int32', direction=function.IN, description = "Index of the code in rebound", default = 0)
         function.result_type = 'int32'
         function.can_handle_array = False
@@ -125,22 +125,22 @@ class ReboundInterface(CodeInterface,
         
 
     @legacy_function
-    def _get_solver():
+    def _get_gravity():
         function = LegacyFunctionSpecification()      
         function.addParameter('code_index', dtype='int32', direction=function.IN, description = "Index of the code in rebound", default = 0)
-        function.addParameter('solver_name', dtype='i', direction=function.OUT)
+        function.addParameter('gravity_name', dtype='i', direction=function.OUT)
         function.result_type = 'int32'
         function.can_handle_array = False
         return function  
     
 
-    SOLVERS = {"none": 0, "basic": 1, "compensated": 2, "tree": 3}
-    def set_solver(self, name, code_index = 0 ):
-        return self._set_solver(self.SOLVERS[name], code_index)
+    GRAVITY = {"none": 0, "basic": 1, "compensated": 2, "tree": 3}
+    def set_gravity(self, name, code_index = 0 ):
+        return self._set_gravity(self.GRAVITY[name], code_index)
     
-    def get_solver(self, code_index = 0):
-        value, error = self._get_solver(code_index)
-        for key, index in self.SOLVERS.iteritems():
+    def get_gravity(self, code_index = 0):
+        value, error = self._get_gravity(code_index)
+        for key, index in self.GRAVITY.iteritems():
             if value == index:
                 return key
         return "none"
@@ -610,10 +610,10 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
         )
 
         object.add_method_parameter(
-            "get_solver",
-            "set_solver",
-            "solver",
-            "name of the gravity solver to use ({0})".format(sorted(self.SOLVERS.keys())), 
+            "get_gravity",
+            "set_gravity",
+            "gravity",
+            "name of the gravity solver to use ({0})".format(sorted(self.GRAVITY.keys())), 
             default_value = "compensated"
         )
 
@@ -629,7 +629,7 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "get_opening_angle2",
             "set_opening_angle2",
             "opening_angle2",
-            "opening angle, theta, for building the tree in case of tree solver: between 0 and 1", 
+            "opening angle, theta, for building the tree in case of tree gravity: between 0 and 1", 
             default_value = 0.5
         )
 
@@ -637,7 +637,7 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "get_boundary",
             "set_boundary",
             "boundary",
-            "name of the boundary type to use ({0}) (required for tree solver)".format(sorted(self.BOUNDARIES.keys())), 
+            "name of the boundary type to use ({0}) (required for tree gravity)".format(sorted(self.BOUNDARIES.keys())), 
             default_value = "none"
         )
 
