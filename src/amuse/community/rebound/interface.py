@@ -146,6 +146,26 @@ class ReboundInterface(CodeInterface,
         return "none"
 
     @legacy_function
+    def get_whfast_corrector():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('whfast_corrector', dtype='int32', direction=function.OUT,
+                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_whfast_corrector():
+        function = LegacyFunctionSpecification()
+        function.addParameter('whfast_corrector', dtype='int32', direction=function.IN,
+                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_hermes_solar_switch_factor():
         function = LegacyFunctionSpecification()
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
@@ -186,20 +206,60 @@ class ReboundInterface(CodeInterface,
         return function
 
     @legacy_function
-    def get_whfast_corrector():
+    def get_janus_order():
         function = LegacyFunctionSpecification()
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
                 description = "Index of the code in rebound", default = 0)
-        function.addParameter('whfast_corrector', dtype='int32', direction=function.OUT,
-                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.addParameter('janus_order', dtype='int32', direction=function.OUT,
+                description = "order of the scheme")
         function.result_type = 'int32'
         return function
 
     @legacy_function
-    def set_whfast_corrector():
+    def set_janus_order():
         function = LegacyFunctionSpecification()
-        function.addParameter('whfast_corrector', dtype='int32', direction=function.IN,
-                description = "specifies order of symplectic correctors for whfast (0, 3, 5, 7, 11)")
+        function.addParameter('janus_order', dtype='int32', direction=function.IN,
+                description = "order of the scheme")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_janus_scale_pos():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('janus_scale_pos', dtype='float64', direction=function.OUT,
+                description = "Scale of positions")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_janus_scale_pos():
+        function = LegacyFunctionSpecification()
+        function.addParameter('janus_scale_pos', dtype='float64', direction=function.IN,
+                description = "Scale of positions")
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_janus_scale_vel():
+        function = LegacyFunctionSpecification()
+        function.addParameter('code_index', dtype='int32', direction=function.IN, 
+                description = "Index of the code in rebound", default = 0)
+        function.addParameter('janus_scale_vel', dtype='float64', direction=function.OUT,
+                description = "Scale of velocities")
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_janus_scale_vel():
+        function = LegacyFunctionSpecification()
+        function.addParameter('janus_scale_vel', dtype='float64', direction=function.IN,
+                description = "Scale of velocities")
         function.addParameter('code_index', dtype='int32', direction=function.IN, 
                 description = "Index of the code in rebound", default = 0)
         function.result_type = 'int32'
@@ -671,6 +731,30 @@ class Rebound(GravitationalDynamics, GravityFieldCode):
             "hermes_solar_switch_factor",
             "value (times the first particle's radius) for switching between IAS15 and WHFast",
             default_value = 3.
+        )
+
+        object.add_method_parameter(
+            "get_janus_order",
+            "set_janus_order",
+            "janus_order",
+            "order of the scheme",
+            default_value = 6
+        )
+
+        object.add_method_parameter(
+            "get_janus_scale_pos",
+            "set_janus_scale_pos",
+            "janus_scale_pos",
+            "position scaling factor",
+            default_value = 1e-16
+        )
+
+        object.add_method_parameter(
+            "get_janus_scale_vel",
+            "set_janus_scale_vel",
+            "janus_scale_vel",
+            "velocity scaling factor",
+            default_value = 1e-16
         )
 
 
