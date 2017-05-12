@@ -130,12 +130,48 @@ class ReboundInterfaceTests(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(ReboundInterface)
         self.assertEquals(0, instance.initialize_code())
         self.assertEquals(0, instance.commit_parameters())
-        
-        # Set up an equal-mass binary on a circular orbit:
-        self.assertEquals([0, -10], instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0, 0.01, 1).values())
+  
+  
+        index,err=instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0, 0.01, 1)
+        self.assertEquals(-10, err)
         
         instance.stop()
 
+
+    def test7(self):
+        
+        instance = self.new_instance_of_an_optional_code(ReboundInterface)
+        instance.initialize_code()
+
+        instance.set_eps2(0.1 * 0.1)
+
+        eps2 = instance.get_eps2()['epsilon_squared']
+
+        self.assertEquals(0.1 * 0.1, eps2)
+        instance.cleanup_code()
+        instance.stop()
+
+
+    def test8(self):
+        
+        instance = self.new_instance_of_an_optional_code(ReboundInterface)
+        instance.initialize_code()
+
+        instance.set_boundary("none")
+        boundary_type = instance.get_boundary()
+        self.assertEquals("none", boundary_type)
+
+        instance.set_boundary("periodic")
+        boundary_type = instance.get_boundary()
+        self.assertEquals("periodic", boundary_type)
+
+        instance.set_boundary_size(42.1)
+        boundary_size = instance.get_boundary_size()['boundary_size']
+        self.assertEquals(42.1, boundary_size)
+
+        instance.cleanup_code()
+        instance.stop()
+        
 
 class TestRebound(TestWithMPI):
     def new_system_of_sun_and_earth(self):
@@ -161,7 +197,6 @@ class TestRebound(TestWithMPI):
         interface = self.new_instance_of_an_optional_code(Rebound, convert_nbody)
         interface.initialize_code()
         interface.parameters.epsilon_squared = 0.0 | units.AU**2
-        interface.parameters.end_time_accuracy_factor = 0.0
         interface.dt_dia = 5000
         
         stars = self.new_system_of_sun_and_earth()

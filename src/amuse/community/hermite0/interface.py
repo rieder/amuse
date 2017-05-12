@@ -18,7 +18,7 @@ class HermiteInterface(CodeInterface,
     .. [#] Hut, P., Makino, J. & McMillan, S., *Astrophysical Journal Letters* , **443**, L93-L96 (1995)
     """
     include_headers = ['worker_code.h', 'stopcond.h']
-
+    __so_module__ = 'hermite0_cython'
 
     def __init__(self, **options):
         CodeInterface.__init__(self, name_of_the_worker="hermite0_worker",
@@ -70,7 +70,7 @@ class HermiteInterface(CodeInterface,
         Get the timestep scaling factor.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter('dt_dia', dtype='float64',
+        function.addParameter('dt_param', dtype='float64',
                               direction=function.OUT,
             description = "the timestep scaling factor")
         function.result_type = 'int32'
@@ -88,7 +88,7 @@ class HermiteInterface(CodeInterface,
         Set the timestep scaling factor.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter('dt_dia', dtype='float64',
+        function.addParameter('dt_param', dtype='float64',
                               direction=function.IN,
             description = "the timestep scaling factor")
         function.result_type = 'int32'
@@ -202,7 +202,6 @@ class Hermite(GravitationalDynamics, GravityFieldCode):
 
     __doc__ = HermiteDoc()
     __interface__ = HermiteInterface
-    __so_module__ = 'hermite0_cython'
 
     def __init__(self, convert_nbody = None, **options):
         self.stopping_conditions = StoppingConditions(self)

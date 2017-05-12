@@ -99,6 +99,7 @@ class Quantity(object):
 
     def __add__(self, other):
         if self.unit.is_zero():
+            other=to_quantity(other)
             return new_quantity(other.number, other.unit)
         else:
             other = to_quantity(other)
@@ -213,10 +214,7 @@ class Quantity(object):
 
         """
         value_of_unit_in_another_unit = self.unit.value_in(unit)
-        if value_of_unit_in_another_unit == 1.0:
-            return self.number
-        else:
-            return self.number * value_of_unit_in_another_unit
+        return self.number * value_of_unit_in_another_unit
 
     def __abs__(self):
         """
@@ -361,6 +359,12 @@ class VectorQuantity(Quantity):
         except core.IncompatibleUnitsException:
             raise exceptions.AmuseException("not all values have conforming units")
         return cls(array, unit)
+
+    @classmethod
+    def new_from_array(cls, array):
+        shape=array.shape
+        vector=cls.new_from_scalar_quantities(*array.flat)
+        return vector.reshape(shape)
 
     def aszeros(self):
         return new_quantity(numpy.zeros(self.shape, dtype=self.number.dtype), self.unit)
@@ -846,6 +850,10 @@ class VectorQuantity(Quantity):
 
     def transpose(self, axes=None):
         return VectorQuantity(self.number.transpose(axes), self.unit)
+
+    @property
+    def T(self):
+        return VectorQuantity(self.number.T, self.unit)
 
     def mean(self, axis=None, dtype=None, out=None):
         return new_quantity(self.number.mean(axis, dtype, out), self.unit)

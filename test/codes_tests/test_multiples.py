@@ -37,8 +37,8 @@ class TestSimpleMultiples(TestWithMPI):
         
     def new_kepler_si(self):
         unit_converter = nbody_system.nbody_to_si(
-            1 | units.MSun,
-            1 | units.AU
+            1.0 | units.MSun,
+            1.0 | units.AU
         )
         kepler = Kepler(unit_converter)
         kepler.initialize_code()
@@ -113,11 +113,11 @@ class TestSimpleMultiples(TestWithMPI):
         stars = datamodel.Particles(2)
         stars.mass = 1 | nbody_system.mass
         stars.position = [
-            [0,0,0],
+            [0.0, 0,0],
             [1.2, 0, 0]
         ]|nbody_system.length
         stars.velocity = [
-            [0,0,0],
+            [0.0,0,0],
             [0,0.1, 0]
         ]|nbody_system.speed
         stars.radius = 0.5 | nbody_system.length
@@ -145,13 +145,13 @@ class TestSimpleMultiples(TestWithMPI):
         stars = datamodel.Particles(keys = (1,2,3, 4))
         stars.mass = 1 | nbody_system.mass
         stars.position = [
-            [0,0,0],
+            [0.0,0,0],
             [0.5, 0, 0],
-            [2, 0, 0],
-            [-10, 0, 0],
+            [2.0, 0, 0],
+            [-10.0, 0, 0],
         ]|nbody_system.length
         stars.velocity = [
-            [0,0,0],
+            [0.0,0,0],
             [0,0.1, 0],
             [0,-0.1, 0],
             [0,0.2, 0],
@@ -181,7 +181,7 @@ class TestSimpleMultiples(TestWithMPI):
         self.assertEquals(len(multiples_code.binaries), 1)
         multiples_code.evolve_model(3|nbody_system.time)
         self.assertEquals(len(multiples_code.multiples), 1)
-        self.assertEquals(len(multiples_code.particles), 3)
+        self.assertEquals(len(multiples_code.particles), 2)
         self.assertEquals(len(multiples_code.binaries), 1)
         
 
@@ -190,15 +190,15 @@ class TestSimpleMultiples(TestWithMPI):
         stars = datamodel.Particles(keys = (1,2,3, 4))
         stars.mass = 1 | nbody_system.mass
         stars.position = [
-            [0,0,0],
+            [0.0,0,0],
             [0.5, 0, 0],
-            [2, 0, 0],
+            [3, 0, 0],
             [-10, 0, 0],
         ]|nbody_system.length
         stars.velocity = [
-            [0,0,0],
+            [0.0,0,0],
             [0,0.1, 0],
-            [0,-0.1, 0],
+            [0.0,-0.5, 0],
             [0,0.2, 0],
         ]|nbody_system.speed
         stars.radius = 0.5 | nbody_system.length
@@ -217,6 +217,7 @@ class TestSimpleMultiples(TestWithMPI):
         
         multiples_code.evolve_model(3|nbody_system.time)
         self.assertEquals(len(multiples_code.multiples), 1)
+        print multiples_code.multiples[0].components
         self.assertEquals(len(multiples_code.multiples[0].components), 2)
         self.assertEquals(len(multiples_code.particles), 3)
         self.assertEquals(len(multiples_code.binaries), 1)
@@ -264,16 +265,16 @@ class TestSimpleMultiples(TestWithMPI):
         stars = datamodel.Particles(keys = (1,2,3, 4))
         stars.mass = 1 | nbody_system.mass
         stars.position = [
-            [0,0,0],
+            [0.0,0,0],
             [0.5, 0, 0],
             [2, 0, 0],
             [-10, 0, 0],
         ]|nbody_system.length
         stars.velocity = [
             [0,0,0],
-            [0,0.1, 0],
-            [0,-0.1, 0],
             [0,0.2, 0],
+            [0,-0.2, 0],
+            [0,0.3, 0],
         ]|nbody_system.speed
         stars.radius = 0.5 | nbody_system.length
         
@@ -305,14 +306,14 @@ class TestSimpleMultiples(TestWithMPI):
         
         multiples_code.evolve_model(3|nbody_system.time)
         self.assertTrue(stopping_condition.is_set())
-        self.assertAlmostRelativeEquals(multiples_code.model_time , 1.19126 | nbody_system.time, 4)
+        self.assertAlmostRelativeEquals(multiples_code.model_time , 1.2195 | nbody_system.time, 4)
         self.assertEquals(len(stopping_condition.particles(0)), 1) # 1 new multiple
         self.assertEquals(len(stopping_condition.particles(1)), 1) # 1 dissolved multiple
         
-        self.assertEquals(len(multiples_code.multiples[0].components), 2)
-        self.assertEquals(len(multiples_code.particles), 3) # 1 multiples with 2 singles, plus 2 singles free
+        self.assertEquals(len(multiples_code.multiples[0].components), 3)
+        self.assertEquals(len(multiples_code.particles), 2) # 1 multiple, plus 1 single free
         self.assertEquals(len(multiples_code.binaries), 1)
-        self.assertEquals(len(multiples_code.singles), 2)
+        self.assertEquals(len(multiples_code.singles), 1)
     
     def test5(self):
         converter = nbody_system.nbody_to_si(units.MSun, units.parsec)
@@ -628,7 +629,7 @@ class TestSimpleMultiples(TestWithMPI):
             0.01 | nbody_system.length,
             keyoffset = 1
         )
-        particles_in_binary.radius = 0.01 | nbody_system.length
+        particles_in_binary.radius = 0.001 | nbody_system.length
         
         encounter_code = encounters.HandleEncounter(
             kepler_code =  self.new_kepler(),
@@ -640,7 +641,7 @@ class TestSimpleMultiples(TestWithMPI):
         
         others = datamodel.Particles(key = [4,5,6])
         for i in range(3):
-            others[i].position = [i, 0, 0] | nbody_system.length
+            others[i].position = [i,  0, 0] | nbody_system.length
             others[i].velocity = [0, 0, i] | nbody_system.speed
             others[i].mass = 1 | nbody_system.mass
             others[i].radius  = 0.05 | nbody_system.length
@@ -658,31 +659,32 @@ class TestSimpleMultiples(TestWithMPI):
         multiples_code.evolve_model(1 | nbody_system.time)
         
         self.assertEquals(len(multiples_code.multiples), 1)
-        self.assertEquals(len(multiples_code.components_of_multiples), 2)
-        self.assertEquals(len(multiples_code.singles), 3)
-        self.assertEquals(len(multiples_code.particles), 4)
-        self.assertEquals(len(code.particles), 4)
+        self.assertEquals(len(multiples_code.components_of_multiples), 3)
+        self.assertEquals(len(multiples_code.singles), 2)
+        self.assertEquals(len(multiples_code.particles), 3)
+        self.assertEquals(len(code.particles), 3)
         
         self.assertEquals(id(multiples_code.singles_in_binaries), id(multiples_code.binaries[0].child1.particles_set))
         self.assertEquals(id(multiples_code.components_of_multiples), id(multiples_code.multiples[0].components[0].particles_set))
         #multiples_code.singles_in_binaries[0].mass = 0.2 | nbody_system.mass
-        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.1 | nbody_system.mass)
+        print multiples_code.particles.mass
+        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.2 | nbody_system.mass)
         self.assertAlmostRelativeEquals(multiples_code.particles.mass.sum(), 0.1 + 0.1 + 3.0 | nbody_system.mass)
         multiples_code.update_model()
         
-        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.1 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.2 | nbody_system.mass)
         
         index = -1
         if not code.particles[index].mass > 1.0| nbody_system.mass:
             index = -2
-        self.assertAlmostRelativeEquals(code.particles[index].mass, 1.1 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(code.particles[index].mass, 1.2 | nbody_system.mass)
         
         multiples_code.singles_in_binaries[0].mass += 0.2 | nbody_system.mass
         
         multiples_code.update_model()
         
-        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.3 | nbody_system.mass)
-        self.assertAlmostRelativeEquals(code.particles[index].mass, 1.3 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(multiples_code.particles[-1].mass, 1.4 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(code.particles[index].mass, 1.4 | nbody_system.mass)
     
     
       
@@ -690,8 +692,8 @@ class TestSimpleMultiples(TestWithMPI):
         code = Hermite()
         
         particles_in_binary = self.new_binary(
-            1 | nbody_system.mass,
-            1 | nbody_system.mass,
+            1.0 | nbody_system.mass,
+            1.0 | nbody_system.mass,
             0.001 | nbody_system.length,
             keyoffset = 1
         )
@@ -725,10 +727,10 @@ class TestSimpleMultiples(TestWithMPI):
         multiples_code.evolve_model(1 | nbody_system.time)
         self.assertEquals(len(multiples_code.multiples), 1)        
         self.assertEquals(len(multiples_code.binaries), 1)
-        self.assertEquals(len(multiples_code.components_of_multiples), 2)
-        self.assertEquals(len(multiples_code.singles), 3)
-        self.assertEquals(len(multiples_code.particles), 4)
-        self.assertEquals(len(code.particles), 4)
+        self.assertEquals(len(multiples_code.components_of_multiples), 3)
+        self.assertEquals(len(multiples_code.singles), 2)
+        self.assertEquals(len(multiples_code.particles), 3)
+        self.assertEquals(len(code.particles), 3)
         self.assertTrue(stopping_condition.is_set())
         multiples_code.particles[-1].velocity = [0, 0, 0] | nbody_system.speed
         multiples_code.update_model()
@@ -737,7 +739,7 @@ class TestSimpleMultiples(TestWithMPI):
         self.assertEquals(len(stopping_condition.particles(0)), 1)
         self.assertEquals(len(stopping_condition.particles(1)), 0)
         self.assertEquals(len(stopping_condition.particles(2)), 0)
-        self.assertAlmostRelativeEquals(multiples_code.multiples[0].mass, 2.0 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(multiples_code.multiples[0].mass, 2.2 | nbody_system.mass)
         self.assertAlmostRelativeEquals(multiples_code.particles.mass.sum(), 2.6 | nbody_system.mass)
         print multiples_code.particles.velocity
         multiples_code.evolve_model(2 | nbody_system.time)
@@ -745,7 +747,7 @@ class TestSimpleMultiples(TestWithMPI):
         self.assertEquals(len(stopping_condition.particles(0)), 0)
         self.assertEquals(len(stopping_condition.particles(1)), 0)
         self.assertEquals(len(stopping_condition.particles(2)), 1)
-        self.assertAlmostRelativeEquals(multiples_code.multiples[0].mass, 2.0 | nbody_system.mass)
+        self.assertAlmostRelativeEquals(multiples_code.multiples[0].mass, 2.2 | nbody_system.mass)
         self.assertAlmostRelativeEquals(multiples_code.particles.mass.sum(), 2.6 | nbody_system.mass)
     
     
@@ -753,8 +755,8 @@ class TestSimpleMultiples(TestWithMPI):
         code = Hermite()
         
         particles_in_binary = self.new_binary(
-            1 | nbody_system.mass,
-            1 | nbody_system.mass,
+            1.0 | nbody_system.mass,
+            1.0 | nbody_system.mass,
             0.001 | nbody_system.length,
             keyoffset = 10
         )
