@@ -1,5 +1,3 @@
-import sys
-import os
 import numpy
 
 from amuse.test import amusetest
@@ -7,7 +5,7 @@ from amuse.test import amusetest
 
 from amuse.ext.orbital_elements import (
         new_binary_from_orbital_elements,
-        #~ orbital_elements_from_binary,
+        # orbital_elements_from_binary,
         get_orbital_elements_from_binary,
         orbital_elements_for_rel_posvel_arrays,
         orbital_elements_from_arrays,
