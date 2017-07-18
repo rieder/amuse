@@ -2,12 +2,21 @@
 
 BUILD=amuse
 FIXREFS=yes
-while getopts OR option
+for i in "$@"
 do
-case "${option}"
-in
-O) BUILD=omuse;;
-R) FIXREFS=no;;
+case $i in
+    -O|--omuse)
+    BUILD=omuse
+    ;;
+    -R|--nofixrefs)
+    FIXREFS=no
+    ;;
+    -v=*|--version=*)
+    VERSION="${i#*=}"
+    ;;
+    *)
+            # unknown option
+    ;;
 esac
 done
 
@@ -408,7 +417,9 @@ if [ "${BUILD}" == "omuse" ]; then
   mv ${RELEASEDIR}/amuse-tutorial ${RELEASEDIR}/omuse-tutorial
 fi
 
-cp -R ${TUTORIALDIR} ${RELEASEDIR}/tutorial
+mkdir ${RELEASEDIR}/tutorial
+cp  ${TUTORIALDIR}/*.ipynb ${RELEASEDIR}/tutorial/
+cp  ${TUTORIALDIR}/amuserc ${RELEASEDIR}/tutorial/
 
 tar -czf ${DISTFILE} ${RELEASEDIR}
 
