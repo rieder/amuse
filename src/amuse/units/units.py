@@ -1,7 +1,12 @@
 import numpy
-import quantities
-from amuse.units.si import *
-from amuse.units.derivedsi import *
+from amuse.units.si import (
+        s,
+        m, km,
+        V, W, J,
+        kg, Pa,
+        rad, none
+        )
+from amuse.units.derivedsi import named, core
 from amuse.units import constants
 
 # misc every day
