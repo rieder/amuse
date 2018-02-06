@@ -97,7 +97,7 @@ class GetCodeFromHttp(object):
             cwd = os.path.join(self.src_directory())
         )
         subprocess.call(
-            ['mv', 'rebound-{version}'.format(version = self.version), 'rebound'],
+            ['mv', 'gasoline-{version}'.format(version = self.version), 'gasoline'],
             cwd = os.path.join(self.src_directory())
         )
         print "done"
