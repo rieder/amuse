@@ -18,7 +18,8 @@ class GasolineInterface(
         GravitationalDynamicsInterface,
         LiteratureReferencesMixIn,
         # StoppingConditionInterface,
-        GravityFieldInterface,
+        # GravityFieldInterface,
+        # SinglePointGravityFieldInterface,
         ):
     """
     Gasoline: a flexible, parallel implementation of TreeSPH
@@ -36,6 +37,7 @@ class GasolineInterface(
                 self,
                 name_of_the_worker="gasoline_worker",
                 **keyword_arguments)
+        LiteratureReferencesMixIn.__init__(self)
 
     def new_particle(self, mass, x, y, z, vx, vy, vz, u=0.):
         return self.new_sph_particle(mass, x, y, z, vx, vy, vz, u)
