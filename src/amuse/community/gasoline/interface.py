@@ -5,10 +5,12 @@ from amuse.community import (
         LiteratureReferencesMixIn,
         # StoppingConditionInterface,
         )
+
+
 from amuse.community.interface.gd import (
         GravitationalDynamicsInterface,
         GravitationalDynamics,
-        GravityFieldInterface,
+        # GravityFieldInterface,
         GravityFieldCode,
         )
 
@@ -23,7 +25,7 @@ class GasolineInterface(
         ):
     """
     Gasoline: a flexible, parallel implementation of TreeSPH
-    
+
 
     The relevant references are:
         .. [#] Wadsley, Keller, Quinn, 2017, MNRAS 471, 2357
@@ -172,6 +174,54 @@ class GasolineInterface(
         function.addParameter('time_end', dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
+
+# From param.dat
+# gravitational collapse of an adiabatic sphere of gas.
+#
+# bPeriodic	= 0
+# bParaRead	= 0
+# bParaWrite	= 0
+# dTheta		= 0.55
+# dTheta2		= 0.7
+# nReplicas       = 0
+# achInFile	= adiabtophat.bin
+# achOutName	= out
+# dConstAlpha     = 1
+# dConstBeta      = 2
+# iViscosityLimiter = 1
+# nSmooth         = 32
+# dHubble0	= 1.0
+# dOmega0		= 1.0
+# dRedTo		= 0.0
+# iCheckInterval  = 10000
+# dExtraStore	= 0.5
+# bKDK		= 1
+# iMaxRung	= 10
+# dEta            = 0.3
+# dEtaCourant     = 0.2
+# bStandard	= 1
+# bDoGravity      = 1
+# bDoGas          = 1
+# bFastGas        = 1
+# dFracFastGas    = 0.3
+# # dFracNoDomainDecomp = 0.001
+# bComove         = 0
+# bCannonical     = 1
+# bGeometric      = 0
+# # iGasModel       = 0
+# bGasAdiabatic	= 1
+# dConstGamma     = 1.66667
+# dGasConst       = 0.66667
+# dMeanMolWeight  = 1.0
+# nSteps		= 30
+# dDelta          = 0.0258
+# iOutInterval    = 10
+# iLogInterval    = 1
+# bOverwrite      = 1
+# bVDetails       = 0
+# bBulkViscosity  = 0
+# bDoDensity      = 0
+# dhMinOverSoft   = 0.25
 
 
 class Gasoline(

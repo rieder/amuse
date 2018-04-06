@@ -15,7 +15,7 @@ LDFLAGS  += -lm $(MUSE_LD_FLAGS)
 OBJS = interface.o
 
 CODEDIR = src/gasoline
-MDLDIR = src/mdl/mpi
+MDLDIR = src/mdl/null
 
 CODE_GENERATOR = $(AMUSE_DIR)/build.py
 
