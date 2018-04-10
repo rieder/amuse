@@ -14,10 +14,6 @@
 #include "outtype.h"
 #include "smoothfcn.h"
 
-#ifdef COLLISIONS
-#include <rpc/xdr.h> /* needed for time stamping terse collision log on restart */
-#endif
-
 /*DEBUG for FPE trapping... (not defined on most systems)*/
 #ifdef SETTRAPFPE
 #include <fpu_control.h>
@@ -26,6 +22,9 @@
 
 MDL mdl;
 MSR msr;
+LCL *plcl;
+PST pst;
+PKD pkd;
 
 FILE *fpLog = NULL;
 FILE *fpLogTiming = NULL;
@@ -36,10 +35,6 @@ double dWMax=0,dIMax=0,dEMax=0,dMass=0,dMultiEff=0;
 long lSec=0,lStart;
 int i,j=0,iStep,bOutTime,iSec=0,iStop=0,nActive,nOutputList, OutputList[NUMOUTPUTS];
 char achBaseMask[256];
-
-#ifdef COLLISIONS
-double sec,dsec;
-#endif
 
 /* code to make gasoline core dump if there is a floating point exception 
  feenableexcept(FE_OVERFLOW | FE_DIVBYZERO | FE_INVALID);*/
@@ -88,20 +83,8 @@ void main_ch(MDL mdl)
 }
 
 
-//void msrInitialize(MSR *pmsr,MDL mdl,int argc,char **argv){
-//}
-
 int set_defaults(){
     return -1;
-}
-
-
-void amuse_msrInitialize(MSR *pmsr,MDL mdl,int argc,char **argv)
-{
-    MSR msr;
-    msr = (MSR)malloc(sizeof(struct msrContext));
-    assert(msr != NULL);
-    
 }
 
 
@@ -118,210 +101,12 @@ int initialize_code(){
     //FIXME: Replace this function (in master.c) by individual setters
     msrInitialize(&msr,mdl,argc,fake_argv);
     
-    printf("MSR TEST: nSmooth=%i\n", msr->param.nSmooth);
-    
-    (void) strncpy(achBaseMask,msr->param.achDigitMask,256);
-    
-    /*
-     Look for checkpoint files.  If not found, we start as normal.
-     If found, msrFindCheck() will move most recent to .chk, and
-     we restart. bOverwrite means start from beginning, even if
-     checkpoints exist.
-     */
-    if (!msr->param.bOverwrite && msrFindCheck(msr)) {
-        msr->param.bRestart = 1;
-        dTime = msrReadCheck(msr,&iStep);
-        msr->param.bRestart = 1;
-#ifdef COLLISIONS
-        if (msr->param.nSmooth > msr->N) {
-            msr->param.nSmooth = msr->N;
-            if (msr->param.bVWarnings)
-                printf("WARNING: nSmooth reduced to %i\n",msr->N);
-        }
-#endif /* COLLISIONS */
-        
-#ifdef AGGS
-        /*
-         ** Aggregate info not currently stored in checkpoints, so
-         ** reconstruct now.
-         */
-        msrAggsFind(msr);
-#endif
-#ifdef GASOLINE
-#ifndef NOCOOLING
-        if (msr->param.iGasModel == GASMODEL_COOLING
-            || msr->param.bStarForm)
-            msrInitCooling(msr);
-        if(msr->param.bStarForm)
-            msrInitStarLog(msr);
-#endif
-#ifdef OUTURBDRIVER
-        printf("OUturb: init %d\n",dTime);
-        msrInitouturb(msr, dTime);
-#endif
-        if(msr->param.bDoSinks && !msr->param.bBHSink)
-            msrInitSinkLog(msr);
-#endif
-        if(msr->param.bRotatingBar) {
-            msrInitRotatingBar(msr, dTime);
-        }
-        msrInitStep(msr);
-        dMass = msrMassCheck(msr,-1.0,"Initial");
-        msrSetSink(msr,dTime);
-        if (msr->param.bVStart) printf("Restart Step:%d\n",iStep);
-        if (msrLogInterval(msr)) {
-            //FIXME Remove logging to file
-            sprintf(achFile,"%s.log",msrOutName(msr));
-            fpLog = fopen(achFile,"a");
-            assert(fpLog != NULL);
-            setbuf(fpLog,(char *) NULL); /* no buffering */
-            //FIXME Change logging from file to stderr
-            fprintf(fpLog,"# RESTART (dTime = %g)\n# ",dTime);
-            //FIXME Remove argv things
-            //FIXME Change logging from file to stderr
-            for (i=0;i<argc;++i) fprintf(fpLog,"%s ",fake_argv[i]);
-            fprintf(fpLog,"\n");
-            msrLogHeader(msr,fpLog);
-            /* Timing data, if requested */
-            if ((fpLogTiming = LogTimingInit( msr, "a" ))) {
-                //FIXME Change logging from file to stderr
-                fprintf(fpLogTiming,"# RESTART (dTime = %g)\n# ",dTime);
-            }
-        }
-#ifdef COLLISIONS
-        if (msr->param.iCollLogOption != COLL_LOG_NONE) {
-            FILE *fp = fopen(msr->param.achCollLog,"r");
-            if (fp) { /* add RESTART tag only if file already exists */
-                fclose(fp);
-                fp = fopen(msr->param.achCollLog,"a");
-                assert(fp != NULL);
-                switch (msr->param.iCollLogOption) {
-                    case COLL_LOG_VERBOSE:
-                        //FIXME Change logging from file to stderr
-                        fprintf(fp,"RESTART:T=%e\n",dTime);
-                        break;
-                    case COLL_LOG_TERSE:
-                    {
-                        XDR xdrs;
-                        int dum = -1;
-                        xdrstdio_create(&xdrs,fp,XDR_ENCODE);
-                        (void) xdr_double(&xdrs,&dTime);
-                        (void) xdr_int(&xdrs,&dum);
-                        (void) xdr_int(&xdrs,&dum);
-                        (void) xdr_int(&xdrs,&dum);
-                        xdr_destroy(&xdrs);
-                        break;
-                    }
-                    default:
-                        assert(0); /* should never happen */
-                }
-                fclose(fp);
-            }
-        }
-#endif
-        if(msrKDK(msr) || msr->param.bGravStep || msr->param.bAccelStep) {
-            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE);
-            msrDomainDecomp(msr,0,1);
-            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE);
-            msrInitAccel(msr);
-            
-            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE);
-            msrUpdateSoft(msr,dTime);
-            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE);
-            msrBuildTree(msr,0,dMass,0);
-            msrMassCheck(msr,dMass,"After msrBuildTree");
-            if (msrDoGravity(msr)) {
-                msrGravity(msr,iStep,msrDoSun(msr),&iSec,&dWMax,&dIMax,&dEMax,&nActive);
-            }
-        }
-#ifdef GASOLINE
-#ifdef OUTURBDRIVER
-        printf("OUturb: sph init %d\n",dTime);
-#endif
-        msrInitSph(msr,dTime);
-#endif
-#ifdef INFLOWOUTFLOW
-        if (msr->param.bInflowOutflow) msrModifyAccel(msr, dTime); /* zero acceleration of inflow/outflow particles */
-#endif
-        if (msr->param.bDoSinksAtStart) msrDoSinks(msr, dTime, 0.0, 0);
-        /*
-         ** Dump Frame Initialization
-         */
-        /* Bring frame count up to correct place for restart. */
-        /* df is an array to allow for more than one director
-         * output frame.
-         */
-        
-        if( msrDumpFrameInit( msr, dTime, 1.0*msr->param.iStartStep, 1 )
-           && msr->df[0]->dDumpFrameStep > 0)
-        {
-            while(msr->df[0]->dStep + msr->df[0]->dDumpFrameStep < iStep)
-            {
-                msr->df[0]->dStep += msr->df[0]->dDumpFrameStep;
-                msr->df[0]->nFrame++;
-            }
-            
-            // initialize the rest of the dumpframes
-            
-            if (msr->param.iDirector > 1) {
-                for(j=0; j < msr -> param.iDirector; j++)
-                {
-                    msr->df[j]->dStep = msr->df[0]->dStep;
-                    msr->df[j]->dDumpFrameStep = msr->df[0]->dDumpFrameStep;
-                    msr->df[j]->nFrame = msr->df[0]->nFrame;
-                }
-            }
-        }
-        
-        //FIXME Get rid of goto please!
-        //if (msrSteps(msr) == 0) goto CheckForDiagnosticOutput;
-        //goto Restart;
-    }
-    if(msr->param.bRestart) {
-        printf("Error: restart requested and no checkpoint file found\n");
-        msrFinish(msr);
-        mdlFinish(mdl);
-        return 1;
-    }
-    
     /*
      ** Read in the binary file, this may set the number of timesteps or
      ** the size of the timestep when the zto parameter is used.
      */
-#ifndef COLLISIONS
     dTime = msrReadTipsy(msr);
-#else
-    dTime = msrReadSS(msr); /* must use "Solar System" (SS) I/O format... */
-    if (msr->param.nSmooth > msr->N) {
-        msr->param.nSmooth = msr->N;
-        if (msr->param.bVWarnings)
-            printf("WARNING: nSmooth reduced to %i\n",msr->N);
-    }
-    if (msr->param.iCollLogOption != COLL_LOG_NONE) {
-        FILE *fp;
-        if (msr->param.iStartStep > 0) { /* append if non-zero start step */
-            fp = fopen(msr->param.achCollLog,"a");
-            assert(fp != NULL);
-            //FIXME Change logging from file to stderr
-            fprintf(fp,"START:T=%e\n",dTime);
-        }
-        else { /* otherwise erase any old log */
-            fp = fopen(msr->param.achCollLog,"w");
-            assert(fp != NULL);
-        }
-        fclose(fp);
-    }
-#ifdef SLIDING_PATCH
-    if (msr->param.iRandStep) {
-        FILE *rfp = fopen("random.log","w");
-        assert(rfp);
-        fclose(rfp);
-        msr->param.iNextRandomization=msrGetNextRandomTime(msr->param.iRandStep,msr->param.iStartStep+1);
-    }
-    
-#endif /* SLIDING_PATCH */
-    
-#endif
+
 #ifdef GASOLINE
 #ifndef NOCOOLING
     if (msr->param.iGasModel == GASMODEL_COOLING ||
@@ -347,9 +132,6 @@ int initialize_code(){
     msrMassCheck(msr,dMass,"After msrSetSoft");
     
     msrSetSink(msr,dTime);
-#ifdef COLLISIONS
-    if (msr->param.bFindRejects) msrFindRejects(msr);
-#endif
 #ifdef AGGS
     /* find and initialize any aggregates */
     msrAggsFind(msr);
@@ -366,12 +148,6 @@ int initialize_code(){
 }
 
 int evolve_model(double time_end){
-    // iStartStep is the current time, iStopStep is the end time
-    msr->param.iStopStep = msr->param.iStartStep + 1;
-    //printf("iStartStep = %i\n\n\n", msr->param.iStartStep);
-    //printf("iStopStep = %i\n\n\n", msr->param.iStopStep);
-    
-CheckForDiagnosticOutput:
     if (msrSteps(msr) > 0) {
         if (msrComove(msr)) {
             msrSwitchTheta(msr,dTime);
@@ -440,88 +216,23 @@ CheckForDiagnosticOutput:
         msrDumpFrameInit( msr, dTime, 1.0*msr->param.iStartStep, 0);
         
         LogTimingZeroCounters( msr );
-        for (iStep=msr->param.iStartStep+1;iStep<=msr->param.iStopStep;++iStep) {
+        //FIXME Replacement for steps
+        while(1) {
+            iStep++;
+            printf("dTime: %f  iStep: %i\n\n", dTime, iStep);
+            //dTime = (double)iStep;
+            //printf("recalculated dTime: %f  iStep: %i\n\n", dTime, iStep);
+            if (dTime > time_end) {
+                break;
+            }
+        //for (iStep=msr->param.iStartStep+1;iStep<=msr->param.iStopStep;++iStep) {
             if (msrComove(msr)) {
                 msrSwitchTheta(msr,dTime);
             }
             if (msrKDK(msr)) {
                 dMultiEff = 0.0;
                 lSec = time(0);
-#ifdef COLLISIONS
-                if (msr->param.iMinBinaryRung > 0 &&
-                    msr->iCurrMaxRung >= msr->param.iMinBinaryRung) {
-                    if (msr->param.bVDetails) {
-                        sec = msrTime();
-                        printf("\nSearching for binaries...\n");
-                        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-                        msrDomainDecomp(msr,0,1);
-                        msrBuildTree(msr,0,dMass,1);
-                        msrCheckForBinary(msr,dTime);
-                        dsec=msrTime() - sec;
-                        printf("Binary search complete, Wallclock: %f sec\n\n",dsec);
-                    } else {
-                        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-                        msrDomainDecomp(msr,0,1);
-                        msrBuildTree(msr,0,dMass,1);
-                        
-                        msrCheckForBinary(msr,dTime);
-                    }
-                }
                 
-#ifdef SLIDING_PATCH
-                if (msr->param.iRandStep) {
-                    if (iStep >= msr->param.iNextRandomization) {
-                        msrRandomizeLargeMasses(msr,iStep,dTime);
-                    }
-                }
-#endif /* SLIDING_PATCH */
-                
-#endif /* COLLISIONS */
-                
-#ifdef RUBBLE_ZML
-                {
-                    int j;
-                    msrMassCheck(msr,dMass,"Before msrRubCleanup"); /*DEBUG*/
-                    
-                    /*
-                     ** Are there any dust particles that need to be added
-                     ** to the dust bins?
-                     ** Skip step 0 so initial conditions are preserved.
-                     */
-                    
-                    if (iStep > 0)
-                        msrRubCleanup(msr,dTime);
-                    msrMassCheck(msr,dMass,"After msrRubCleanup"); /*DEBUG*/
-                    /*
-                     ** Is it time to add dust to planetesimals?
-                     ** Skip step 0 so initial conditions are preserved.
-                     */
-                    
-                    if (iStep > 0 && msr->param.CP.DB.nDustBins > 0 &&
-                        iStep%msr->param.CP.DB.iDustBinsApplyInt == 0) {
-                        msrDustBinsApply(msr);
-                        if (iStep%msr->param.iOutInterval == 0) {
-                            printf("iStep = %i\n", iStep);
-                            for (j=0;j<msr->param.CP.DB.nDustBins;j++)
-                                printf("DustBin[%i] = %e\n",j,
-                                       msr->aDustBins[j].dMass);
-                        }
-                    }
-                    msrMassCheck(msr,dMass,"After dust applied to planetesimals"); /*DEBUG*/
-                    /*
-                     ** The rubble routines need to know if two
-                     ** planetesimals will collide during the drift
-                     ** interval so that they can be forced to the
-                     ** smallest rung. But this may actually result in
-                     ** the two planetesimals *not* colliding (since
-                     ** their orbits will be better integrated), so
-                     ** it's necessary before each top step to reset
-                     ** the flags warning of imminent collision.
-                     */
-                    msrRubbleResetColFlag(msr);
-                    msrMassCheck(msr,dMass,"Before msrTopStepKDK"); /*DEBUG*/
-                }
-#endif
                 {
                     msrTopStepKDK(msr,iStep-1,dTime,
                                   msrDelta(msr),0,0,1,
@@ -681,11 +392,8 @@ CheckForDiagnosticOutput:
             msrReorder(msr);
             //FIXME Remove logging to file
             sprintf(achFile,"%s",msrOutName(msr));
-#ifndef COLLISIONS
+            //FIXME Writing output here
             msrWriteTipsy(msr,achFile,dTime);
-#else
-            msrWriteSS(msr,achFile,dTime);
-#endif
         }
         
         if (msrDoGravity(msr)) {
@@ -876,6 +584,7 @@ int commit_particles(){
 }
 
 int get_time(double * time){
+    *time = dTime;
     return 0;
 }
 
@@ -919,6 +628,7 @@ int get_index_of_next_particle(int index_of_the_particle,
 
 int new_sph_particle(int * index_of_the_particle, double mass, double x, 
                      double y, double z, double vx, double vy, double vz, double u){
+    
     return 0;
 }
 
@@ -942,6 +652,7 @@ int set_state(int index_of_the_particle, double mass, double x, double y,
 int get_state(int index_of_the_particle, double * mass, double * x, 
               double * y, double * z, double * vx, double * vy, double * vz,
               double * u){
+    //id = msr->pMap[index_of_the_particle];
     return 0;
 }
 
@@ -958,6 +669,9 @@ int get_kinetic_energy(double * kinetic_energy){
 }
 
 int get_number_of_particles(int * number_of_particles){
+    // msr->nGas;
+    // msr->nDark;
+    // msr->nStar;
     return 0;
 }
 
@@ -1004,6 +718,14 @@ int get_velocity(int id, double * vx, double * vy, double * vz){
 }
 
 int get_position(int id, double * x, double * y, double * z){
+    PST pst0;
+    LCL *plcl;
+    int i = 1;
+    pst0 = msr->pst;
+    plcl = pst0->plcl;
+    *x = plcl->pkd->pStore[i].r[0];
+    *y = plcl->pkd->pStore[i].r[1];
+    *z = plcl->pkd->pStore[i].r[2];
     return 0;
 }
 
