@@ -217,8 +217,8 @@ CODELIB = src/libgasoline.a
 #       Basic MPI defines
 #
 #MPI_MDL			= $(MDLDIR)/mpi
-MDL_CFLAGS  = -I$(MDLDIR)
-CFLAGS		+= -O3 $(BASE_DEF)
+MDL_CFLAGS  = 
+CFLAGS		+= -O3 $(BASE_DEF) -I$(MDLDIR)
 LD_FLAGS	+= $(BASE_LD_FLAGS)
 XOBJ		+= $(CODEDIR)/v_sqrt1.o
 LIBMDL		= mdl.o -lm
