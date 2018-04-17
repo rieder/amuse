@@ -574,51 +574,8 @@ int evolve_model(double time_end){
 int cleanup_code(){
     //dfFinalize( msr->df[0] );
     
-    //msrFinish(msr);
-    //
-    int id;
-
-    printf("Aap\n");
-	for (id=1;id<msr->mdl->nThreads;++id) {
-		//if (msr->param.bVDetails) printf("Stopping thread %d\n",id);
-		mdlReqService(msr->mdl,id,SRV_STOP,NULL,0);
-		mdlGetReply(msr->mdl,id,NULL,NULL);
-		}
-    printf("Noot\n");
-	pstFinish(msr->pst);
-    printf("Mies\n");
-	/*
-	 ** finish with parameter stuff, deallocate and exit.
-	 */
-	prmFinish(msr->prm);
-    printf("Wim\n");
-	free(msr->pMap);
-    printf("Zus\n");
-	free(msr);
-    printf("Jet\n");
-    //
-    //mdlFinish(mdl);
-    /*
-	 ** Close Diagnostic file.
-	 */
-	if (mdl->bDiag) {
-		fclose(mdl->fpDiag);
-		}
-    printf("Lam\n");
-	/*
-	 ** Deregister from PVM and deallocate storage.
-	 */
-	free(mdl->psrv);
-    printf("Kees\n");
-	free(mdl->pszIn);
-    printf("Bok\n");
-	free(mdl->pszOut);
-    printf("Teun\n");
-	free(mdl->cache);
-    printf("Vuur\n");
-	//free(mdl->atid);
-    printf("Gijs\n");
-	free(mdl);
+    msrFinish(msr);
+    mdlFinish(mdl);
     return 0;
 }
 
