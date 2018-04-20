@@ -515,7 +515,7 @@ int cleanup_code(){
 }
 
 int get_mass(int index_of_the_particle, double * mass){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * mass = p->fMass;
     return 0;
@@ -527,6 +527,9 @@ int get_time(double * time){
 }
 
 int set_mass(int index_of_the_particle, double mass){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fMass = mass;
     return 0;
 }
 
@@ -572,15 +575,10 @@ int get_index_of_next_particle(int index_of_the_particle,
 int new_dm_particle(int * index_of_the_particle, double mass, double x, 
                     double y, double z, double vx, double vy, double vz, 
                     double radius){
-    msr->nDark += 1;
-    msr->N += 1;
-    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-
-    *index_of_the_particle = pkd->idSelf;
+    *index_of_the_particle = msr->N;
     
     PARTICLE p;
-    p = pkd->pStore[pkd->idSelf];
+    p = pkd->pStore[msr->N];
     p.r[0] = x;
     p.r[1] = y;
     p.r[2] = z;
@@ -590,6 +588,11 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     p.fMass = mass;
     p.fSoft = radius;
     //p.fPot = phi;
+    msr->nDark += 1;
+    msr->N += 1;
+    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+
     pkdNewParticle(pkd, p);
     return 0;
 }
@@ -597,16 +600,10 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
 int new_sph_particle(int * index_of_the_particle, double mass, double x, 
                      double y, double z, double vx, double vy, double vz, 
                      double u, double h_smooth, double metals){
-    msr->nGas += 1;
-    msr->N += 1;
-    msr->nMaxOrderGas = msr->nGas - 1;
-    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-
     *index_of_the_particle = msr->N;
     
     PARTICLE p;
-    p = pkd->pStore[pkd->idSelf];
+    p = pkd->pStore[msr->N];
     TYPESet(&p, TYPE_GAS);
     p.r[0] = x;
     p.r[1] = y;
@@ -621,6 +618,12 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     p.uPred = u;
     p.fMetals = metals;
     //p.fMetalsPred = metals;
+    msr->nGas += 1;
+    msr->N += 1;
+    msr->nMaxOrderGas = msr->nGas - 1;
+    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+
     pkdNewParticle(pkd, p);
     return 0;
 }
@@ -629,14 +632,10 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
                       double y, double z, double vx, double vy, double vz,
                       double tform, double radius, double metals){
 
-    msr->nStar += 1;
-    msr->N += 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-    
     *index_of_the_particle = msr->N;
     
     PARTICLE p;
-    p = pkd->pStore[pkd->idSelf];
+    p = pkd->pStore[msr->N];
     TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
     p.r[0] = x;
     p.r[1] = y;
@@ -652,6 +651,10 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     p.fBallMax = 0.0;
     p.fMetals = metals;
     p.fNSNtot = 0.0;
+
+    msr->nStar += 1;
+    msr->N += 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
 
     pkdNewParticle(pkd, p);
     return 0;
@@ -682,7 +685,7 @@ int set_state(int index_of_the_particle, double mass, double x, double y,
 int get_state(int index_of_the_particle, double * mass, double * x, 
               double * y, double * z, double * vx, double * vy, double * vz,
               double * radius){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * mass = p->fMass;
     * x = p->r[0];
@@ -704,7 +707,7 @@ int set_state_sph(int index_of_the_particle, double mass, double x, double y,
 int get_state_sph(int index_of_the_particle, double * mass, double * x, 
                   double * y, double * z, double * vx, double * vy, double * vz,
                   double * u, double * h_smooth, double * metals){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * mass = p->fMass;
     * x = p->r[0];
@@ -728,7 +731,7 @@ int set_state_star(int index_of_the_particle, double mass, double x, double y,
 int get_state_star(int index_of_the_particle, double * mass, double * x, 
                    double * y, double * z, double * vx, double * vy, double * vz,
                    double * tform, double * radius, double * metals){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * mass = p->fMass;
     * x = p->r[0];
@@ -780,21 +783,21 @@ int get_center_of_mass_velocity(double * vx, double * vy, double * vz){
 }
 
 int get_radius(int index_of_the_particle, double * radius){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * radius = p->fSoft;
     return 0;
 }
 
 int get_metallicity(int index_of_the_particle, double * metals){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * metals = p->fMetals;
     return 0;
 }
 
 int get_star_tform(int index_of_the_particle, double * tform){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * tform = p->fTimeForm;
     return 0;
@@ -830,7 +833,7 @@ int get_gravity_at_point(double eps, double x, double y, double z,
 }
 
 int get_velocity(int index_of_the_particle, double * vx, double * vy, double * vz){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * vx = p->v[0];
     * vy = p->v[1];
@@ -839,14 +842,14 @@ int get_velocity(int index_of_the_particle, double * vx, double * vy, double * v
 }
 
 int get_internal_energy(int index_of_the_particle, double * u){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * u = p->u;
     return 0;
 }
 
 int get_position(int index_of_the_particle, double * x, double * y, double * z){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * x = p->r[0];
     * y = p->r[1];
@@ -860,7 +863,7 @@ int set_position(int index_of_the_particle, double x, double y, double z){
 
 int get_acceleration(int index_of_the_particle, double * ax, double * ay, 
                      double * az){
-    int id = msr->pMap[index_of_the_particle];
+    int id = index_of_the_particle;
     p = &pkd->pStore[id];
     * ax = p->a[0];
     * ay = p->a[1];
