@@ -6,13 +6,17 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <assert.h>
 #include "mdl.h"
 #include "master.h"
 #include "outtype.h"
 #include "smoothfcn.h"
+#include "param.h"
+
 
 /*DEBUG for FPE trapping... (not defined on most systems)*/
 #ifdef SETTRAPFPE
@@ -35,6 +39,273 @@ double dWMax=0,dIMax=0,dEMax=0,dMass=0,dMultiEff=0;
 long lSec=0,lStart;
 int i,j=0,iStep,bOutTime,iSec=0,iStop=0,nActive,nOutputList, OutputList[NUMOUTPUTS];
 char achBaseMask[256];
+
+// Replace file reading function, which also initializes particle store
+double amuseInitStore(){// Replaces msrReadTipsy
+//	struct dump h;
+	struct inReadTipsy in;
+    PST pst0 = msr->pst;
+	LCL *plcl = pst0->plcl;
+	double dTime,aTo,tTo,z;
+	struct inSetParticleTypes intype;
+	double sec,dsec;
+    int nStore;
+
+	msr->N = 0;
+	msr->nDark = 0;
+	msr->nGas = 0;
+	msr->nStar = 0;
+	msr->nMaxOrderGas = msr->nGas - 1;
+	msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;  /* allow creating NIORDERGASBUFFER gas particles */
+	msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+
+	assert(msr->N == msr->nDark+msr->nGas+msr->nStar);
+
+	dTime = 0.;
+	in.dvFac = 1.0;
+
+	msrSetStopStep(msr, dTime);
+
+    // START replace msrOneNodeReadTipsy
+    //nParts = malloc(msr->nThreads*sizeof(*nParts));
+
+    // START replace pkdInitialize
+    PKD pkd;
+    pkd = (PKD)malloc(sizeof(struct pkdContext));
+    pkd->mdl = mdl;
+    pkd->iOrder = msr->param.iOrder;
+    pkd->idSelf = mdlSelf(mdl);
+    pkd->nThreads = mdlThreads(mdl);
+    pkd->nStore = nStore;
+    pkd->nLocal = 0;
+    pkd->nDark = msr->nDark;
+    pkd->nGas = msr->nGas;
+    pkd->nStar = msr->nStar;
+    pkd->nMaxOrderGas = NIORDERGASBUFFER + msr->nGas - 1; 
+    pkd->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    pkd->nRejects = 0;
+    pkd->fPeriod[0] = msr->param.dxPeriod;
+    pkd->fPeriod[1] = msr->param.dyPeriod;
+    pkd->fPeriod[2] = msr->param.dzPeriod;
+    pkd->dxInflow = msr->param.dxInflow;
+    pkd->dxOutflow = msr->param.dxOutflow;
+    pkd->sinkLog.nLog = 0;
+
+    // Allocate memory for particles. Initially: no particles...
+    pkd->pStore = mdlMalloc(pkd->mdl,(nStore+1)*sizeof(PARTICLE));
+    pkd->kdNodes = NULL;
+    pkd->piLeaf = NULL;
+    pkd->kdTop = NULL;    
+
+    /*
+     ** Allocate initial interaction lists
+     */
+    pkd->nMaxPart = 500;
+    pkd->nMaxCellSoft = 500;
+    pkd->nMaxCellNewt = 500;
+    pkd->nSqrtTmp = 500;
+    pkd->ilp = malloc(pkd->nMaxPart*sizeof(ILP));
+    mdlassert(pkd->mdl,pkd->ilp != NULL);
+    pkd->ilcs = malloc(pkd->nMaxCellSoft*sizeof(ILCS));
+    mdlassert(pkd->mdl,pkd->ilcs != NULL);
+    pkd->ilcn = malloc(pkd->nMaxCellNewt*sizeof(ILCN));
+    mdlassert(pkd->mdl,pkd->ilcn != NULL);
+    pkd->sqrttmp = malloc(pkd->nSqrtTmp*sizeof(double));
+    mdlassert(pkd->mdl,pkd->sqrttmp != NULL);
+    pkd->d2a = malloc(pkd->nSqrtTmp*sizeof(double));
+    mdlassert(pkd->mdl,pkd->d2a != NULL);
+    /*
+     ** Ewald stuff!
+     */
+    pkd->nMaxEwhLoop = 100;
+    pkd->ewt = malloc(pkd->nMaxEwhLoop*sizeof(EWT));
+    mdlassert(pkd->mdl,pkd->ewt != NULL);
+    /*
+     * Cooling
+     */
+#ifdef GASOLINE
+#ifndef NOCOOLING
+    pkd->Cool = CoolInit();
+#endif  
+#endif  
+
+    plcl->pkd = pkd;
+
+    // END replace pkdInitialize
+
+    while(pst0->nLeaves > 1)
+		pst0 = pst0->pstLower;
+
+    // END replace msrOneNodeReadTipsy
+
+    return dTime;
+}
+
+// Replacing param.c functions, since we want to avoid parsing parameter
+// files and command line arguments.
+void prmInitialize(PRM *pprm,void (*fcnLeader)(void),void (*fcnTrailer)(void))
+{
+	PRM prm;
+
+	prm = (PRM)malloc(sizeof(struct prmContext));
+	assert(prm != NULL);
+	*pprm = prm;
+	prm->pnHead = NULL;
+	prm->fcnLeader = fcnLeader;
+	prm->fcnTrailer = fcnTrailer;
+	}
+
+void prmFinish(PRM prm)
+{
+	PRM_NODE *pn,*pnKill;
+
+	pn = prm->pnHead;
+	while (pn) {
+		pnKill = pn;
+		pn = pn->pnNext;
+		free(pnKill->pszName);
+		if (pnKill->pszArg) free(pnKill->pszArg);
+		if (pnKill->pszArgUsage) free(pnKill->pszArgUsage);
+		free(pnKill);
+		}
+	free(prm);
+	}
+
+void prmAddParam(PRM prm,char *pszName,int iType,void *pValue,
+				 int iSize,char *pszArg,char *pszArgUsage)
+{
+	PRM_NODE *pn,*pnTail;
+
+	pn = (PRM_NODE *)malloc(sizeof(PRM_NODE));
+	assert(pn != NULL);
+	pn->pszName = (char *)malloc(strlen(pszName)+1);
+	assert(pn->pszName != NULL);
+	strcpy(pn->pszName,pszName);
+	pn->iType = iType;
+	pn->iSize = iSize;
+	pn->bArg = 0;
+	pn->bFile = 0;
+	pn->pValue = pValue;
+	if (pszArg) {
+		pn->pszArg = (char *)malloc(strlen(pszArg)+1);
+		assert(pn->pszArg != NULL);
+		strcpy(pn->pszArg,pszArg);
+		}
+	else pn->pszArg = NULL;
+	if (pszArgUsage) {
+		pn->pszArgUsage = (char *)malloc(strlen(pszArgUsage)+1);
+		assert(pn->pszArgUsage != NULL);
+		strcpy(pn->pszArgUsage,pszArgUsage);
+		}
+	else pn->pszArgUsage = NULL;
+	pn->pnNext = NULL;
+	if (!prm->pnHead) prm->pnHead = pn;
+	else {	
+		pnTail = prm->pnHead;
+		while (pnTail->pnNext) pnTail = pnTail->pnNext;
+		pnTail->pnNext = pn;
+		}
+	}
+
+void prmArgUsage(PRM prm)
+{
+	PRM_NODE *pn;
+
+	if (prm->fcnLeader) (*prm->fcnLeader)();
+	pn = prm->pnHead;
+	while (pn) {
+		if (pn->pszArg && pn->pszArgUsage) {
+			if (pn->iType == 0) {
+				printf("[+%s][-%s] %s\n",pn->pszArg,pn->pszArg,
+					   pn->pszArgUsage);
+				}
+			else {
+				printf("[-%s %s]\n",pn->pszArg,pn->pszArgUsage);
+				}
+			}
+		pn = pn->pnNext;
+		}
+	if (prm->fcnTrailer) (*prm->fcnTrailer)();
+	}
+
+int prmParseParam(PRM prm,char *pszFile)
+{
+	PRM_NODE *pn;
+	char achBuf[PRM_LINE_SIZE];
+	char *p,*q,*pszCmd,t;
+	int iLine,ret;
+    
+    // We must make sure msr->param.achInFile gets set to something
+    // Doesn't matter what, we won't be reading it anyway
+    // But let's be careful and point towards /dev/null
+	p = strcpy(achBuf, "achInFile = /dev/null\n");
+	iLine = 1;
+	pszCmd = p;
+    ++p;
+	while (isalnum((int) *p)||strchr("_$",*p)) {
+		++p;
+		if (*p == 0) break;
+		}
+	t = *p;
+	*p = 0;
+	pn = prm->pnHead;
+	while (pn) {
+		if (!strcmp(pszCmd,pn->pszName)) break;
+		pn = pn->pnNext;
+		}
+	*p = t;
+	while (isspace((int) *p)) {
+		++p;
+		}
+	++p;
+	while (isspace((int) *p)) {
+		++p;
+		}
+	ret = sscanf(p,"%[^\n#]",(char *)pn->pValue);
+	pn->bFile = 1;
+	return(1);
+	}
+
+int prmArgProc(PRM prm,int argc,char **argv){
+	PRM_NODE *pn;
+    char achBuf[PRM_LINE_SIZE];
+    prmParseParam(prm,argv[argc-1]);
+
+	return(1);
+}
+
+int prmArgSpecified(PRM prm,char *pszName)
+{
+	PRM_NODE *pn;
+	
+	pn = prm->pnHead;
+	while (pn) {
+		if (pn->pszArg)
+			if (!strcmp(pn->pszName,pszName)) break;
+		pn = pn->pnNext;
+		}
+	if (!pn) return(0);
+	return(pn->bArg);
+	}
+
+int prmFileSpecified(PRM prm,char *pszName)
+{
+	PRM_NODE *pn;
+	
+	pn = prm->pnHead;	
+	while (pn) {
+		if (!strcmp(pn->pszName,pszName)) break;
+		pn = pn->pnNext;
+		}
+	if (!pn) return(0);
+	return(pn->bFile);
+	}
+
+
+int prmSpecified(PRM prm,char *pszName)
+{
+	return(prmArgSpecified(prm,pszName) || prmFileSpecified(prm,pszName));
+	}
 
 // from pkd.c
 PARTICLE *p;
@@ -99,81 +370,77 @@ int initialize_code(){
     
     lStart=time(0);
     //FIXME Remove argv things
+    // mdlInitialize (MDL null/mpi variants) cares about two arguments:
+    // "-sz", for nThreads,
+    // "+d", for diagnostic output
     mdlInitialize(&mdl,fake_argv,main_ch);
     for(argc = 0; fake_argv[argc]; argc++); /* some MDLs can trash argv */
     //FIXME: Replace this function (in master.c) by individual setters
+    // msrInitialize cares primarily about getting a parameter file
+    // 
     msrInitialize(&msr,mdl,argc,fake_argv);
+    //msr->param.achInFile[0] = 
     
     /*
      ** Read in the binary file, this may set the number of timesteps or
      ** the size of the timestep when the zto parameter is used.
      */
-    dTime = msrReadTipsy(msr);
-    
+    //dTime = msrReadTipsy(msr);
+    dTime = amuseInitStore();
+
+    printf("AMUSE: Gasoline initialized\n");
+
 #ifdef GASOLINE
 #ifndef NOCOOLING
     if (msr->param.iGasModel == GASMODEL_COOLING ||
         msr->param.bStarForm)
         msrInitCooling(msr);
+        printf("AMUSE: Cooling initialized\n");
 #ifdef OUTURBDRIVER
     msrInitouturb(msr, dTime);
+    printf("AMUSE: outurb initialized\n");
 #endif
     if(msr->param.bStarForm)
         msrInitStarLog(msr);
+        printf("AMUSE: StarLog initialized\n");
 #endif
     if(msr->param.bDoSinks && !msr->param.bBHSink)
         msrInitSinkLog(msr);
+        printf("AMUSE: SinkLog initialized\n");
 #endif
     if(msr->param.bRotatingBar)
         msrInitRotatingBar(msr, dTime);
+        printf("AMUSE: RotatingBar initialized\n");
     msrInitStep(msr);
+    printf("AMUSE: Step initialized\n");
 #ifdef GLASS
     msrInitGlass(msr);
+    printf("AMUSE: Glass initialized\n");
 #endif
     dMass = msrMassCheck(msr,-1.0,"Initial");
+    printf("AMUSE: Mass Checked\n");
     if (prmSpecified(msr->prm,"dSoft")) msrSetSoft(msr,msrSoft(msr));
     msrMassCheck(msr,dMass,"After msrSetSoft");
+    printf("AMUSE: Mass Checked after SetSoft\n");
     
     msrSetSink(msr,dTime);
+    printf("AMUSE: Sink Set\n");
 #ifdef AGGS
     /* find and initialize any aggregates */
     msrAggsFind(msr);
+    printf("AMUSE: Searched for Aggs\n");
     msrMassCheck(msr,dMass,"After msrAggsFind");
+    printf("AMUSE: Mass Checked after AggsFind\n");
 #endif
     /*
      ** If the simulation is periodic make sure to wrap all particles into
      ** the "unit" cell. Doing a drift of 0.0 will always take care of this.
      */
     msrDrift(msr,dTime,0.0); /* also finds initial overlaps for COLLISIONS */
+    printf("AMUSE: Initial Drift\n");
     msrMassCheck(msr,dMass,"After initial msrDrift");
+    printf("AMUSE: Mass Checked after initial Drift\n");
     
-    //    if (msrSteps(msr) > 0) {
-    if (msrComove(msr)) {
-        msrSwitchTheta(msr,dTime);
-    }
-    /*
-     ** Now we have all the parameters for the simulation we can make a
-     ** log file entry.
-     */
-    //if (msrLogInterval(msr)) {
-    //    //FIXME Remove logging to file
-    //    //sprintf(achFile,"%s.log",msrOutName(msr));
-    //    fpLog = fopen(achFile,"w");
-    //    assert(fpLog != NULL);
-    //    setbuf(fpLog,(char *) NULL); /* no buffering */
-    //    /*
-    //     ** Include a comment at the start of the log file showing the
-    //     ** command line options.
-    //     */
-    //    //FIXME Change logging from file to stderr
-    //    fprintf(fpLog,"# ");
-    //    //FIXME Remove argv things
-    //    for (i=0;i<argc;++i) fprintf(fpLog,"%s ",fake_argv[i]);
-    //    fprintf(fpLog,"\n");
-    //    msrLogHeader(msr,fpLog);
-    //    /* Timing data, if requested */
-    //    fpLogTiming = LogTimingInit( msr, "w" );
-    //}
     /*
      ** Build tree, activating all particles first (just in case).
      */
@@ -192,15 +459,6 @@ int initialize_code(){
         msrCalcEandL(msr,MSR_INIT_E,dTime,&E,&T,&U,&Eth,L);
         msrMassCheck(msr,dMass,"After msrCalcEandL");
         dMultiEff = 1.0;
-        //if (msrLogInterval(msr)) {
-        //    //FIXME Change logging from file to stderr
-        //    (void) fprintf(fpLog,"%.4e %.4e %.6e %.4e %.4e %.4e %.6e %.6e %.6e "
-        //                   "%i %.4e %.4e %.4e %.4e\n",dTime,
-        //                   1.0/csmTime2Exp(msr->param.csm,dTime)-1.0,
-        //                   E,T,U,Eth,L[0],L[1],L[2],iSec,dWMax,dIMax,dEMax,
-        //                   dMultiEff);
-        //}
-        /* LogTimingOutput( msr, fpLogTiming, dTime, 0 ); */
     }
 #ifdef GASOLINE
     msrInitSph(msr,dTime);
@@ -209,11 +467,11 @@ int initialize_code(){
     if (msr->param.bInflowOutflow) msrModifyAccel(msr,dTime); /* zero acceleration of inflow/outflow particles */
 #endif
     if (msr->param.bDoSinksAtStart) msrDoSinks(msr, dTime, 0.0, 0);
-    /*
-     ** Dump Frame Initialization
-     */
-    //msrDumpFrameInit( msr, dTime, 1.0*msr->param.iStartStep, 0);
     
+    return 0;
+}
+
+int commit_particles(){
     return 0;
 }
 
@@ -223,14 +481,8 @@ int evolve_model(double time_end){
     while(1) {
         iStep++;
         printf("dTime: %f  iStep: %i\n\n", dTime, iStep);
-        //dTime = (double)iStep;
-        //printf("recalculated dTime: %f  iStep: %i\n\n", dTime, iStep);
         if (dTime > time_end) {
             break;
-        }
-        //for (iStep=msr->param.iStartStep+1;iStep<=msr->param.iStopStep;++iStep) {
-        if (msrComove(msr)) {
-            msrSwitchTheta(msr,dTime);
         }
         if (msrKDK(msr)) {
             dMultiEff = 0.0;
@@ -243,30 +495,11 @@ int evolve_model(double time_end){
                               &dEMax,&iSec);
             }
             
-            /* msrRungStats(msr); This is useless */
             msrCoolVelocity(msr,dTime,dMass);	/* Supercooling if specified */
             msrMassCheck(msr,dMass,"After CoolVelocity in KDK");
             dTime += msrDelta(msr);
-            //if(iStep%msr->param.iOrbitOutInterval == 0) {
-            //    msrOutputBlackHoles(msr, dTime);
-            //}
             
             lSec = time(0) - lSec;
-            /*
-             ** Output a log file line if requested.
-             ** Note: no extra gravity calculation required.
-             */
-            //if (msrLogInterval(msr) && iStep%msrLogInterval(msr) == 0) {
-            //    msrCalcEandL(msr,MSR_STEP_E,dTime,&E,&T,&U,&Eth,L);
-            //    msrMassCheck(msr,dMass,"After msrCalcEandL in KDK");
-            //    //FIXME Change logging from file to stderr
-            //    (void) fprintf(fpLog,"%.4e %.4e %.6e %.4e %.4e %.4e %.6e %.6e %.6e "
-            //                   "%li %.4e %.4e %.4e %.4e\n",dTime,
-            //                   1.0/csmTime2Exp(msr->param.csm,dTime)-1.0,
-            //                   E,T,U,Eth,L[0],L[1],L[2],lSec,dWMax,dIMax,dEMax,
-            //                   dMultiEff);
-            //}
-            //LogTimingOutput( msr, fpLogTiming, dTime, 0 );
         }
         else {
             lSec = time(0);
@@ -277,313 +510,19 @@ int evolve_model(double time_end){
             msrMassCheck(msr,dMass,"After CoolVelocity in DKD");
             msrGrowMass(msr,dTime,msrDelta(msr)); /* Grow Masses if specified */
             dTime += msrDelta(msr);
-            //if (msrLogInterval(msr) && iStep%msrLogInterval(msr) == 0) {
-            //    /*
-            //     ** Output a log file line.
-            //     ** Reactivate all particles.
-            //     */
-            //    if (msrDoGravity(msr)) {
-            //        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE);
-            //        msrDomainDecomp(msr,0,1);
-            //        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE);
-            //        msrUpdateSoft(msr,dTime);
-            //        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE);
-            //        msrBuildTree(msr,0,dMass,0);
-            //        msrMassCheck(msr,dMass,"After msrBuildTree in DKD-log");
-            //        msrInitAccel(msr);
-            //        msrGravity(msr,iStep,msrDoSun(msr),&iSec,&dWMax,&dIMax,&dEMax,&nActive);
-            //        msrMassCheck(msr,dMass,"After msrGravity in DKD-log");
-            //    }
-            //    msrCalcEandL(msr,MSR_STEP_E,dTime,&E,&T,&U,&Eth,L);
-            //    msrMassCheck(msr,dMass,"After msrCalcEandL in DKD-log");
-            //    //FIXME Change logging from file to stderr
-            //    (void) fprintf(fpLog,"%.4e %.4e %.6e %.4e %.4e %.4e %.6e %.6e %.6e "
-            //                   "%li %.4e %.4e %.4e %.4e\n",dTime,
-            //                   1.0/csmTime2Exp(msr->param.csm,dTime)-1.0,
-            //                   E,T,U,Eth,L[0],L[1],L[2],time(0)-lSec,dWMax,dIMax,dEMax,
-            //                   dMultiEff);
-            //    
-            //}
-            //LogTimingOutput( msr, fpLogTiming, dTime, 0 );
             lSec = time(0) - lSec;
         }
-        /*
-         ** Check for user interrupt.
-         */
-        //iStop = msrCheckForStop(msr);
-        /*
-         ** Output if 1) we've hit an output time
-         **           2) We are stopping
-         **           3) we're at an output interval
-         */
-        //if (msr->param.iTreeZipStep && (iStep % msr->param.iTreeZipStep)==0) msrTreeZip(msr,iStep);
-        
-        //if ((bOutTime=msrOutTime(msr,dTime)) || iStep == msr->param.iStopStep || iStop ||
-        //    (msrOutInterval(msr) > 0 && iStep%msrOutInterval(msr) == 0)  ||
-        //    (msr->param.iOutMinorInterval && (iStep%msr->param.iOutMinorInterval == 0))) {
-        //    int bDensitySmooth;
-        //    if (msr->nGas && !msr->param.bKDK) {
-        //        msrActiveType(msr,TYPE_GAS,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-        //        msrBuildTree(msr,1,-1.0,1);
-        //        msrSmooth(msr,dTime,SMX_DENSITY,1);
-        //    }
-        //    bDensitySmooth = msrDoDensity(msr) || msr->param.bDohOutput;
-        //    msrSelectOutputList(msr, &nOutputList, OutputList, iStep, bOutTime, &bDensitySmooth);
-        //    
-        //    if (bDensitySmooth) {
-        //        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-        //        msrDomainDecomp(msr,0,1);
-        //        msrBuildTree(msr,0,dMass,1);
-        //        msrSmooth(msr,dTime,SMX_DENSITYTMP,1);
-        //        if (!msr->param.bNoReOrder) msrReorder(msr);
-        //    }
-        //    if (!msr->param.bNoReOrder) {
-        //        msrReorder(msr);
-        //        msrMassCheck(msr,dMass,"After msrReorder in OutTime");
-        //    }
-        //    //FIXME Remove logging to file
-        //    //sprintf(achFile,msr->param.achDigitMask,msrOutName(msr),iStep);
-        //    //msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-        //    //msrFlushStarLog(msr);
-        //    //msrFlushSinkLog(msr);
-        //    /*
-        //     ** Don't allow duplicate outputs.
-        //     */
-        //    while (msrOutTime(msr,dTime));
-        //}
-        //if (!iStop && msr->param.iWallRunTime > 0) {
-        //    if (msr->param.iWallRunTime*60 - (time(0)-lStart) < ((int) (lSec*1.5)) ) {
-        //        printf("RunTime limit exceeded.  Writing checkpoint and exiting.\n");
-        //        printf("    iWallRunTime(sec): %d   Time running: %ld   Last step: %ld\n",
-        //               msr->param.iWallRunTime*60,time(0)-lStart,lSec);
-        //        iStop = 1;
-        //    }
-        //}
-        //if (iStop || iStep == msr->param.iStopStep ||
-        //    (msrCheckInterval(msr) && iStep%msrCheckInterval(msr) == 0)) {
-        //    /*
-        //     ** Write a checkpoint.
-        //     */
-        //    msrFlushStarLog(msr);
-        //    msrFlushSinkLog(msr);
-        //    msrWriteCheck(msr,dTime,iStep);
-        //    msrMassCheck(msr,dMass,"After msrWriteCheck");
-        //Restart:
-        //    ;
-        //}
-        //if (iStop) break;
     }
-    //if (msrLogInterval(msr)) {
-    //    (void) fclose(fpLog);
-    //    LogTimingFinish( msr, fpLogTiming, dTime );
-    //}
-    //if (msr->param.bVStart) printf("Integration complete\n");
-    //    }
-    //    else {
-    //        /* Do DiagnosticOutput */
-    //        struct inInitDt in;
-    //        msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-    //        
-    //        in.dDelta = 1e37; /* large number */
-    //        pstInitDt(msr->pst,&in,sizeof(in),NULL,NULL);
-    //        msrInitAccel(msr);
-    //        //puts("Initialized Accel and dt\n");
-    //        //FIXME Remove logging to file
-    //        //sprintf(achFile,"%s",msrOutName(msr));
-    //        
-    //        if (msrRestart(msr)) {
-    //            msrReorder(msr);
-    //            //FIXME Remove logging to file
-    //            //sprintf(achFile,"%s",msrOutName(msr));
-    //            //FIXME Writing output here
-    //            //msrWriteTipsy(msr,achFile,dTime);
-    //        }
-    //        
-    //        if (msrDoGravity(msr)) {
-    //            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE );
-    //            msrDomainDecomp(msr,0,1);
-    //            msrUpdateSoft(msr,dTime);
-    //            msrBuildTree(msr,0,dMass,0);
-    //            msrMassCheck(msr,dMass,"After msrBuildTree in OutSingle Gravity");
-    //            msrGravity(msr,0.0,msrDoSun(msr),&iSec,&dWMax,&dIMax,&dEMax,&nActive);
-    //            msrMassCheck(msr,dMass,"After msrGravity in OutSingle Gravity");
-    //            msrReorder(msr);
-    //            msrMassCheck(msr,dMass,"After msrReorder in OutSingle Gravity");
-    //            nOutputList = 0;
-    //            OutputList[nOutputList++]=OUT_ACCELG_VECTOR;
-    //            OutputList[nOutputList++]=OUT_POT_ARRAY;
-    //            msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-    //            msrMassCheck(msr,dMass,"After msrOutArray in OutSingle Gravity");
-    //        }
-    //#ifdef GASOLINE
-    //        if (msr->nGas > 0) {
-    //            msrInitSph(msr,dTime);
-    //            msrCreateGasStepZeroOutputList(msr, &nOutputList,OutputList);
-    //            OutputList[(nOutputList)++]=OUT_METALSDOT_ARRAY;
-    //#ifdef STARFORM
-    //            OutputList[(nOutputList)++]=OUT_OXYGENMASSFRACDOT_ARRAY;
-    //            OutputList[(nOutputList)++]=OUT_IRONMASSFRACDOT_ARRAY;
-    //#endif
-    //#ifndef NOCOOLING
-    //            
-    //            if (msr->param.bGasCooling) {
-    //                OutputList[nOutputList++]=OUT_COOL_EDOT_ARRAY;
-    //                OutputList[nOutputList++]=OUT_COOL_COOLING_ARRAY;
-    //                OutputList[nOutputList++]=OUT_COOL_HEATING_ARRAY;
-    //            }
-    //#endif
-    //            if (msr->param.bSphStep) {
-    //                //FIXME Change logging from file to stderr
-    //                //fprintf(stdout,"Adding SphStep dt\n");
-    //                msrSphStep(msr,dTime,0);
-    //            }
-    //            msrReorder(msr);
-    //            //msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-    //            //msrFlushStarLog(msr);
-    //            //msrFlushSinkLog(msr);
-    //        }
-    //#endif /* GASOLINE */
-    //        /*
-    //         ** Build tree, activating all particles first (just in case).
-    //         */
-    //        if (msrDoDensity(msr) || msr->param.bDensityStep) {
-    //            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-    //            msrDomainDecomp(msr,0,1);
-    //            msrBuildTree(msr,0,-1.0,1);
-    //            msrMassCheck(msr,dMass,"After msrBuildTree in OutSingle Density");
-    //            //printf("Calculating DENSITYTMP\n");
-    //            /* Note: this is a gather-scatter density -- different to SPH DENDVDX
-    //             (same if we used msrSmooth(msr,dTime,SMX_DENSITYTMP,0) */
-    //            msrSmooth(msr,dTime,SMX_DENSITYTMP,1);
-    //            msrMassCheck(msr,dMass,"After msrSmooth in OutSingle Density");
-    //        }
-    //        if (msrDoDensity(msr)) {
-    //            msrReorder(msr);
-    //            msrMassCheck(msr,dMass,"After msrReorder in OutSingle Density");
-    //            //nOutputList = 0;
-    //            //OutputList[nOutputList++]=OUT_DENSITY_ARRAY;
-    //            //msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-    //            /*	sprintf(achFile,"%s.den",msrOutName(msr));
-    //             msrReorder(msr);
-    //             msrOutArray(msr,achFile,OUT_DENSITY_ARRAY);*/
-    //            msrMassCheck(msr,dMass,"After msrOutArray in OutSingle Density");
-    //            
-    //        }
-    //        
-    //        if (msrDoGravity(msr)) {
-    //            if (msr->param.bGravStep) {
-    //                //FIXME Change logging from file to stderr
-    //                //fprintf(stdout,"Adding GravStep dt\n");
-    //                msrGravStep(msr,dTime);
-    //            }
-    //            if (msr->param.bAccelStep) {
-    //                //FIXME Change logging from file to stderr
-    //                //fprintf(stdout,"Adding AccelStep dt\n");
-    //                msrAccelStep(msr,dTime);
-    //            }
-    //        }
-    //        
-    //        if (msr->param.bDensityStep) {
-    //            //FIXME Change logging from file to stderr
-    //            //fprintf(stdout,"Adding DensStep dt\n");
-    //            msrDensityStep(msr,dTime);
-    //        }
-    //        
-    //        if (msr->param.bDeltaAccelStep) {
-    //            //FIXME Change logging from file to stderr
-    //            //fprintf(stdout,"Adding DeltaAccelStep dt\n");
-    //            if (!msr->param.bDeltaAccelStepGasTree) {
-    //                msrActiveType(msr,TYPE_ALL,TYPE_TREEACTIVE);
-    //                msrBuildTree(msr,0,-1.0,1);
-    //            }
-    //            else {
-    //                msrActiveType(msr,TYPE_GAS,TYPE_TREEACTIVE);
-    //                msrBuildTree(msr,0,-1.0,1);
-    //            }
-    //            msrActiveType(msr,TYPE_ALL,TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-    //            msrBuildTree(msr,0,-1.0,1);
-    //            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-    //            /* This smooth sets dt directly -- hardwired coefficient */
-    //            msrSmooth(msr,dTime,SMX_DELTAACCEL,0);
-    //        }
-    //        msrReorder(msr);
-    //        //nOutputList = 0;
-    //        //OutputList[nOutputList++]=OUT_DT_ARRAY;
-    //        if(msr->param.iMaxRung > 1
-    //           && (msr->param.iRungForceCheck || msr->param.bDensityStep || msrDoGravity(msr))) {
-    //            msrActiveType(msr,TYPE_ALL,TYPE_ACTIVE|TYPE_TREEACTIVE|TYPE_SMOOTHACTIVE);
-    //            msrDtToRung(msr,0,msrDelta(msr),1);
-    //            msrRungStats(msr);
-    //            //OutputList[nOutputList++]=OUT_RUNG_ARRAY;
-    //        }
-    //        
-    //        //msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-    //        
-    //        if (msr->param.iRungForceCheck != 0) {
-    //            if (msr->param.iRungForceCheck > 0)
-    //                msrActiveMaskRung(msr,TYPE_ACTIVE,msr->param.iRungForceCheck,1);
-    //            else {
-    //                assert(msr->param.iRungForceCheck > 0);
-    //                /* Set active randomly -- e.g. every second particle */
-    //                /* msriOrderToRung(msr,0,msrDelta(msr),1); */
-    //            }
-    //            
-    //            
-    //            printf("Force check on %d particles active on rung %d (max %d)\n",msr->nActive,msr->param.iRungForceCheck,msr->iCurrMaxRung);
-    //            if (msr->param.iRungForceCheck > msr->iCurrMaxRung) msr->param.iRungForceCheck = msr->iCurrMaxRung;
-    //            
-    //            if (msr->nActive) {
-    //                int nActive;
-    //                msrDomainDecomp(msr,msr->param.iRungForceCheck,1);
-    //                msrInitAccel(msr);
-    //                
-    //                printf("Forces, Step:%f nActive %i\n",0.,msr->nActive);
-    //                if(msrDoGravity(msr)) {
-    //                    if (msr->param.bDoSelfGravity) {
-    //                        msrActiveRung(msr,msr->param.iRungForceCheck,1);
-    //                        msrUpdateSoft(msr,dTime);
-    //                        msrActiveType(msr,TYPE_ALL,TYPE_TREEACTIVE);
-    //                        printf("Gravity, iRung: %d to %d\n", msr->param.iRungForceCheck, msr->param.iRungForceCheck);
-    //                        msrBuildTree(msr,0,dMass,0);
-    //                    }
-    //                    msrGravity(msr,0.0,msrDoSun(msr),&iSec,&dWMax,&dIMax,&dEMax,&nActive);
-    //                }
-    //                
-    //#ifdef GASOLINE
-    //                if(msrDoGas(msr) && msrSphCurrRung(msr,msr->param.iRungForceCheck,1)) {
-    //                    printf("SPH: iRung %d to %d\n",msr->param.iRungForceCheck,msr->param.iRungForceCheck);
-    //                    msrSph(msr, dTime, msr->param.iRungForceCheck);
-    //                }
-    //#endif			 
-    //                msrReorder(msr);
-    //                //nOutputList = 2;
-    //                //OutputList[0]=OUT_ACCELRFC_VECTOR;
-    //                //OutputList[1]=OUT_PDVRFC_ARRAY;
-    //                //if (msrDoDensity(msr)) OutputList[nOutputList++]=OUT_DENSITYRFC_ARRAY;
-    //                
-    //                //msrWriteOutputs(msr, achFile, OutputList, nOutputList, dTime);
-    //            }
-    //            
-    //        }
-    //    }
-    
-    //msr->param.iStartStep = msr->param.iStopStep;
     return 0;
 }
 
 int cleanup_code(){
-    //dfFinalize( msr->df[0] );
-    
     msrFinish(msr);
     mdlFinish(mdl);
     return 0;
 }
 
 int get_mass(int id, double * mass){
-    return 0;
-}
-
-int commit_particles(){
     return 0;
 }
 
@@ -695,15 +634,37 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
 int new_star_particle(int * index_of_the_particle, double mass, double x, 
                       double y, double z, double vx, double vy, double vz,
                       double eps, double phi, double metals, double tform){
+
     msr->nStar += 1;
     msr->N += 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+    PARTICLE p;
+    TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
+    p.r[0] = x;
+    p.r[1] = y;
+    p.r[2] = z;
+    p.v[0] = vx;
+    p.v[1] = vy;
+    p.v[2] = vz;
+    p.fMass = mass;
+    p.fMassForm = mass;
+    p.fSoft = eps;
+    p.fSoft0 = eps;
+    p.fTimeForm = tform;
+    p.fBallMax = 0.0;
+    // p.iGasOrder = // probably set to number of particles
+    p.fMetals = metals;
+    p.fNSNtot = 0.0;
+
+    pkdNewParticle(pkd, p);
     return 0;
 }
 
 int delete_particle(int index_of_the_particle){
     // Check if particle is dm, star or sph
     // make sure index_of_the_particle is adjusted for all following particles
+    //
+    // pkdDeleteParticle(pkd,&pkd->pStore[pDel->iIndex]);
     msr->N -= 1;
     return -1;
 }
