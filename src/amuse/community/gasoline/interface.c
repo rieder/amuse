@@ -364,7 +364,7 @@ int set_defaults(){
 
 int initialize_code(){
     fake_argv[0] = "./gasoline_worker";
-    fake_argv[1] = "param.dat";
+    fake_argv[1] = "/dev/null";
     fake_argv[2] = NULL;
     argc = 2;
     
@@ -375,17 +375,8 @@ int initialize_code(){
     // "+d", for diagnostic output
     mdlInitialize(&mdl,fake_argv,main_ch);
     for(argc = 0; fake_argv[argc]; argc++); /* some MDLs can trash argv */
-    //FIXME: Replace this function (in master.c) by individual setters
-    // msrInitialize cares primarily about getting a parameter file
-    // 
     msrInitialize(&msr,mdl,argc,fake_argv);
-    //msr->param.achInFile[0] = 
     
-    /*
-     ** Read in the binary file, this may set the number of timesteps or
-     ** the size of the timestep when the zto parameter is used.
-     */
-    //dTime = msrReadTipsy(msr);
     dTime = amuseInitStore();
 
     printf("AMUSE: Gasoline initialized\n");
@@ -522,7 +513,7 @@ int cleanup_code(){
     return 0;
 }
 
-int get_mass(int id, double * mass){
+int get_mass(int index_of_the_particle, double * mass){
     return 0;
 }
 
@@ -531,7 +522,7 @@ int get_time(double * time){
     return 0;
 }
 
-int set_mass(int id, double mass){
+int set_mass(int index_of_the_particle, double mass){
     return 0;
 }
 
@@ -808,15 +799,15 @@ int get_gravity_at_point(double eps, double x, double y, double z,
     return 0;
 }
 
-int get_velocity(int id, double * vx, double * vy, double * vz){
+int get_velocity(int index_of_the_particle, double * vx, double * vy, double * vz){
     return 0;
 }
 
-int get_internal_energy(int id, double * u){
+int get_internal_energy(int index_of_the_particle, double * u){
     return 0;
 }
 
-int get_position(int id, double * x, double * y, double * z){
+int get_position(int index_of_the_particle, double * x, double * y, double * z){
     PST pst0;
     LCL *plcl;
     int i = 1;
@@ -828,7 +819,7 @@ int get_position(int id, double * x, double * y, double * z){
     return 0;
 }
 
-int set_position(int id, double x, double y, double z){
+int set_position(int index_of_the_particle, double x, double y, double z){
     return 0;
 }
 
@@ -841,11 +832,11 @@ int commit_parameters(){
     return 0;
 }
 
-int set_velocity(int id, double vx, double vy, double vz){
+int set_velocity(int index_of_the_particle, double vx, double vy, double vz){
     return 0;
 }
 
-int set_internal_energy(int id, double u){
+int set_internal_energy(int index_of_the_particle, double u){
     return 0;
 }
 
