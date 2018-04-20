@@ -41,7 +41,7 @@ int i,j=0,iStep,bOutTime,iSec=0,iStop=0,nActive,nOutputList, OutputList[NUMOUTPU
 char achBaseMask[256];
 
 // Replace file reading function, which also initializes particle store
-double amuseInitStore(){// Replaces msrReadTipsy
+double amuseInitStore(int nStore){// Replaces msrReadTipsy
 //	struct dump h;
 	struct inReadTipsy in;
     PST pst0 = msr->pst;
@@ -49,7 +49,6 @@ double amuseInitStore(){// Replaces msrReadTipsy
 	double dTime,aTo,tTo,z;
 	struct inSetParticleTypes intype;
 	double sec,dsec;
-    int nStore;
 
 	msr->N = 0;
 	msr->nDark = 0;
@@ -367,6 +366,8 @@ int initialize_code(){
     fake_argv[1] = "/dev/null";
     fake_argv[2] = NULL;
     argc = 2;
+
+    int nStore = 100; //FIXME: this is the maximum number of particles!
     
     lStart=time(0);
     //FIXME Remove argv things
@@ -377,7 +378,7 @@ int initialize_code(){
     for(argc = 0; fake_argv[argc]; argc++); /* some MDLs can trash argv */
     msrInitialize(&msr,mdl,argc,fake_argv);
     
-    dTime = amuseInitStore();
+    dTime = amuseInitStore(nStore);
 
     printf("AMUSE: Gasoline initialized\n");
 
@@ -572,14 +573,19 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     msr->N += 1;
     msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-    pst = msr->pst;
-    plcl = pst->plcl;
-    pkd = plcl->pkd;
-    pkd->nStore += 1;
+    //pst = msr->pst;
+    //plcl = pst->plcl;
+    //pkd = plcl->pkd;
+    //pkd->nStore += 1;
 
-    *index_of_the_particle = msr->N;
+    printf("pkd idSelf: %i\n", pkd->idSelf);
+    printf("pkd nLocal: %i\n", pkd->nLocal);
+    printf("pkd nStore: %i\n", pkd->nStore);
+    *index_of_the_particle = pkd->idSelf;
     
     PARTICLE p;
+
+    p = pkd->pStore[pkd->idSelf];
     p.r[0] = x;
     p.r[1] = y;
     p.r[2] = z;
@@ -588,7 +594,7 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     p.v[2] = vz;
     p.fMass = mass;
     p.fSoft = radius;
-    //p->fPot = phi;
+    //p.fPot = phi;
     pkdNewParticle(pkd, p);
     return 0;
 }
@@ -599,33 +605,31 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     msr->nGas += 1;
     msr->N += 1;
     msr->nMaxOrderGas = msr->nGas - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
     msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+    //pst = msr->pst;
+    //plcl = pst->plcl;
+    //pkd = plcl->pkd;
+    pkd->nStore += 1;
+
     *index_of_the_particle = msr->N;
-    i = *index_of_the_particle;
-    p = &pkd->pStore[i];
     
-    //    p->iOrder = ???;
-    //#if NIORDERGASBUFFER
-    //    if (p->iOrder >= pkd->nGas) p->iOrder += NIORDERGASBUFFER;
-    //#endif
-    
-    p->r[0] = x;
-    p->r[1] = y;
-    p->r[2] = z;
-    p->v[0] = vx;
-    p->v[1] = vy;
-    p->v[2] = vz;
-    p->fMass = mass;
-    p->fSoft = h_smooth;
-    //p->fPot = phi;
-    //p->fDensity = rho;
-    p->u = u;
-    p->uPred = u;
-    p->fMetals = metals;
-    p->fMetalsPred = metals;
-    
+    PARTICLE p;
+    TYPESet(&p, TYPE_GAS);
+    p.r[0] = x;
+    p.r[1] = y;
+    p.r[2] = z;
+    p.v[0] = vx;
+    p.v[1] = vy;
+    p.v[2] = vz;
+    p.fMass = mass;
+    p.fSoft = h_smooth;
+    //p.fPot = phi;
+    p.u = u;
+    p.uPred = u;
+    p.fMetals = metals;
+    //p.fMetalsPred = metals;
+    pkdNewParticle(pkd, p);
     return 0;
 }
 
@@ -636,6 +640,11 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     msr->nStar += 1;
     msr->N += 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+    
+    pkd->nStore += 1;
+
+    *index_of_the_particle = msr->N;
+    
     PARTICLE p;
     TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
     p.r[0] = x;
@@ -650,7 +659,6 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     p.fSoft0 = radius;
     p.fTimeForm = tform;
     p.fBallMax = 0.0;
-    // p.iGasOrder = // probably set to number of particles
     p.fMetals = metals;
     p.fNSNtot = 0.0;
 
