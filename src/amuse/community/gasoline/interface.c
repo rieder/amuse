@@ -515,6 +515,9 @@ int cleanup_code(){
 }
 
 int get_mass(int index_of_the_particle, double * mass){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * mass = p->fMass;
     return 0;
 }
 
@@ -777,14 +780,23 @@ int get_center_of_mass_velocity(double * vx, double * vy, double * vz){
 }
 
 int get_radius(int index_of_the_particle, double * radius){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * radius = p->fSoft;
     return 0;
 }
 
 int get_metallicity(int index_of_the_particle, double * metals){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * metals = p->fMetals;
     return 0;
 }
 
 int get_star_tform(int index_of_the_particle, double * tform){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * tform = p->fTimeForm;
     return 0;
 }
 
@@ -818,22 +830,27 @@ int get_gravity_at_point(double eps, double x, double y, double z,
 }
 
 int get_velocity(int index_of_the_particle, double * vx, double * vy, double * vz){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * vx = p->v[0];
+    * vy = p->v[1];
+    * vz = p->v[2];
     return 0;
 }
 
 int get_internal_energy(int index_of_the_particle, double * u){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * u = p->u;
     return 0;
 }
 
 int get_position(int index_of_the_particle, double * x, double * y, double * z){
-    PST pst0;
-    LCL *plcl;
-    int i = 1;
-    pst0 = msr->pst;
-    plcl = pst0->plcl;
-    *x = plcl->pkd->pStore[i].r[0];
-    *y = plcl->pkd->pStore[i].r[1];
-    *z = plcl->pkd->pStore[i].r[2];
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * x = p->r[0];
+    * y = p->r[1];
+    * z = p->r[2];
     return 0;
 }
 
@@ -843,6 +860,11 @@ int set_position(int index_of_the_particle, double x, double y, double z){
 
 int get_acceleration(int index_of_the_particle, double * ax, double * ay, 
                      double * az){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * ax = p->a[0];
+    * ay = p->a[1];
+    * az = p->a[2];
     return 0;
 }
 
