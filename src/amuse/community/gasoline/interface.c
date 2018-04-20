@@ -573,18 +573,10 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     msr->N += 1;
     msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-    //pst = msr->pst;
-    //plcl = pst->plcl;
-    //pkd = plcl->pkd;
-    //pkd->nStore += 1;
 
-    printf("pkd idSelf: %i\n", pkd->idSelf);
-    printf("pkd nLocal: %i\n", pkd->nLocal);
-    printf("pkd nStore: %i\n", pkd->nStore);
     *index_of_the_particle = pkd->idSelf;
     
     PARTICLE p;
-
     p = pkd->pStore[pkd->idSelf];
     p.r[0] = x;
     p.r[1] = y;
@@ -607,14 +599,11 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     msr->nMaxOrderGas = msr->nGas - 1;
     msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-    //pst = msr->pst;
-    //plcl = pst->plcl;
-    //pkd = plcl->pkd;
-    pkd->nStore += 1;
 
     *index_of_the_particle = msr->N;
     
     PARTICLE p;
+    p = pkd->pStore[pkd->idSelf];
     TYPESet(&p, TYPE_GAS);
     p.r[0] = x;
     p.r[1] = y;
@@ -641,11 +630,10 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     msr->N += 1;
     msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
     
-    pkd->nStore += 1;
-
     *index_of_the_particle = msr->N;
     
     PARTICLE p;
+    p = pkd->pStore[pkd->idSelf];
     TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
     p.r[0] = x;
     p.r[1] = y;
