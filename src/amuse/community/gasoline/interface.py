@@ -699,7 +699,7 @@ class Gasoline(
         object.add_getter('dm_particles', 'get_position')
         object.add_setter('dm_particles', 'set_velocity')
         object.add_getter('dm_particles', 'get_velocity')
-        object.add_getter('dm_particles', 'get_acceleration')
+        #object.add_getter('dm_particles', 'get_acceleration')
         object.add_setter('dm_particles', 'set_radius')
         object.add_getter('dm_particles', 'get_radius',
                 names=('epsilon',))
@@ -715,7 +715,7 @@ class Gasoline(
         object.add_getter('gas_particles', 'get_position')
         object.add_setter('gas_particles', 'set_velocity')
         object.add_getter('gas_particles', 'get_velocity')
-        object.add_getter('gas_particles', 'get_acceleration')
+        #object.add_getter('gas_particles', 'get_acceleration')
         object.add_setter('gas_particles', 'set_internal_energy')
         object.add_getter('gas_particles', 'get_internal_energy')
         object.add_setter('gas_particles', 'set_metallicity')

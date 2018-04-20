@@ -701,7 +701,18 @@ int set_state_sph(int index_of_the_particle, double mass, double x, double y,
 int get_state_sph(int index_of_the_particle, double * mass, double * x, 
                   double * y, double * z, double * vx, double * vy, double * vz,
                   double * u, double * h_smooth, double * metals){
-    //id = msr->pMap[index_of_the_particle];
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * mass = p->fMass;
+    * x = p->r[0];
+    * y = p->r[1];
+    * z = p->r[2];
+    * vx = p->v[0];
+    * vy = p->v[1];
+    * vz = p->v[2];
+    * u = p->u;
+    * h_smooth = p->fSoft;
+    * metals = p->fMetals;
     return 0;
 }
 
@@ -714,7 +725,18 @@ int set_state_star(int index_of_the_particle, double mass, double x, double y,
 int get_state_star(int index_of_the_particle, double * mass, double * x, 
                    double * y, double * z, double * vx, double * vy, double * vz,
                    double * tform, double * radius, double * metals){
-    //id = msr->pMap[index_of_the_particle];
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * mass = p->fMass;
+    * x = p->r[0];
+    * y = p->r[1];
+    * z = p->r[2];
+    * vx = p->v[0];
+    * vy = p->v[1];
+    * vz = p->v[2];
+    * tform = p->fTimeForm;
+    * radius = p->fSoft;
+    * metals = p->fMetals;
     return 0;
 }
 
