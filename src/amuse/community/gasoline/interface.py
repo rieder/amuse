@@ -42,22 +42,8 @@ class GasolineInterface(
                 **keyword_arguments)
         LiteratureReferencesMixIn.__init__(self)
 
-    def new_particle(self, mass, x, y, z, vx, vy, vz):
-        return self.new_dark_particle(mass, x, y, z, vx, vy, vz)
-
-    @legacy_function
-    def new_sph_particle():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter(
-                'index_of_the_particle',
-                dtype='int32',
-                direction=function.OUT)
-        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'eps', 'phi', 'rho',
-                'u', 'metals']:
-            function.addParameter(x, dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
-        return function
+    def new_particle(self, mass, x, y, z, vx, vy, vz, radius = 0.0):
+        return self.new_dm_particle(mass, x, y, z, vx, vy, vz, radius)
 
     @legacy_function
     def new_dm_particle():
@@ -67,8 +53,26 @@ class GasolineInterface(
                 'index_of_the_particle',
                 dtype='int32',
                 direction=function.OUT)
-        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'eps', 'phi']:
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
             function.addParameter(x, dtype='float64', direction=function.IN)
+        #function.addParameter('phi', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('radius', dtype='float64', direction=function.IN, default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def new_sph_particle():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+                'index_of_the_particle',
+                dtype='int32',
+                direction=function.OUT)
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u']:
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter('h_smooth', dtype='float64', direction=function.IN, default = 0)
+        #function.addParameter('phi', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('metals', dtype='float64', direction=function.IN, default = 0)
         function.result_type = 'int32'
         return function
 
@@ -80,9 +84,12 @@ class GasolineInterface(
                 'index_of_the_particle',
                 dtype='int32',
                 direction=function.OUT)
-        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'eps', 'phi',
-                'metals', 'tform']:
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
             function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter('tform', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('radius', dtype='float64', direction=function.IN, default = 0)
+        #function.addParameter('phi', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('metals', dtype='float64', direction=function.IN, default = 0)
         function.result_type = 'int32'
         return function
 
@@ -102,7 +109,7 @@ class GasolineInterface(
 #        function.can_handle_array = False
 #        function.addParameter(
 #                'timestep',
-#                dtype='d',
+#                dtype='float64',
 #                direction=function.IN)
 #        #dDelta
 #        function.result_type = 'int32'
@@ -116,7 +123,33 @@ class GasolineInterface(
                 'index_of_the_particle',
                 dtype='int32',
                 direction=function.IN)
-        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u']:
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'radius']:
+            function.addParameter(x, dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_state_sph():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+                'index_of_the_particle',
+                dtype='int32',
+                direction=function.IN)
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u', 'h_smooth', 'metals']:
+            function.addParameter(x, dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_state_star():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+                'index_of_the_particle',
+                dtype='int32',
+                direction=function.IN)
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'tform', 'radius', 'metals']:
             function.addParameter(x, dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         return function
@@ -129,8 +162,40 @@ class GasolineInterface(
                 'index_of_the_particle',
                 dtype='int32',
                 direction=function.IN)
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter('radius', dtype='float64', direction=function.IN, default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_state_sph():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+                'index_of_the_particle',
+                dtype='int32',
+                direction=function.IN)
         for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u']:
             function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter('h_smooth', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('metals', dtype='float64', direction=function.IN, default = 0)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_state_star():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+                'index_of_the_particle',
+                dtype='int32',
+                direction=function.IN)
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter('tform', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('radius', dtype='float64', direction=function.IN, default = 0)
+        function.addParameter('metals', dtype='float64', direction=function.IN, default = 0)
         function.result_type = 'int32'
         return function
 
@@ -138,65 +203,119 @@ class GasolineInterface(
     def get_mass():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
-        function.addParameter('mass', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('mass', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def set_mass():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
-        function.addParameter('mass', dtype='d', direction=function.IN)
-        function.result_type = 'i'
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('mass', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def get_position():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
         for x in ['x', 'y', 'z']:
-            function.addParameter(x, dtype='d', direction=function.OUT)
-        function.result_type = 'i'
+            function.addParameter(x, dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def set_position():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
         for x in ['x', 'y', 'z']:
-            function.addParameter(x, dtype='d', direction=function.IN)
-        function.result_type = 'i'
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def get_velocity():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
         for x in ['vx', 'vy', 'vz']:
-            function.addParameter(x, dtype='d', direction=function.OUT)
-        function.result_type = 'i'
+            function.addParameter(x, dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function    
+    def get_internal_energy():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('u', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function    
+    def get_metallicity():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('metals', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function    
+    def get_star_tform():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('tform', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def set_velocity():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
         for x in ['vx', 'vy', 'vz']:
-            function.addParameter(x, dtype='d', direction=function.IN)
-        function.result_type = 'i'
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+    
+    @legacy_function    
+    def set_internal_energy():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('u', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function    
+    def set_metallicity():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('metals', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function    
+    def set_star_tform():
+        function = LegacyFunctionSpecification()   
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('tform', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def get_time():
         function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
+        function.addParameter('time', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
@@ -204,16 +323,16 @@ class GasolineInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
                 'number_of_particles',
-                dtype='i',
+                dtype='int32',
                 direction=function.OUT)
-        function.result_type = 'i'
+        function.result_type = 'int32'
         return function
 
     @legacy_function
     def evolve_model():
         function = LegacyFunctionSpecification()
-        function.addParameter('time_end', dtype='d', direction=function.IN)
-        function.result_type = 'i'
+        function.addParameter('time_end', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
@@ -480,10 +599,87 @@ class Gasoline(
         GravitationalDynamics.define_methods(self, object)
 
         object.add_method(
-            "set_time_step",
-            (nbody_system.time,),
-            (object.ERROR_CODE,),
-        )
+                "set_time_step",
+                (nbody_system.time,),
+                (object.ERROR_CODE,),
+                )
+        object.add_method(
+                "set_velocity",
+                (
+                    object.INDEX,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    ),
+                (object.ERROR_CODE),
+                )
+        object.add_method(
+                "get_velocity",
+                (
+                    object.INDEX,
+                    ),
+                (
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    object.ERROR_CODE
+                    ),
+                )
+        object.add_method(
+                "new_dm_particle",
+                (
+                    nbody_system.mass,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.length,
+                    ),
+                (
+                    object.INDEX,
+                    object.ERROR_CODE,
+                    ),
+                )
+        object.add_method(
+                "new_sph_particle",
+                (
+                    nbody_system.mass,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.specific_energy,
+                    nbody_system.length,
+                    object.NO_UNIT,
+                    ),
+                (
+                    object.INDEX,
+                    object.ERROR_CODE,
+                    ),
+                )
+        object.add_method(
+                "new_star_particle",
+                (
+                    nbody_system.mass,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.length,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.speed,
+                    nbody_system.time,
+                    nbody_system.length,
+                    object.NO_UNIT,
+                    ),
+                (
+                    object.INDEX,
+                    object.ERROR_CODE,
+                    ),
+                )
 
     def define_particle_sets(self, object):
         object.define_super_set(
@@ -504,8 +700,8 @@ class Gasoline(
         object.add_setter('dm_particles', 'set_velocity')
         object.add_getter('dm_particles', 'get_velocity')
         object.add_getter('dm_particles', 'get_acceleration')
-        object.add_setter('dm_particles', 'set_epsilon')
-        object.add_getter('dm_particles', 'get_epsilon',
+        object.add_setter('dm_particles', 'set_radius')
+        object.add_getter('dm_particles', 'get_radius',
                 names=('epsilon',))
         
         object.define_set('gas_particles', 'index_of_the_particle')
@@ -524,12 +720,11 @@ class Gasoline(
         object.add_getter('gas_particles', 'get_internal_energy')
         object.add_setter('gas_particles', 'set_metallicity')
         object.add_getter('gas_particles', 'get_metallicity')
-        object.add_getter('gas_particles', 'get_smoothing_length')
-        object.add_getter('gas_particles', 'get_density', names = ('rho',))
-        object.add_getter('gas_particles', 'get_density', names = ('density',))
-        object.add_getter('gas_particles', 'get_pressure')
-        object.add_getter('gas_particles', 'get_epsilon', names = ('radius',))
-        object.add_getter('gas_particles', 'get_epsilon', names = ('epsilon',))
+        object.add_getter('gas_particles', 'get_radius')
+        object.add_setter('gas_particles', 'set_radius')
+        #object.add_getter('gas_particles', 'get_density', names = ('rho',))
+        #object.add_getter('gas_particles', 'get_density', names = ('density',))
+        #object.add_getter('gas_particles', 'get_pressure')
 
         object.define_set('star_particles', 'index_of_the_particle')
         object.set_new('star_particles', 'new_star_particle')

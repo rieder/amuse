@@ -70,7 +70,7 @@ double amuseInitStore(){// Replaces msrReadTipsy
     //nParts = malloc(msr->nThreads*sizeof(*nParts));
 
     // START replace pkdInitialize
-    PKD pkd;
+    //PKD pkd;
     pkd = (PKD)malloc(sizeof(struct pkdContext));
     pkd->mdl = mdl;
     pkd->iOrder = msr->param.iOrder;
@@ -574,10 +574,37 @@ int get_index_of_next_particle(int index_of_the_particle,
 // int new_particle
 //
 // TODO: check msrReorder, ...
+int new_dm_particle(int * index_of_the_particle, double mass, double x, 
+                    double y, double z, double vx, double vy, double vz, 
+                    double radius){
+    msr->nDark += 1;
+    msr->N += 1;
+    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+    pst = msr->pst;
+    plcl = pst->plcl;
+    pkd = plcl->pkd;
+    pkd->nStore += 1;
+
+    *index_of_the_particle = msr->N;
+    
+    PARTICLE p;
+    p.r[0] = x;
+    p.r[1] = y;
+    p.r[2] = z;
+    p.v[0] = vx;
+    p.v[1] = vy;
+    p.v[2] = vz;
+    p.fMass = mass;
+    p.fSoft = radius;
+    //p->fPot = phi;
+    pkdNewParticle(pkd, p);
+    return 0;
+}
+
 int new_sph_particle(int * index_of_the_particle, double mass, double x, 
                      double y, double z, double vx, double vy, double vz, 
-                     double eps, double phi, double rho, double u,
-                     double metals){
+                     double u, double h_smooth, double metals){
     msr->nGas += 1;
     msr->N += 1;
     msr->nMaxOrderGas = msr->nGas - 1;
@@ -600,9 +627,9 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     p->v[1] = vy;
     p->v[2] = vz;
     p->fMass = mass;
-    p->fSoft = eps;
-    p->fPot = phi;
-    p->fDensity = rho;
+    p->fSoft = h_smooth;
+    //p->fPot = phi;
+    //p->fDensity = rho;
     p->u = u;
     p->uPred = u;
     p->fMetals = metals;
@@ -611,29 +638,9 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     return 0;
 }
 
-int new_dm_particle(int * index_of_the_particle, double mass, double x, 
-                    double y, double z, double vx, double vy, double vz, 
-                    double eps, double phi){
-    msr->nDark += 1;
-    msr->N += 1;
-    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
-    
-    p->r[0] = x;
-    p->r[1] = y;
-    p->r[2] = z;
-    p->v[0] = vx;
-    p->v[1] = vy;
-    p->v[2] = vz;
-    p->fMass = mass;
-    p->fSoft = eps;
-    p->fPot = phi;
-    return 0;
-}
-
 int new_star_particle(int * index_of_the_particle, double mass, double x, 
                       double y, double z, double vx, double vy, double vz,
-                      double eps, double phi, double metals, double tform){
+                      double tform, double radius, double metals){
 
     msr->nStar += 1;
     msr->N += 1;
@@ -648,8 +655,8 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     p.v[2] = vz;
     p.fMass = mass;
     p.fMassForm = mass;
-    p.fSoft = eps;
-    p.fSoft0 = eps;
+    p.fSoft = radius;
+    p.fSoft0 = radius;
     p.fTimeForm = tform;
     p.fBallMax = 0.0;
     // p.iGasOrder = // probably set to number of particles
@@ -677,38 +684,49 @@ int synchronize_model(){
     return 0;
 }
 
-int set_state_sph(int index_of_the_particle, double mass, double x, double y, 
-                  double z, double vx, double vy, double vz, double u){
-    return 0;
-}
-
-int get_state_sph(int index_of_the_particle, double * mass, double * x, 
-                  double * y, double * z, double * vx, double * vy, double * vz,
-                  double * u){
-    //id = msr->pMap[index_of_the_particle];
-    return 0;
-}
-
-int set_state_star(int index_of_the_particle, double mass, double x, double y, 
-                   double z, double vx, double vy, double vz){
-    return 0;
-}
-
-int get_state_star(int index_of_the_particle, double * mass, double * x, 
-                   double * y, double * z, double * vx, double * vy, double * vz
-                   ){
-    //id = msr->pMap[index_of_the_particle];
-    return 0;
-}
-
 int set_state(int index_of_the_particle, double mass, double x, double y, 
-              double z, double vx, double vy, double vz, double u){
+              double z, double vx, double vy, double vz, double radius){
     return 0;
 }
 
 int get_state(int index_of_the_particle, double * mass, double * x, 
               double * y, double * z, double * vx, double * vy, double * vz,
-              double * u){
+              double * radius){
+    int id = msr->pMap[index_of_the_particle];
+    p = &pkd->pStore[id];
+    * mass = p->fMass;
+    * x = p->r[0];
+    * y = p->r[1];
+    * z = p->r[2];
+    * vx = p->v[0];
+    * vy = p->v[1];
+    * vz = p->v[2];
+    * radius = p->fSoft;
+    return 0;
+}
+
+int set_state_sph(int index_of_the_particle, double mass, double x, double y, 
+                  double z, double vx, double vy, double vz, double u, 
+                  double h_smooth, double metals){
+    return 0;
+}
+
+int get_state_sph(int index_of_the_particle, double * mass, double * x, 
+                  double * y, double * z, double * vx, double * vy, double * vz,
+                  double * u, double * h_smooth, double * metals){
+    //id = msr->pMap[index_of_the_particle];
+    return 0;
+}
+
+int set_state_star(int index_of_the_particle, double mass, double x, double y, 
+                   double z, double vx, double vy, double vz, double tform,
+                   double radius, double metals){
+    return 0;
+}
+
+int get_state_star(int index_of_the_particle, double * mass, double * x, 
+                   double * y, double * z, double * vx, double * vy, double * vz,
+                   double * tform, double * radius, double * metals){
     //id = msr->pMap[index_of_the_particle];
     return 0;
 }
@@ -753,11 +771,27 @@ int get_radius(int index_of_the_particle, double * radius){
     return 0;
 }
 
+int get_metallicity(int index_of_the_particle, double * metals){
+    return 0;
+}
+
+int get_star_tform(int index_of_the_particle, double * tform){
+    return 0;
+}
+
 int set_begin_time(double time){
     return 0;
 }
 
 int set_radius(int index_of_the_particle, double radius){
+    return 0;
+}
+
+int set_metallicity(int index_of_the_particle, double metals){
+    return 0;
+}
+
+int set_star_tform(int index_of_the_particle, double tform){
     return 0;
 }
 
@@ -775,6 +809,10 @@ int get_gravity_at_point(double eps, double x, double y, double z,
 }
 
 int get_velocity(int id, double * vx, double * vy, double * vz){
+    return 0;
+}
+
+int get_internal_energy(int id, double * u){
     return 0;
 }
 
@@ -804,6 +842,10 @@ int commit_parameters(){
 }
 
 int set_velocity(int id, double vx, double vy, double vz){
+    return 0;
+}
+
+int set_internal_energy(int id, double u){
     return 0;
 }
 
