@@ -679,6 +679,16 @@ int synchronize_model(){
 
 int set_state(int index_of_the_particle, double mass, double x, double y, 
               double z, double vx, double vy, double vz, double radius){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fMass = mass;
+    p->r[0] = x;
+    p->r[1] = y;
+    p->r[2] = z;
+    p->v[0] = vx;
+    p->v[1] = vy;
+    p->v[2] = vz;
+    p->fSoft = radius;
     return 0;
 }
 
@@ -701,6 +711,18 @@ int get_state(int index_of_the_particle, double * mass, double * x,
 int set_state_sph(int index_of_the_particle, double mass, double x, double y, 
                   double z, double vx, double vy, double vz, double u, 
                   double h_smooth, double metals){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fMass = mass;
+    p->r[0] = x;
+    p->r[1] = y;
+    p->r[2] = z;
+    p->v[0] = vx;
+    p->v[1] = vy;
+    p->v[2] = vz;
+    p->u = u;
+    p->fSoft = h_smooth;
+    p->fMetals = metals;
     return 0;
 }
 
@@ -725,6 +747,18 @@ int get_state_sph(int index_of_the_particle, double * mass, double * x,
 int set_state_star(int index_of_the_particle, double mass, double x, double y, 
                    double z, double vx, double vy, double vz, double tform,
                    double radius, double metals){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fMass = mass;
+    p->r[0] = x;
+    p->r[1] = y;
+    p->r[2] = z;
+    p->v[0] = vx;
+    p->v[1] = vy;
+    p->v[2] = vz;
+    p->fTimeForm = tform;
+    p->fSoft = radius;
+    p->fMetals = metals;
     return 0;
 }
 
@@ -808,10 +842,16 @@ int set_begin_time(double time){
 }
 
 int set_radius(int index_of_the_particle, double radius){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fSoft = radius;
     return 0;
 }
 
 int set_metallicity(int index_of_the_particle, double metals){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->fMetals = metals; 
     return 0;
 }
 
@@ -858,6 +898,11 @@ int get_position(int index_of_the_particle, double * x, double * y, double * z){
 }
 
 int set_position(int index_of_the_particle, double x, double y, double z){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->r[0] = x;
+    p->r[1] = y;
+    p->r[2] = z;
     return 0;
 }
 
@@ -876,10 +921,18 @@ int commit_parameters(){
 }
 
 int set_velocity(int index_of_the_particle, double vx, double vy, double vz){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->v[0] = vx;
+    p->v[1] = vy;
+    p->v[2] = vz;
     return 0;
 }
 
 int set_internal_energy(int index_of_the_particle, double u){
+    int id = index_of_the_particle;
+    p = &pkd->pStore[id];
+    p->u = u;
     return 0;
 }
 
