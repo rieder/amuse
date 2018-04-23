@@ -63,8 +63,6 @@ double amuseInitStore(int nStore){// Replaces msrReadTipsy
 	dTime = 0.;
 	in.dvFac = 1.0;
 
-	msrSetStopStep(msr, dTime);
-
     // START replace msrOneNodeReadTipsy
     //nParts = malloc(msr->nThreads*sizeof(*nParts));
 
