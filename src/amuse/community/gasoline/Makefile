@@ -225,20 +225,27 @@ LIBMDL		= mdl.o -lm
 MPI_MDL_CFLAGS	= -O3
 
 
-OBJ	= $(CODEDIR)/main.o $(CODEDIR)/master.o $(CODEDIR)/param.o \
+OBJ	= $(CODEDIR)/main.o $(CODEDIR)/master.o \
       $(CODEDIR)/outtype.o $(CODEDIR)/pkd.o $(CODEDIR)/pst.o $(CODEDIR)/grav.o \
 	  $(CODEDIR)/ewald.o $(CODEDIR)/walk.o $(CODEDIR)/eccanom.o \
       $(CODEDIR)/fdl.o $(CODEDIR)/htable.o $(CODEDIR)/smooth.o \
-	  $(CODEDIR)/smoothfcn.o $(CODEDIR)/collision.o $(CODEDIR)/qqsmooth.o \
+	  $(CODEDIR)/smoothfcn.o \
 	  $(COOLING_OBJ) \
       $(CODEDIR)/cosmo.o $(CODEDIR)/romberg.o \
 	  $(CODEDIR)/starform.o $(CODEDIR)/feedback.o $(CODEDIR)/millerscalo.o \
 	  $(CODEDIR)/supernova.o $(CODEDIR)/supernovaia.o \
 	  $(CODEDIR)/startime.o $(CODEDIR)/stiff.o $(CODEDIR)/runge.o \
 	  $(CODEDIR)/dumpframe.o $(CODEDIR)/dffuncs.o $(CODEDIR)/dumpvoxel.o \
-	  $(CODEDIR)/rotbar.o $(CODEDIR)/special.o $(CODEDIR)/ssio.o \
+	  $(CODEDIR)/rotbar.o \
 	  $(PNG_OBJ) $(TURB_OBJ) \
-	  $(CODEDIR)/treezip.o $(CODEDIR)/log.o $(CODEDIR)/linalg.o $(CODEDIR)/aggs.o
+	  $(CODEDIR)/treezip.o $(CODEDIR)/log.o \
+	  $(CODEDIR)/param.o
+	  #$(CODEDIR)/collision.o \
+	  #$(CODEDIR)/qqsmooth.o \
+	  #$(CODEDIR)/special.o \
+	  #$(CODEDIR)/ssio.o \
+	  #$(CODEDIR)/linalg.o \
+	  #$(CODEDIR)/aggs.o
 #OBJ	= main.o master.o param.o outtype.o pkd.o pst.o grav.o \
 #	  ewald.o walk.o eccanom.o fdl.o htable.o smooth.o \
 #	  smoothfcn.o collision.o qqsmooth.o $(COOLING_OBJ) cosmo.o romberg.o \
@@ -269,7 +276,7 @@ worker_code.h: interface.py
 	$(CODE_GENERATOR) --type=h interface.py GasolineInterface -o $@
 
 clean:
-	$(RM) -r -f *.so *.dSYM *.o *.pyc worker_code.cc interface.h
+	$(RM) -r -f *.so *.dSYM *.o *.pyc worker_code.cc worker_code.h interface.h
 	$(RM) -f src/libgasoline.a
 	$(RM) -f *~ gasoline_worker
 	$(RM) -f $(OBJ) $(XOBJ) mdl.o
