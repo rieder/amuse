@@ -365,7 +365,7 @@ int initialize_code(){
     fake_argv[2] = NULL;
     argc = 2;
 
-    int nStore = 100; //FIXME: this is the maximum number of particles!
+    int nStore = 0; //FIXME: this is the maximum number of particles!
     
     lStart=time(0);
     //FIXME Remove argv things
@@ -574,6 +574,16 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
                     double y, double z, double vx, double vy, double vz, 
                     double radius){
     *index_of_the_particle = msr->N;
+
+    pkd->nStore += 1;
+    msr->nDark += 1;
+    msr->N += 1;
+    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+
+    // Reallocate memory because we're adding particles.
+    // FIXME: should do this in bigger chunks probably.
+    pkd->pStore = realloc(pkd->pStore, (msr->N+1)*sizeof(PARTICLE));
     
     PARTICLE p;
     p = pkd->pStore[msr->N];
@@ -586,10 +596,6 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     p.fMass = mass;
     p.fSoft = radius;
     //p.fPot = phi;
-    msr->nDark += 1;
-    msr->N += 1;
-    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
 
     pkdNewParticle(pkd, p);
     return 0;
@@ -600,6 +606,17 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
                      double u, double h_smooth, double metals){
     *index_of_the_particle = msr->N;
     
+    pkd->nStore += 1;
+    msr->nGas += 1;
+    msr->N += 1;
+    msr->nMaxOrderGas = msr->nGas - 1;
+    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+
+    // Reallocate memory because we're adding particles.
+    // FIXME: should do this in bigger chunks probably.
+    pkd->pStore = realloc(pkd->pStore, (msr->N+1)*sizeof(PARTICLE));
+
     PARTICLE p;
     p = pkd->pStore[msr->N];
     TYPESet(&p, TYPE_GAS);
@@ -616,11 +633,6 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     p.uPred = u;
     p.fMetals = metals;
     //p.fMetalsPred = metals;
-    msr->nGas += 1;
-    msr->N += 1;
-    msr->nMaxOrderGas = msr->nGas - 1;
-    msr->nMaxOrderDark = NIORDERGASBUFFER + msr->nGas + msr->nDark - 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
 
     pkdNewParticle(pkd, p);
     return 0;
@@ -632,6 +644,15 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
 
     *index_of_the_particle = msr->N;
     
+    pkd->nStore += 1;
+    msr->nStar += 1;
+    msr->N += 1;
+    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
+
+    // Reallocate memory because we're adding particles.
+    // FIXME: should do this in bigger chunks probably.
+    pkd->pStore = realloc(pkd->pStore, (msr->N+1)*sizeof(PARTICLE));
+
     PARTICLE p;
     p = pkd->pStore[msr->N];
     TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
@@ -649,10 +670,6 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     p.fBallMax = 0.0;
     p.fMetals = metals;
     p.fNSNtot = 0.0;
-
-    msr->nStar += 1;
-    msr->N += 1;
-    msr->nMaxOrder = NIORDERGASBUFFER + msr->N - 1;
 
     pkdNewParticle(pkd, p);
     return 0;
