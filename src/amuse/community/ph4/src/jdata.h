@@ -181,7 +181,7 @@ class jdata {
 #ifndef NOMPI
     void setup_mpi(MPI::Intracomm comm);
 #endif
-
+    int define_domain(int& j_start, int& j_end);
     void setup_gpu();
     int get_particle_id(int offset = 0);
     int add_particle(real pmass, real pradius, vec ppos, vec pvel,
@@ -190,16 +190,18 @@ class jdata {
     void initialize_arrays();
     int get_inverse_id(int i);
     void check_inverse_id(const char *s = NULL);
-    void set_initial_timestep(real fac = 0.0625);
-    void force_initial_timestep(real fac = 0.0625);
+    void set_initial_timestep(real fac = 0.0625, real limit = 0.03125,
+			      real limitm = 0.);
+    void force_initial_timestep(real fac = 0.0625, real limit = 0.03125,
+				real limitm = 0.);
     real get_pot(bool reeval = false);
     real get_kin();
     real get_energy(bool reeval = false);
     real get_total_mass();
     void predict(int j, real t);
     void predict_all(real t, bool full_range = false);
-    void advance();
-    bool advance_and_check_encounter();
+    void advance(bool zero_step_mode = false);
+    bool advance_and_check_encounter(bool zero_step_mode = false);
     void synchronize_all(bool reinit_sched = true);
     void synchronize_list(int jlist[], int njlist);
     void update_merger_energy(real dEmerge);

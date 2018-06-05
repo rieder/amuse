@@ -13,6 +13,7 @@ from time import time as wallclocktime
 from amuse.community.ph4.interface import ph4 as grav
 from amuse.units import nbody_system
 from amuse.units import units
+from amuse.units.quantities import zero
 
 from amuse import datamodel
 from amuse.datamodel import particle_attributes as pa
@@ -35,7 +36,13 @@ def print_log(pre, time, gravity, E0 = 0.0 | nbody_system.energy,
     Q = -T/U
     com = pa.center_of_mass(gravity.particles)
     comv = pa.center_of_mass_velocity(gravity.particles)
-    dcen,rcore,rhocore = pa.densitycentre_coreradius_coredens(gravity.particles)
+    if N > 15:
+        dcen,rcore,rhocore \
+            = pa.densitycentre_coreradius_coredens(gravity.particles)
+    else:
+        dcen = com
+        rcore = zero
+        rhocore = zero
     cmx,cmy,cmz = dcen
     lagr,mf = pa.LagrangianRadii(gravity.particles, cm=dcen)  # no units!
 
@@ -127,7 +134,7 @@ def run_ph4(infile = None, number_of_stars = 40,
         stars.id = id+1
 
         print "setting particle masses and radii"
-	stars.mass = (1.0 / number_of_stars) | nbody_system.mass
+        stars.mass = (1.0 / number_of_stars) | nbody_system.mass
         if 0:
             scaled_mass = new_salpeter_mass_distribution_nbody(number_of_stars) 
             stars.mass = scaled_mass
@@ -188,7 +195,7 @@ def run_ph4(infile = None, number_of_stars = 40,
     #print "5"; sys.stdout.flush()
     if softening_length == -1 | nbody_system.length:
         eps2 = 0.25*(float(number_of_stars))**(-0.666667) \
-			| nbody_system.length**2
+            | nbody_system.length**2
     else:
         eps2 = softening_length*softening_length
 
@@ -227,7 +234,7 @@ def run_ph4(infile = None, number_of_stars = 40,
 
         ls = len(stars)
 
-	# Update the bookkeeping: synchronize stars with the module data.
+    # Update the bookkeeping: synchronize stars with the module data.
 
         try:
             gravity.update_particle_set()
@@ -262,7 +269,7 @@ def run_ph4(infile = None, number_of_stars = 40,
                 print "stars:"
                 for s in stars:
                     print " ", s.id.number, s.mass.number, \
-			       s.x.number, s.y.number, s.z.number
+                    s.x.number, s.y.number, s.z.number
             else:
                 print "number of stars =", len(stars)
             sys.stdout.flush()

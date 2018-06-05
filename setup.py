@@ -168,7 +168,7 @@ package_data = {
 
 setup(
     name = 'amuse',
-    version = '11.0',
+    version = "11",
     cmdclass = mapping_from_command_name_to_command_class,
     ext_modules = extensions,
     package_dir = {'': 'src', 'amuse.test.suite' :'test', 'amuse.examples' : 'examples'},
@@ -181,7 +181,7 @@ setup(
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        'License :: GNU General Public License (GPL)',
+        'License :: Apache Software License 2.0',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2.6',

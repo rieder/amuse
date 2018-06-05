@@ -51,6 +51,19 @@ void jdata::setup_mpi(MPI::Intracomm comm)
 }
 #endif
 
+int jdata::define_domain(int& j_start, int& j_end)
+{
+    // Define the j-domains for this process.
+
+    int n = nj/mpi_size;
+    if (n*mpi_size < nj) n++;
+    j_start = mpi_rank*n;
+    j_end = j_start + n;
+    if (mpi_rank == mpi_size-1) j_end = nj;
+    if (j_start >= nj) j_end = j_start;
+    return n;		// only some callers need this
+}
+
 void jdata::setup_gpu()
 {
     const char *in_function = "jdata::setup_gpu";
@@ -330,7 +343,27 @@ void jdata::remove_particle(int j)
             sched->cleanup();
             sched->initialize();
         }
-    } 
+    }
+
+    // Clean up -- leave mostly zeros behind in location nj.
+
+    id[nj] = -1;
+    name[nj] = ToString(-1);
+    time[nj] = 0;
+    timestep[nj] = 0;
+    mass[nj] = 0;
+    radius[nj] = 0;
+    pot[nj] = 0;
+    nn[nj] = 0;
+    dnn[nj] = 0;
+    for (int k = 0; k < 3; k++) {
+	pos[nj][k] = 0;
+	vel[nj][k] = 0;
+	acc[nj][k] = 0;
+	jerk[nj][k] = 0;
+	pred_pos[nj][k] = 0;
+	pred_vel[nj][k] = 0;
+    }
 
     if (1)  {
 
@@ -447,7 +480,8 @@ void jdata::check_inverse_id(const char *s)
     }
 }
 
-void jdata::set_initial_timestep(real fac)		// default = 0.0625
+void jdata::set_initial_timestep(real fac, real limit, real limitm)
+			      // defaults = 0.0625, 0.03125, 0.0
 {
     const char *in_function = "jdata::set_initial_timestep";
     if (DEBUG > 2 && mpi_rank == 0) PRL(in_function);
@@ -465,7 +499,7 @@ void jdata::set_initial_timestep(real fac)		// default = 0.0625
 
 	    real firststep;
 	    if (eta == 0.0)
-		firststep = fac;
+		firststep = limit;
 	    else if (a2 == 0.0 || j2 == 0.0)
 		firststep = fac * eta;
 	    else
@@ -484,11 +518,29 @@ void jdata::set_initial_timestep(real fac)		// default = 0.0625
 	        firststep /= 2;
 	    }
 
+	    // Place an absolute limit on the step.
+	    
+	    while (firststep > limit) firststep /= 2;
+
 	    timestep[j] = firststep;
 	}
+
+    // Optionally limit the outliers relative to the median step.
+
+    if (limitm > 0) {
+	vector<real> temp;
+	for (int j = 0; j < nj; j++) temp.push_back(timestep[j]);
+	sort(temp.begin(), temp.end());
+	real dtmax = limitm*temp[nj/2];
+	// PRC(limitm); PRL(dtmax);
+	for (int j = 0; j < nj; j++) {
+	    while (timestep[j] > dtmax) timestep[j] /= 2;
+	}
+    }
 }
 
-void jdata::force_initial_timestep(real fac)		// default = 0.0625
+void jdata::force_initial_timestep(real fac, real limit, real limitm)
+				// defaults = 0.0625, 0.03125, 0.0
 {
     // Same as set_initial_timestep, but always set the step, even if
     // it is already set.  Do this by setting all steps to zero here.
@@ -499,7 +551,7 @@ void jdata::force_initial_timestep(real fac)		// default = 0.0625
     // Assume acc and jerk have already been set.
 
     for (int j = 0; j < nj; j++) timestep[j] = 0;
-    set_initial_timestep(fac);
+    set_initial_timestep(fac, limit, limitm);
 }
 
 real jdata::get_pot(bool reeval)		// default = false
@@ -524,13 +576,8 @@ real jdata::get_pot(bool reeval)		// default = false
 	// Compute the partial potentials by j-domain, then combine to
 	// get the total and distribute to all processes.
 
-	// Define the j-domains.
-
-	int n = nj/mpi_size;
-	if (n*mpi_size < nj) n++;
-	int j_start = mpi_rank*n;
-	int j_end = j_start + n;
-	if (mpi_rank == mpi_size-1) j_end = nj;
+	int j_start, j_end;
+	define_domain(j_start, j_end);
 
 	real mypot = 0;
 
@@ -642,14 +689,8 @@ void jdata::predict_all(real t,
     // process unless full_range = true (only on initialization).
 
     int j_start = 0, j_end = nj;
-
-    if (!full_range) {
-	int n = nj/mpi_size;
-	if (n*mpi_size < nj) n++;
-	j_start = mpi_rank*n;
-	j_end = j_start + n;
-	if (mpi_rank == mpi_size-1) j_end = nj;
-    }
+    if (!full_range)
+	define_domain(j_start, j_end);
 
     for (int j = j_start; j < j_end; j++) {
 	real dt = t - time[j];
@@ -677,7 +718,7 @@ void jdata::predict_all(real t,
     predict_time = t;
 }
 
-void jdata::advance()
+void jdata::advance(bool zero_step_mode)	// default = false
 {
     const char *in_function = "jdata::advance";
     if (DEBUG > 2 && mpi_rank == 0) PRL(in_function);
@@ -691,7 +732,11 @@ void jdata::advance()
     //		correct the i-list
     //		scatter the i-list
 
-    real tnext = idat->set_list();	// determine next time, make ilist
+    real tnext = system_time;
+    if (!zero_step_mode)
+	tnext = idat->set_list();	// determine next time, make ilist
+    else
+	idat->set_list_all();		// zero-advance all stars
 
     if (!use_gpu) {
 
@@ -703,25 +748,30 @@ void jdata::advance()
 
     // All of the actual work is done by idata::advance.
 
-    idat->advance(tnext);
-    block_steps += 1;
-    total_steps += idat->ni;
+    idat->advance(tnext, zero_step_mode);
 
-    // Note that system_time remains unchanged until the END of the step.
+    if (!zero_step_mode) {
+	block_steps += 1;
+	total_steps += idat->ni;
 
-    system_time = tnext;
-    sched->update();
+	// Note that system_time remains unchanged until the END of the step.
+
+	system_time = tnext;
+	sched->update();
+    }
 }
 
 #define EPS 0.001	// see couple/multiples.py
 
-bool jdata::advance_and_check_encounter()
+bool jdata::advance_and_check_encounter(bool zero_step_mode) // default = false
 {
     bool status = false;
     int collision_detection_enabled;
 
     //cout << "advance..." << endl << flush;
-    advance();
+
+    advance(zero_step_mode);
+
     //int p = cout.precision(16);
     //cout << "time = " << system_time << endl << flush;
     //cout.precision(p);
@@ -764,6 +814,7 @@ bool jdata::advance_and_check_encounter()
 		set_stopping_condition_particle_index(stopping_index, 0, coll1);
 		set_stopping_condition_particle_index(stopping_index, 1, coll2);
 		status = true;
+
 // 		PRC(j1); PRL(j2);
 // 		PRC(id[j1]); PRL(id[j2]);
 // 		cout << "set stopping condition " << coll1 << " " << coll2

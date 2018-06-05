@@ -53,6 +53,7 @@ from amuse.community.mi6.interface import MI6, MI6Interface
 from amuse.community.mikkola.interface import Mikkola, MikkolaInterface
 from amuse.community.smalln.interface import SmallN, SmallNInterface
 from amuse.community.rebound.interface import Rebound, ReboundInterface
+from amuse.community.brutus.interface import Brutus, BrutusInterface
 
 
 from amuse.community.fi.interface import Fi, FiInterface
@@ -67,6 +68,8 @@ from amuse.community.sphray.interface import SPHRay, SPHRayInterface
 
 from amuse.community.sse.interface import SSE, SSEInterface
 from amuse.community.bse.interface import BSE, BSEInterface
+from amuse.community.mosse.interface import MOSSE, MOSSEInterface                                                   
+from amuse.community.mobse.interface import MOBSE, MOBSEInterface
 from amuse.community.seba.interface import SeBa, SeBaInterface
 from amuse.community.evtwin.interface import EVtwin, EVtwinInterface
 from amuse.community.mesa.interface import MESA, MESAInterface

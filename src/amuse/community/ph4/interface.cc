@@ -1,9 +1,5 @@
 #include "interface.h"
 
-// A stub of this file is machine generated, but the content is
-// hand-coded.  SAVE A COPY (here interface.cc.1) to avoid accidental
-// overwriting!
-
 #include "src/stdinc.h"
 #include "src/jdata.h"
 #include "src/idata.h"
@@ -15,12 +11,24 @@
 static jdata *jd = NULL;
 static idata *id = NULL;
 static scheduler *s = NULL;
+
+static bool zero_step_mode = false;	// preliminary mode to take zero-length
+					// steps and identify bound subsystems
+					// off by default; set by setter only
+
 static bool force_sync = false;		// off by default; set by setter only;
 					// stays on until explicitly turned off;
 					// only affects an evolve_model() step
 					// that makes it to to_time.
+
 static int block_steps = 0;
 static int total_steps = 0;
+
+// Allow fine control over the initial time step.
+
+static real initial_timestep_fac = 0.0625;
+static real initial_timestep_limit = 0.03125;
+static real initial_timestep_median = 8.0;
 
 static double begin_time = -1;
 
@@ -55,7 +63,7 @@ int sync_times()
   // Update sync_time and reset all times prior to recomputing the
   // time steps and resetting the scheduler.
 
-    if (1) {
+    if (0) {
         cout << "interface::sync_times: updating sync_time to "
 	     << jd->sync_time + jd->system_time << endl;
     }
@@ -108,6 +116,8 @@ int initialize_code()
 
     return 0;
 }
+
+// Setters and getters.
 
 int set_eps2(double epsilon_squared)
 {
@@ -205,6 +215,16 @@ int get_sync_time(double * output)
     return 0;
 }
 
+int set_zero_step_mode(int z) {
+    zero_step_mode = z;
+    return 0;
+}
+
+int get_zero_step_mode(int *z) {
+    *z = zero_step_mode;
+    return 0;
+}
+
 int set_force_sync(int f) {
     force_sync = f;
     return 0;
@@ -234,6 +254,38 @@ int get_total_steps(int *s) {
     *s = total_steps;
     return 0;
 }
+
+int set_initial_timestep_fac(double s) {
+    initial_timestep_fac = s;
+    return 0;
+}
+
+int get_initial_timestep_fac(double * s) {
+    *s = initial_timestep_fac;
+    return 0;
+}
+
+int set_initial_timestep_limit(double s) {
+    initial_timestep_limit = s;
+    return 0;
+}
+
+int get_initial_timestep_limit(double * s) {
+    *s = initial_timestep_limit;
+    return 0;
+}
+
+int set_initial_timestep_median(double s) {
+    initial_timestep_median = s;
+    return 0;
+}
+
+int get_initial_timestep_median(double * s) {
+    *s = initial_timestep_median;
+    return 0;
+}
+
+//----------------------------------------------------------------------
 
 int commit_parameters()
 {
@@ -270,13 +322,24 @@ int commit_particles()
 
     jd->initialize_arrays();
     id = new idata(jd);	  // set up idata data structures (sets acc and jerk)
-    jd->force_initial_timestep();	// set timesteps (needs acc and jerk)
+
+    // Set timesteps (needs acc and jerk)
+
+    // PRC(initial_timestep_fac); PRC(initial_timestep_limit);
+    // PRL(initial_timestep_median);
+    
+    jd->force_initial_timestep(initial_timestep_fac,
+			       initial_timestep_limit,
+			       initial_timestep_median);
     s = new scheduler(jd);
+    // s->print();
+
 #if 0
     cout << "commit_particles:";
     for (int j = 0; j < jd->nj; j++) cout << " " << jd->id[j];
     cout << endl << flush;
 #endif
+
     return 0;
 }
 
@@ -296,9 +359,13 @@ int recommit_particles()
     else
 	jd->initialize_gpu(true);		// reload the GPU
     id->setup();				// compute acc and jerk
-    jd->force_initial_timestep();		// set timesteps
+
+    jd->force_initial_timestep(initial_timestep_fac,  // set timesteps
+			       initial_timestep_limit,
+			       initial_timestep_median);
+
     s->initialize();				// reconstruct the scheduler
-    //s->print(true);
+    // s->print();
     return 0;
 }
 
@@ -316,8 +383,11 @@ int recompute_timesteps()
 	jd->initialize_gpu(true);		// reload the GPU
 
     id->setup();				// compute acc and jerk
-    jd->force_initial_timestep();
+    jd->force_initial_timestep(initial_timestep_fac,  // set timesteps
+			       initial_timestep_limit,
+			       initial_timestep_median);
     s->initialize();				// reconstruct the scheduler
+    // s->print();
     return 0;
 }
 
@@ -547,7 +617,12 @@ int evolve_model(double to_time)
     // to_time.  The function breaks out of the jd->advance() loop
     // (without synchronization) if an encounter is detected.
 
-    bool debug_print = false && jd->mpi_rank == 0;
+    bool debug_print = false;
+    debug_print &= (jd->mpi_rank == 0);
+
+    reset_stopping_conditions();    
+    jd->UpdatedParticles.clear();
+    jd->coll1 = jd->coll2 = -1;
 
     if (debug_print) {
 	cout << "in evolve_model: "; PRC(to_time); PRL(jd->nj);
@@ -556,53 +631,70 @@ int evolve_model(double to_time)
 	s->print();
     }
 
-    reset_stopping_conditions();    
-    jd->UpdatedParticles.clear();
-
-    real tt = to_time - jd->sync_time - begin_time;	// actual delta_t for
+    real tt = to_time - jd->sync_time - begin_time;	// actual end time for
 							// internal calculation
     if (debug_print) {
-        PRC(to_time); PRC(jd->sync_time); PRC(begin_time); PRL(jd->system_time);
+	PRC(to_time); PRC(jd->sync_time);
+	PRC(begin_time); PRL(jd->system_time);
 	PRL(tt);
     }
 
     int nb = jd->block_steps;
     int ns = jd->total_steps;
 
-    if (!force_sync) {
+    // Zero_step_mode means that we are taking a dummy step of length
+    // zero to set the collision stopping condition if any particles
+    // qualify.  Do this repeatedly at the start of the calculation to
+    // manage initial binaries and/or planetary systems.  In this
+    // mode, we calculate forces with ilist equal to the entire
+    // system, but we don't correct, advance the time, or set time
+    // steps.  We always take a step in this case, even though
+    // system_time = tt.
 
-        while (jd->system_time < tt)
-            if (jd->advance_and_check_encounter()) break;
+    if (zero_step_mode) {
 
+	jd->advance_and_check_encounter(zero_step_mode);
+    
     } else {
 
-        bool b = false;
-	while (jd->get_tnext() <= tt) {
-	    b = jd->advance_and_check_encounter();
-            if (b) break;
+	if (!force_sync) {
+
+	    while (jd->system_time < tt)
+		if (jd->advance_and_check_encounter()) break;
+
+	} else {
+
+	    bool b = false;
+	    while (jd->get_tnext() <= tt) {
+		b = jd->advance_and_check_encounter();
+		if (b) break;
+	    }
+
+	    if (!b) {
+
+		jd->system_time = tt;
+		jd->synchronize_all(false);
+
+		// Time steps have been recomputed by
+		// synchronize_all(), and may be undesirably short
+		// depending on tt (steps must be commensurate with
+		// current time).  Recompute the time steps here (with
+		// updated acc and jerk) after resetting system_time,
+		// and reinitialize the scheduler.
+
+		sync_times();
+		recompute_timesteps();
+		if (debug_print) s->print();
+	    }
 	}
 
-	if (!b) {
-	    jd->system_time = tt;
-	    jd->synchronize_all(false);
-
-	    // Time steps have been recomputed by synchronize_all(),
-	    // and may be undesirably short depending on tt (steps
-	    // must be commensurate with current time).  Recompute the
-	    // time steps here (with updated acc and jerk) after
-	    // resetting system_time, and reinitialize the scheduler.
-
-	    sync_times();
-	    recompute_timesteps();
-	    if (debug_print) s->print();
-	}
+	// int dblock = jd->block_steps - nb;
+	// int dtotal = jd->total_steps - ns;
+	block_steps += jd->block_steps - nb;
+	total_steps += jd->total_steps - ns;
+	PRL(jd->system_time); //PRC(dblock); PRL(dtotal);
+	s->print(true);
     }
-
-    // int dblock = jd->block_steps - nb;
-    // int dtotal = jd->total_steps - ns;
-    block_steps += jd->block_steps - nb;
-    total_steps += jd->total_steps - ns;
-    // PRC(jd->system_time); PRC(dblock); PRL(dtotal);
 
     return 0;
 }
