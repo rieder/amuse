@@ -12,7 +12,6 @@ from amuse import datamodel
 from amuse.ic.plummer import new_plummer_model
 try:
     import matplotlib
-    matplotlib.use("Agg")
     from matplotlib import pyplot
     HAS_MATPLOTLIB = True
 except ImportError:
