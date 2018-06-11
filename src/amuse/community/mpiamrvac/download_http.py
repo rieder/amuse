@@ -7,39 +7,6 @@ import time
 import urllib
 from optparse import OptionParser
 
-# mpiamrvac revisions in amuse
-# 145
-# 187
-
-class GetCodeFromSVN(object):
-    revision = '187'
-    username = 'studCMFA09'
-    password = 'cpa9amrvac'
-    url = 'https://svn.esat.kuleuven.be/amrvac/trunk'
-    
-    def directory(self):
-        return os.path.abspath(os.path.dirname(__file__))
-    
-    def source_directory(self):
-        return os.path.join(self.directory(), 'src')
-        
-    def code_directory(self):
-        return os.path.join(self.source_directory(), 'mpiamrvac')
-        
-    def start(self):
-        arguments = [
-            'svn',
-            'co',
-            '-r',
-            self.revision,
-            self.url,
-            '--username',
-            self.username,
-            '--password',
-            self.password,
-            self.code_directory()
-        ]
-        subprocess.call(arguments)
         
         
 
@@ -111,9 +78,9 @@ class MyFancyUrlopener(urllib.FancyURLopener):
         return result
     
 class GetCodeFromHttp(object):
-    url_template = "http://www.amusecode.org/codes/mpiamrvac-r{version}.tgz"
-    filename_template = "mpiamrvac-r{version}.tgz"
-    version = "187"
+    url_template = "https://github.com/amrvac/amrvac/archive/{version}.zip"
+    filename_template = "{version}.zip"
+    version = "v2.0"
     
     def directory(self):
         return os.path.abspath(os.path.dirname(__file__))
@@ -123,12 +90,16 @@ class GetCodeFromHttp(object):
         
     def unpack_downloaded_file(self, filename):
         print "unpacking", filename
-        arguments = ['tar', '-xf']
+        arguments = ['unzip', '-x']
         arguments.append(filename)
         subprocess.call(
             arguments, 
             cwd = os.path.join(self.src_directory())
         )
+#        subprocess.call(
+#            ['mv', 'amrvac-{version}'.format(version = self.version), 'mpiamrvac'],
+#            cwd = os.path.join(self.src_directory())
+#        )
         print "done"
         
         
@@ -157,32 +128,21 @@ class GetCodeFromHttp(object):
         print "downloading finished"
         self.unpack_downloaded_file(filename)
     
-def main(must_download_from_svn = False, version = '149'):
-    if must_download_from_svn:
-        instance = GetCodeFromSVN()
-        instance.revision = version
-    else:
-        instance = GetCodeFromHttp()
-        instance.version = version
-        
+def main(must_download_from_svn = False, version = ''):
+    instance = GetCodeFromHttp()
+    instance.version = version
     instance.start()
 
         
     
 def new_option_parser():
     result = OptionParser()
-    result.add_option(
-        "-s", "--svn", 
-        default = False,
-        dest="must_download_from_svn",
-        help="if given will download the code from the svn repository",
-        action="store_true"
-    )
+    
     result.add_option(
         "--version", 
-        default = '187',
+        default = 'v2.0',
         dest="version",
-        help="svn version number to download",
+        help="version or git revision to download from github",
         type="string"
     )
     
