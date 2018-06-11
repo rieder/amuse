@@ -87,11 +87,6 @@ download:
 	$(RM) -Rf src
 	mkdir src
 	$(DOWNLOAD_FROM_WEB)
-	$(PATCH_FILES)
-ifeq ($(IFORT_MAJOR_MINOR), 9.1)
-	$(info $(FFLAGS))
-	$(PATCH_FILES_IFORT91)
-endif
 
 
 clean:
