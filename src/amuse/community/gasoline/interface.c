@@ -587,12 +587,74 @@ int new_dm_particle(int * index_of_the_particle, double mass, double x,
     
     PARTICLE p;
     p = pkd->pStore[msr->N];
+
+    /*
+    ** General initialization, from pkdReadTipsy.
+    */
+    TYPEClear(&p);
+    p.iRung = 0;
+    p.fWeight = 1.0;
+    p.fDensity = 0.0;
+    p.fBall2 = 0.0;
+    p.fBallMax = 0.0;
+#ifdef GASOLINE
+    p.dt = FLT_MAX;
+    p.dtNew = FLT_MAX;
+    p.u = 0.0;
+    p.uPred = 0.0;
+#ifdef TWOPHASE
+    p.fMassHot = 0;
+#endif
+#ifdef UNONCOOL
+    p.uHot = 0.;
+    p.uHotPred = 0.;
+    p.uHotDot = 0.;
+#endif
+#ifdef STARFORM
+    p.uDotFB = 0.0;
+    p.uDotESF = 0.0;
+    p.fNSN = 0.0;
+    p.fNSNtot = 0.0;
+    p.fMOxygenOut = 0.0;
+    p.fMIronOut = 0.0;
+    p.fMFracOxygen = 0.0;
+    p.fMFracIron = 0.0;
+    p.fTimeCoolIsOffUntil = 0.0;
+#endif
+#ifdef VARALPHA
+    p.alpha = ALPHAMIN;
+    p.alphaPred = ALPHAMIN;
+    p.divv = 0;
+    p.dvds = 0;
+#endif
+#ifdef CULLENDEHNEN
+    p.alpha = 0;
+    p.dTime_divv = FLT_MAX;
+    p.divv_old = 0;
+#endif
+#ifndef NOCOOLING       
+    /* Place holders -- later fixed in pkdInitEnergy */
+    CoolDefaultParticleData( &p.CoolParticle );
+#endif
+    p.c = 0.0;
+    p.fMetals = 0.0;
+    p.fTimeForm = 1e37;
+#endif
+#ifdef NEED_VPRED
+    for (j=0;j<3;++j) {
+        p.vPred[j] = 0.0;
+        }
+#endif
+
     p.r[0] = x;
     p.r[1] = y;
     p.r[2] = z;
     p.v[0] = vx;
     p.v[1] = vy;
     p.v[2] = vz;
+    p.a[0] = 0.0;
+    p.a[1] = 0.0;
+    p.a[2] = 0.0;
     p.fMass = mass;
     p.fSoft = radius;
     //p.fPot = phi;
@@ -619,6 +681,66 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
 
     PARTICLE p;
     p = pkd->pStore[msr->N];
+
+    /*
+    ** General initialization, from pkdReadTipsy.
+    */
+    TYPEClear(&p);
+    p.iRung = 0;
+    p.fWeight = 1.0;
+    p.fDensity = 0.0;
+    p.fBall2 = 42.314159;
+    p.fBallMax = 0.0;
+#ifdef GASOLINE
+    p.dt = FLT_MAX;
+    p.dtNew = FLT_MAX;
+    p.u = 0.0;
+    p.uPred = 0.0;
+#ifdef TWOPHASE
+    p.fMassHot = 0;
+#endif
+#ifdef UNONCOOL
+    p.uHot = 0.;
+    p.uHotPred = 0.;
+    p.uHotDot = 0.;
+#endif
+#ifdef STARFORM
+    p.uDotFB = 0.0;
+    p.uDotESF = 0.0;
+    p.fNSN = 0.0;
+    p.fNSNtot = 0.0;
+    p.fMOxygenOut = 0.0;
+    p.fMIronOut = 0.0;
+    p.fMFracOxygen = 0.0;
+    p.fMFracIron = 0.0;
+    p.fTimeCoolIsOffUntil = 0.0;
+#endif
+#ifdef VARALPHA
+    p.alpha = ALPHAMIN;
+    p.alphaPred = ALPHAMIN;
+    p.divv = 0;
+    p.dvds = 0;
+#endif
+#ifdef CULLENDEHNEN
+    p.alpha = 0;
+    p.dTime_divv = FLT_MAX;
+    p.divv_old = 0;
+#endif
+#ifndef NOCOOLING       
+    /* Place holders -- later fixed in pkdInitEnergy */
+    CoolDefaultParticleData( &p.CoolParticle );
+#endif
+    p.c = 0.0;
+    p.fMetals = 0.0;
+    p.fTimeForm = 1e37;
+#endif
+#ifdef NEED_VPRED
+    for (j=0;j<3;++j) {
+        p.vPred[j] = 0.0;
+        }
+#endif
+
+
     TYPESet(&p, TYPE_GAS);
     p.r[0] = x;
     p.r[1] = y;
@@ -626,6 +748,9 @@ int new_sph_particle(int * index_of_the_particle, double mass, double x,
     p.v[0] = vx;
     p.v[1] = vy;
     p.v[2] = vz;
+    p.a[0] = 0.0;
+    p.a[1] = 0.0;
+    p.a[2] = 0.0;
     p.fMass = mass;
     p.fSoft = h_smooth;
     //p.fPot = phi;
@@ -655,6 +780,66 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
 
     PARTICLE p;
     p = pkd->pStore[msr->N];
+
+    /*
+    ** General initialization, from pkdReadTipsy.
+    */
+    TYPEClear(&p);
+    p.iRung = 0;
+    p.fWeight = 1.0;
+    p.fDensity = 0.0;
+    p.fBall2 = 0.0;
+    p.fBallMax = 0.0;
+#ifdef GASOLINE
+    p.dt = FLT_MAX;
+    p.dtNew = FLT_MAX;
+    p.u = 0.0;
+    p.uPred = 0.0;
+#ifdef TWOPHASE
+    p.fMassHot = 0;
+#endif
+#ifdef UNONCOOL
+    p.uHot = 0.;
+    p.uHotPred = 0.;
+    p.uHotDot = 0.;
+#endif
+#ifdef STARFORM
+    p.uDotFB = 0.0;
+    p.uDotESF = 0.0;
+    p.fNSN = 0.0;
+    p.fNSNtot = 0.0;
+    p.fMOxygenOut = 0.0;
+    p.fMIronOut = 0.0;
+    p.fMFracOxygen = 0.0;
+    p.fMFracIron = 0.0;
+    p.fTimeCoolIsOffUntil = 0.0;
+#endif
+#ifdef VARALPHA
+    p.alpha = ALPHAMIN;
+    p.alphaPred = ALPHAMIN;
+    p.divv = 0;
+    p.dvds = 0;
+#endif
+#ifdef CULLENDEHNEN
+    p.alpha = 0;
+    p.dTime_divv = FLT_MAX;
+    p.divv_old = 0;
+#endif
+#ifndef NOCOOLING       
+    /* Place holders -- later fixed in pkdInitEnergy */
+    CoolDefaultParticleData( &p.CoolParticle );
+#endif
+    p.c = 0.0;
+    p.fMetals = 0.0;
+    p.fTimeForm = 1e37;
+#endif
+#ifdef NEED_VPRED
+    for (j=0;j<3;++j) {
+        p.vPred[j] = 0.0;
+        }
+#endif
+
+
     TYPESet(&p, TYPE_STAR); // should set to TYPE_SINK for black holes
     p.r[0] = x;
     p.r[1] = y;
@@ -662,6 +847,9 @@ int new_star_particle(int * index_of_the_particle, double mass, double x,
     p.v[0] = vx;
     p.v[1] = vy;
     p.v[2] = vz;
+    p.a[0] = 0.0;
+    p.a[1] = 0.0;
+    p.a[2] = 0.0;
     p.fMass = mass;
     p.fMassForm = mass;
     p.fSoft = radius;
