@@ -16,6 +16,11 @@ install:
 - pip install numpy scipy matplotlib nose docutils mpi4py h5py
 - ./configure
 - make framework
+- make bhtree.code
+- make fi.code
+- make hermite0.code
+- make seba.code
+- make sse.code
 
 virtualenv:
   system_site_packages: false
@@ -38,3 +43,8 @@ before_install:
 script:
 - export PYTHONPATH=${PWD}/src
 - nosetests -e "test_grid_implementation" -e "test_plot" test/core_tests
+- nosetests test/codes_tests/test_bhtree.py
+- nosetests test/codes_tests/test_fi.py
+- nosetests test/codes_tests/test_hermite.py
+- nosetests test/codes_tests/test_seba.py
+- nosetests test/codes_tests/test_sse.py
