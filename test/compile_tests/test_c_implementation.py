@@ -405,20 +405,20 @@ class TestCImplementationInterface(TestWithMPI):
 
     def test3(self):
         instance = ForTestingInterface(self.exefile)
-        input = [1, 2, 3, 4]
-        output, errors = instance.echo_int(input)
+        test_input = [1, 2, 3, 4]
+        output, errors = instance.echo_int(test_input)
         instance.stop()
         self.assertEquals(len(errors), 4)
-        for actual, expected in zip(output, input):
+        for actual, expected in zip(output, test_input):
             self.assertEquals(actual, expected)
 
     def test4(self):
         instance = ForTestingInterface(self.exefile)
-        input = [1.0, 2.1, 3.3, 4.2]
-        output, errors = instance.echo_double(input)
+        test_input = [1.0, 2.1, 3.3, 4.2]
+        output, errors = instance.echo_double(test_input)
         instance.stop()
         self.assertEquals(len(errors), 4)
-        for actual, expected in zip(output, input):
+        for actual, expected in zip(output, test_input):
             self.assertEquals(actual, expected)
 
     def test5(self):
