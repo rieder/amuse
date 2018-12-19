@@ -6,8 +6,8 @@ import numpy
 # from amuse.support.core import late
 # from amuse.units.quantities import VectorQuantity
 from amuse.units.generic_unit_system import (
-        time, length, speed, mass, density
-        )
+    time, length, speed, mass, density,
+)
 
 from amuse.community.capreole.interface import Capreole
 from amuse import io
@@ -95,7 +95,7 @@ class CalculateLinearWave1D(object):
         instance.parameters.y_boundary_conditions = ("periodic", "periodic")
         instance.parameters.z_boundary_conditions = ("periodic", "periodic")
 
-        result = instance.commit_parameters()
+        return instance.commit_parameters()
 
     def new_grid(self):
         grid = Grid.create(self.dimensions_of_mesh, [1, 1, 1] | length)
@@ -124,15 +124,15 @@ class CalculateLinearWave1D(object):
         right_eigenmatrix[3][0] = velocity[2]
         right_eigenmatrix[4][0] = (
             1.0 | time/length) * (enthalpy - velocity[0]*amplitude)
-        # right_eigenmatrix[0][1] = 0.0;
-        # right_eigenmatrix[1][1] = 0.0;
+        # right_eigenmatrix[0][1] = 0.0
+        # right_eigenmatrix[1][1] = 0.0
         right_eigenmatrix[2][1] = 1.0 | speed
-        # right_eigenmatrix[3][1] = 0.0;
+        # right_eigenmatrix[3][1] = 0.0
         right_eigenmatrix[4][1] = velocity[1]
 
-        # right_eigenmatrix[0][2] = 0.0; */
-        # right_eigenmatrix[1][2] = 0.0; */
-        # right_eigenmatrix[2][2] = 0.0; */
+        # right_eigenmatrix[0][2] = 0.0
+        # right_eigenmatrix[1][2] = 0.0
+        # right_eigenmatrix[2][2] = 0.0
         right_eigenmatrix[3][2] = 1.0 | speed
         right_eigenmatrix[4][2] = velocity[2]
 
@@ -152,7 +152,6 @@ class CalculateLinearWave1D(object):
 
     def initialize_grid(self, grid):
         density = mass / length**3
-        momentum = speed * density
         energy = mass / (time**2 * length)
         rho = 1.0 | density
         pressure = (1.0/self.gamma) | (mass / (length * time**2))
