@@ -141,9 +141,11 @@ class TestParticles(amusetest.TestCase):
         particles.mass = [10, 9, 8, 7] | units.kg
         particles.x = [7, 8, 9, 10] | units.kg
 
-        sorted = particles.sorted_by_attribute('mass')
-        self.assertAlmostRelativeEquals(sorted.mass, [7, 8, 9, 10] | units.kg)
-        self.assertAlmostRelativeEquals(sorted.x, [10, 9, 8, 7] | units.kg)
+        sorted_particles = particles.sorted_by_attribute('mass')
+        self.assertAlmostRelativeEquals(
+            sorted_particles.mass, [7, 8, 9, 10] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.x, [10, 9, 8, 7] | units.kg)
 
     def test13(self):
         particles = datamodel.Particles(keys=[10, 11, 12, 13])
@@ -151,17 +153,23 @@ class TestParticles(amusetest.TestCase):
         particles.x = [2, 2, 1, 1] | units.kg
         particles.y = [1, 2, 3, 4] | units.kg
 
-        sorted = particles.sorted_by_attributes('x', 'mass')
+        sorted_particles = particles.sorted_by_attributes('x', 'mass')
 
-        self.assertAlmostRelativeEquals(sorted.mass, [9, 9, 10, 10] | units.kg)
-        self.assertAlmostRelativeEquals(sorted.x, [1, 2, 1, 2] | units.kg)
-        self.assertAlmostRelativeEquals(sorted.y, [4, 2, 3, 1] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.mass, [9, 9, 10, 10] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.x, [1, 2, 1, 2] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.y, [4, 2, 3, 1] | units.kg)
 
-        sorted = sorted.sorted_by_attributes('mass', 'x')
+        sorted_particles = sorted_particles.sorted_by_attributes('mass', 'x')
 
-        self.assertAlmostRelativeEquals(sorted.mass, [9, 10, 9, 10] | units.kg)
-        self.assertAlmostRelativeEquals(sorted.x, [1, 1, 2, 2] | units.kg)
-        self.assertAlmostRelativeEquals(sorted.y, [4, 3, 2, 1] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.mass, [9, 10, 9, 10] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.x, [1, 1, 2, 2] | units.kg)
+        self.assertAlmostRelativeEquals(
+            sorted_particles.y, [4, 3, 2, 1] | units.kg)
 
     def test14(self):
         particles = datamodel.Particles(keys=[10, 11])
@@ -5293,4 +5301,3 @@ class TestParticlesWithSpecificDtypes(amusetest.TestCase):
         self.assertTrue((set.x.number == [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi]).all())
         self.assertAlmostEqual(set.y.number, [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi], 6)
         self.assertEqual(set.z.number, [1, 2, 3, 1, 2, 3])
-
