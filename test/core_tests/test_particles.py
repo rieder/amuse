@@ -3008,12 +3008,12 @@ class TestParticlesSupersetComplex(amusetest.TestCase):
         set1.add_function_attribute(
             "xtimesypluso",
             lambda p, o: p.x * p.y - o,
-            lambda all, p, o: p.x * p.x - o
+            lambda other, p, o: p.x * p.x - o
         )
         set2.add_function_attribute(
             "xtimesypluso",
             lambda p, o: p.x * p.y + o,
-            lambda all, p, o: p.x * p.x - o
+            lambda other, p, o: p.x * p.x - o
         )
         superset = datamodel.ParticlesSuperset([set1, set2])
         self.assertEquals(len(superset), 5)
@@ -3223,7 +3223,7 @@ class TestSliceParticles(amusetest.TestCase):
         odd = original_set[1::2]    # contains all particles with odd indices
         even = original_set[::2]    # contains all particles with even indices
         reverse = original_set[::-1]  # contains all particles in reverse order
-        all = original_set[:]       # contains all particles
+        allparticles = original_set[:]       # contains all particles
         one = original_set[3]       # contains one particle (Particle)
         another = original_set[5:6]  # contains one particle (ParticlesSubset)
         empty = original_set[2:2]   # contains no particle
@@ -3233,7 +3233,7 @@ class TestSliceParticles(amusetest.TestCase):
         self.assertTrue(isinstance(odd,     datamodel.ParticlesSubset))
         self.assertTrue(isinstance(even,    datamodel.ParticlesSubset))
         self.assertTrue(isinstance(reverse, datamodel.ParticlesSubset))
-        self.assertTrue(isinstance(all,     datamodel.ParticlesSubset))
+        self.assertTrue(isinstance(allparticles,     datamodel.ParticlesSubset))
         self.assertTrue(isinstance(one,     datamodel.Particle))
         self.assertTrue(isinstance(another, datamodel.ParticlesSubset))
         self.assertTrue(isinstance(empty,   datamodel.ParticlesSubset))
@@ -3244,7 +3244,7 @@ class TestSliceParticles(amusetest.TestCase):
         self.assertEqual(len(odd),     int((number_of_particles/2.0)))
         self.assertEqual(len(even),    int((0.5+number_of_particles/2.0)))
         self.assertEqual(len(reverse), number_of_particles)
-        self.assertEqual(len(all),     number_of_particles)
+        self.assertEqual(len(allparticles),     number_of_particles)
         self.assertEqual(len([one]),   1)
         self.assertEqual(len(another), 1)
         self.assertEqual(len(empty),   0)
