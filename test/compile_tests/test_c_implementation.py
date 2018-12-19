@@ -364,13 +364,13 @@ class ForTesting(InCodeComponentImplementation):
         InCodeComponentImplementation.__init__(
             self, ForTestingInterface(exefile, **options), **options)
 
-    def define_methods(self, object):
-        object.add_method(
+    def define_methods(self, code_object):
+        code_object.add_method(
             'echo_int',
             (units.m,),
             (
                 units.m,
-                object.ERROR_CODE,
+                code_object.ERROR_CODE,
             )
         )
 
