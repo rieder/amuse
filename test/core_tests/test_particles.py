@@ -3430,7 +3430,7 @@ class TestSubtractParticles(amusetest.TestCase):
         print "Test4: recursive subtraction, remove particles until the set is empty."
         particle_set = datamodel.Particles(10)
         self.assertEqual(len(particle_set), 10)
-        while len(particle_set):
+        while not particle_set.is_empty():
             particle_set -= particle_set[0]
         self.assertEqual(len(particle_set), 0)
 
