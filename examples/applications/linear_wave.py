@@ -44,7 +44,7 @@ class CalculateLinearWave1D(object):
         self.name_of_the_code = name_of_the_code
         self.amplitude = amplitude
         self.vflow_factor = vflow_factor
-        self.grid_length = 1.0 | length
+        self.grid_length = grid_length
         self.number_of_steps = number_of_steps
         self.dimensions_of_mesh = (
             self.number_of_grid_points,
