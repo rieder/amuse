@@ -1681,53 +1681,53 @@ class TestParticlesWithBinding(amusetest.TestCase):
             self.links = {}
             self.grids = {}
 
-        def get_mass(self, id):
+        def get_mass(self, pid):
             masses = []
             errors = []
-            for x in id:
+            for x in pid:
                 masses.append(self.masses[x])
                 errors.append(0)
             return (masses, errors, )
 
-        def set_mass(self, id, mass):
-            for i, m in zip(id, mass):
+        def set_mass(self, pid, mass):
+            for i, m in zip(pid, mass):
                 self.masses[i] = m
 
-            return ([0] * len(id),)
+            return ([0] * len(pid),)
 
-        def get_radius(self, id):
+        def get_radius(self, pid):
             masses = []
             errors = []
-            for x in id:
+            for x in pid:
                 masses.append(1)
                 errors.append(0)
             return (masses, errors, )
 
-        def get_link(self, id):
+        def get_link(self, pid):
             result = []
             errors = []
-            for x in id:
+            for x in pid:
                 result.append(self.links[x])
                 errors.append(0)
             return (result, errors, )
 
-        def set_link(self, id, link):
-            for i, l in zip(id, link):
+        def set_link(self, pid, link):
+            for i, l in zip(pid, link):
                 self.links[i] = l
 
-            return ([0] * len(id),)
+            return ([0] * len(pid),)
 
-        def get_grid(self, id, index1, index2):
+        def get_grid(self, pid, index1, index2):
             result = []
             errors = []
-            for x, i1, i2 in zip(id, index1, index2):
+            for x, i1, i2 in zip(pid, index1, index2):
                 result.append(self.grids[x][i1][i2])
                 errors.append(0)
             return (result, errors, )
 
-        def set_grid(self, id, index1, index2, value):
+        def set_grid(self, pid, index1, index2, value):
             errors = []
-            for x, i1, i2, v in zip(id, index1, index2, value):
+            for x, i1, i2, v in zip(pid, index1, index2, value):
                 self.grids[x][i1][i2] = v
                 errors.append(0)
             return (0, )
@@ -1736,22 +1736,22 @@ class TestParticlesWithBinding(amusetest.TestCase):
             return (0, 3, 0, 2)
 
         def new_particle(self, mass):
-            ids = []
+            pids = []
             errors = []
 
             for x in mass:
-                id = len(self.masses)
-                self.masses[id] = x
-                self.links[id] = -1
-                self.grids[id] = numpy.arange(4*3).reshape(4, 3)
-                ids.append(id)
+                pid = len(self.masses)
+                self.masses[pid] = x
+                self.links[pid] = -1
+                self.grids[pid] = numpy.arange(4*3).reshape(4, 3)
+                pids.append(pid)
                 errors.append(0)
 
-            return (ids, errors)
+            return (pids, errors)
 
-        def delete_particle(self, ids):
+        def delete_particle(self, pids):
             errors = []
-            for x in ids:
+            for x in pids:
                 del self.masses[x]
                 del self.links[x]
                 errors.append(0)
@@ -3779,35 +3779,35 @@ class TestParticlesIndexingWithBinding(amusetest.TestCase):
             self.masses = {}
             self.offset = offset
 
-        def get_mass(self, id):
+        def get_mass(self, pid):
             masses = []
             errors = []
 
-            for x in id:
+            for x in pid:
                 masses.append(self.masses[x-self.offset])
                 errors.append(0)
             return (masses, errors, )
 
-        def set_mass(self, id, mass):
-            for i, m in zip(id, mass):
+        def set_mass(self, pid, mass):
+            for i, m in zip(pid, mass):
                 self.masses[i-self.offset] = m
 
-            return ([0] * len(id),)
+            return ([0] * len(pid),)
 
         def new_particle(self, mass):
             ids = []
             errors = []
 
             for x in mass:
-                id = len(self.masses)
+                pid = len(self.masses)
                 self.masses[len(self.masses)] = x
-                ids.append(id + self.offset)
+                ids.append(pid + self.offset)
                 errors.append(0)
             return (ids, errors)
 
-        def delete_particle(self, ids):
+        def delete_particle(self, pids):
             errors = []
-            for x in ids:
+            for x in pids:
                 del self.masses[x]
                 errors.append(0)
             return errors
@@ -4539,40 +4539,40 @@ class TestParticlesIndexingWithBindingAndSet(amusetest.TestCase):
             self.masses = {}
             self.offset = offset
 
-        def get_mass(self, id):
+        def get_mass(self, pid):
             masses = []
             errors = []
 
-            for x in id:
+            for x in pid:
                 masses.append(self.masses[x-self.offset])
                 errors.append(0)
             return (masses, errors, )
 
-        def set_mass(self, id, mass):
+        def set_mass(self, pid, mass):
             try:
 
-                for i, m in zip(id, mass):
+                for i, m in zip(pid, mass):
                     self.masses[i-self.offset] = m
             except:
-                if len(id) == 1:
-                    self.masses[id[0]-self.offset] = mass
+                if len(pid) == 1:
+                    self.masses[pid[0]-self.offset] = mass
 
-            return ([0] * len(id),)
+            return ([0] * len(pid),)
 
         def new_particle(self, mass):
-            ids = []
+            pids = []
             errors = []
 
             for x in mass:
-                id = len(self.masses)
+                pid = len(self.masses)
                 self.masses[len(self.masses)] = x
-                ids.append(id + self.offset)
+                pids.append(pid + self.offset)
                 errors.append(0)
-            return (ids, errors)
+            return (pids, errors)
 
-        def delete_particle(self, ids):
+        def delete_particle(self, pids):
             errors = []
-            for x in ids:
+            for x in pids:
                 del self.masses[x]
                 errors.append(0)
             return errors
