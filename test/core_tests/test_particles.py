@@ -1952,10 +1952,10 @@ class TestParticlesWithBinding(amusetest.TestCase):
         self.assertEquals(remote_particles[0].mass.value_in(units.kg), 3)
         self.assertEquals(remote_particles[2].mass.value_in(units.kg), 5)
 
-        set = datamodel.Particles()
-        set.add_particle(remote_particles[0])
-        set.add_particle(remote_particles[2])
-        interface.particles.remove_particles(set)
+        particle_set = datamodel.Particles()
+        particle_set.add_particle(remote_particles[0])
+        particle_set.add_particle(remote_particles[2])
+        interface.particles.remove_particles(particle_set)
 
         self.assertEquals(len(remote_particles), 2)
         self.assertEquals(remote_particles[0].mass.value_in(units.kg), 4)
@@ -3257,23 +3257,23 @@ class TestAddParticles(amusetest.TestCase):
         print "Test1: create a particle subset by adding a particle to a set."
         original_set = datamodel.Particles(4)
         original_set.x = [1.0, 2.0, -789.0, 3.0] | units.m
-        set = original_set[:2]
+        other_set = original_set[:2]
         particle = original_set[3]
         self.assertTrue(isinstance(set, datamodel.ParticlesSubset))
         self.assertTrue(isinstance(particle, datamodel.Particle))
 
-        new_set = set + particle
+        new_set = other_set + particle
         self.assertTrue(isinstance(new_set, datamodel.ParticlesSubset))
-        self.assertEqual(len(new_set), len(set)+1)
+        self.assertEqual(len(new_set), len(other_set)+1)
         print new_set.x
-        print set.x
+        print other_set.x
         print particle.x
         self.assertEqual(new_set.x, ([1.0, 2.0, 3.0] | units.m))
 
-        set += particle
-        self.assertTrue(isinstance(set, datamodel.ParticlesSubset))
-        self.assertEqual(len(set), 3)
-        self.assertEqual(set.x, ([1.0, 2.0, 3.0] | units.m))
+        other_set += particle
+        self.assertTrue(isinstance(other_set, datamodel.ParticlesSubset))
+        self.assertEqual(len(other_set), 3)
+        self.assertEqual(other_set.x, ([1.0, 2.0, 3.0] | units.m))
 
     def test2(self):
         print "Test2: create a particle subset by adding a set to a set."
@@ -3296,38 +3296,38 @@ class TestAddParticles(amusetest.TestCase):
 
     def test3(self):
         print "Test3: create a particle superset by adding a particle to a set."
-        set = datamodel.Particles(2)
-        set.x = [1.0, 2.0] | units.m
+        particle_set = datamodel.Particles(2)
+        particle_set.x = [1.0, 2.0] | units.m
         particle = datamodel.Particle()
         particle.x = 3.0 | units.m
 
         superset = datamodel.ParticlesSuperset([set, particle.as_set()])
         self.assertTrue(isinstance(superset, datamodel.ParticlesSuperset))
-        self.assertEqual(len(superset), len(set)+1)
+        self.assertEqual(len(superset), len(particle_set)+1)
         self.assertEqual(superset.x, ([1.0, 2.0, 3.0] | units.m))
 
         set2 = datamodel.Particles(2)
         set2.x = [3.0, 4.0] | units.m
-        superset = datamodel.ParticlesSuperset([set, set2])
+        superset = datamodel.ParticlesSuperset([particle_set, set2])
         self.assertTrue(isinstance(superset, datamodel.ParticlesSuperset))
-        self.assertEqual(len(superset), len(set)+len(set2))
+        self.assertEqual(len(superset), len(particle_set)+len(set2))
         self.assertEqual(superset.x, ([1.0, 2.0, 3.0, 4.0] | units.m))
 
     def test4(self):
         print "Test4: check if the particle is already part of the set."
-        set = datamodel.Particles(2)
+        particle_set = datamodel.Particles(2)
         particle = datamodel.Particle()
-        set = datamodel.ParticlesSuperset([set, particle.as_set()])
+        particle_set = datamodel.ParticlesSuperset([particle_set, particle.as_set()])
         self.assertRaises(
             AmuseException, datamodel.ParticlesSuperset,
-            [set, particle.as_set()],
+            [particle_set, particle.as_set()],
             expected_message="Unable to add a particle, because it was already part of this set.")
-        self.assertEqual(len(set), 3)
+        self.assertEqual(len(particle_set), 3)
         other_set = datamodel.Particles(2)
         other_set = datamodel.ParticlesSuperset([other_set, particle.as_set()])
         self.assertRaises(
             AmuseException, datamodel.ParticlesSuperset,
-            [set, other_set],
+            [particle_set, other_set],
             expected_message="Unable to add a particle, because it was already part of this set.")
 
     def test5(self):
@@ -3368,14 +3368,14 @@ class TestAddParticles(amusetest.TestCase):
         original_set = datamodel.Particles(4)
         particle1 = original_set[0]
         particle2 = original_set[1]
-        set = original_set[2:]
+        other_set = original_set[2:]
         self.assertTrue(isinstance(particle1, datamodel.Particle))
         self.assertTrue(isinstance(particle2, datamodel.Particle))
         self.assertTrue(isinstance(set, datamodel.ParticlesSubset))
         new_set = particle1 + particle2
         self.assertTrue(isinstance(new_set, datamodel.ParticlesSubset))
         self.assertEqual(len(new_set), 2)
-        new_set = particle1 + set
+        new_set = particle1 + other_set
         self.assertTrue(isinstance(new_set, datamodel.ParticlesSubset))
         self.assertEqual(len(new_set), 3)
 
@@ -3384,20 +3384,20 @@ class TestSubtractParticles(amusetest.TestCase):
 
     def test1(self):
         print "Test1: create a particle subset by removing a particle from a set."
-        set = datamodel.Particles(4)
-        set.x = [1.0, 2.0, -789.0, 3.0] | units.m
-        particle = set[2]
+        particle_set = datamodel.Particles(4)
+        particle_set.x = [1.0, 2.0, -789.0, 3.0] | units.m
+        particle = particle_set[2]
         self.assertTrue(isinstance(particle, datamodel.Particle))
 
-        new_set = set - particle
+        new_set = particle_set - particle
         self.assertTrue(isinstance(new_set, datamodel.ParticlesSubset))
-        self.assertEqual(len(new_set), len(set)-1)
+        self.assertEqual(len(new_set), len(particle_set)-1)
         self.assertEqual(new_set.x, ([1.0, 2.0, 3.0] | units.m))
 
-        set -= particle
-        self.assertTrue(isinstance(set, datamodel.ParticlesSubset))
-        self.assertEqual(len(set), 3)
-        self.assertEqual(set.x, ([1.0, 2.0, 3.0] | units.m))
+        particle_set -= particle
+        self.assertTrue(isinstance(particle_set, datamodel.ParticlesSubset))
+        self.assertEqual(len(particle_set), 3)
+        self.assertEqual(particle_set.x, ([1.0, 2.0, 3.0] | units.m))
 
     def test2(self):
         print "Test2: create a particle subset by removing a set from a set."
@@ -3419,20 +3419,20 @@ class TestSubtractParticles(amusetest.TestCase):
 
     def test3(self):
         print "Test3: check if the particle is actually part of the set."
-        set = datamodel.Particles(2)
+        particle_set = datamodel.Particles(2)
         particle = datamodel.Particle()
         self.assertRaises(
-            AmuseException, lambda: set - particle,
+            AmuseException, lambda: particle_set - particle,
             expected_message="Unable to subtract a particle, because it is not part of this set."
         )
 
     def test4(self):
         print "Test4: recursive subtraction, remove particles until the set is empty."
-        set = datamodel.Particles(10)
-        self.assertEqual(len(set), 10)
-        while len(set):
-            set -= set[0]
-        self.assertEqual(len(set), 0)
+        particle_set = datamodel.Particles(10)
+        self.assertEqual(len(particle_set), 10)
+        while len(particle_set):
+            particle_set -= particle_set[0]
+        self.assertEqual(len(particle_set), 0)
 
     def test5(self):
         print "Test5: check if it's possible to subtract particle(s) from a particle."
@@ -4964,8 +4964,8 @@ class TestParticlesIndexingWithBindingAndSet(amusetest.TestCase):
 
 class TestParticlesIndexingAfterPickle(amusetest.TestCase):
 
-    def copy_with_pickle(self, set):
-        return pickle.loads(pickle.dumps(set))
+    def copy_with_pickle(self, particle_set):
+        return pickle.loads(pickle.dumps(particle_set))
 
     def test1(self):
         particles = datamodel.Particles(10)
@@ -5244,60 +5244,60 @@ class TestParticlesWithSpecificDtypes(amusetest.TestCase):
     def new_set_with_specific_dtype(self):
         m_float32 = unit_with_specific_dtype(units.m, numpy.float32)
         m_int32 = unit_with_specific_dtype(units.m, numpy.int32)
-        set = datamodel.Particles(3)
-        set.x = [1.3, 2.7, numpy.pi] | units.m
-        set.y = [1.3, 2.7, numpy.pi] | m_float32
-        set.z = [1.3, 2.7, numpy.pi] | m_int32
-        return set
+        particle_set = datamodel.Particles(3)
+        particle_set.x = [1.3, 2.7, numpy.pi] | units.m
+        particle_set.y = [1.3, 2.7, numpy.pi] | m_float32
+        particle_set.z = [1.3, 2.7, numpy.pi] | m_int32
+        return particle_set
 
     def test1(self):
         print "Unit with dtype is stored on set, number gets same dtype"
-        set = self.new_set_with_specific_dtype()
-        self.assertEqual(set.x.unit.dtype, None)
-        self.assertEqual(set.y.unit.dtype, numpy.float32)
-        self.assertEqual(set.z.unit.dtype, numpy.int32)
-        self.assertEqual(set.x.number.dtype, numpy.float64)
-        self.assertEqual(set.y.number.dtype, numpy.float32)
-        self.assertEqual(set.z.number.dtype, numpy.int32)
+        particle_set = self.new_set_with_specific_dtype()
+        self.assertEqual(particle_set.x.unit.dtype, None)
+        self.assertEqual(particle_set.y.unit.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.unit.dtype, numpy.int32)
+        self.assertEqual(particle_set.x.number.dtype, numpy.float64)
+        self.assertEqual(particle_set.y.number.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.number.dtype, numpy.int32)
 
-        self.assertTrue((set.x.number == [1.3, 2.7, numpy.pi]).all())
-        self.assertFalse((set.y.number == [1.3, 2.7, numpy.pi]).any())
-        self.assertAlmostEqual(set.y.number, [1.3, 2.7, numpy.pi], 6)
-        self.assertEqual(set.z.number, [1, 2, 3])
+        self.assertTrue((particle_set.x.number == [1.3, 2.7, numpy.pi]).all())
+        self.assertFalse((particle_set.y.number == [1.3, 2.7, numpy.pi]).any())
+        self.assertAlmostEqual(particle_set.y.number, [1.3, 2.7, numpy.pi], 6)
+        self.assertEqual(particle_set.z.number, [1, 2, 3])
 
     def test2(self):
         if compare_version_strings(numpy.__version__, '1.8.0') < 0:
             self.skip("test does a conversion that is not supported on older numpy versions")
         print "Stored unit with dtype remains, only number can be changed"
-        set = self.new_set_with_specific_dtype()
-        temp_x = set.x.copy()
-        set.x = set.z
-        set.y = set.z
-        set.z = 2 * temp_x
-        self.assertEqual(set.x.unit.dtype, None)
-        self.assertEqual(set.y.unit.dtype, numpy.float32)
-        self.assertEqual(set.z.unit.dtype, numpy.int32)
-        self.assertEqual(set.x.number.dtype, numpy.float64)
-        self.assertEqual(set.y.number.dtype, numpy.float32)
-        self.assertEqual(set.z.number.dtype, numpy.int32)
+        particle_set = self.new_set_with_specific_dtype()
+        temp_x = particle_set.x.copy()
+        particle_set.x = particle_set.z
+        particle_set.y = particle_set.z
+        particle_set.z = 2 * temp_x
+        self.assertEqual(particle_set.x.unit.dtype, None)
+        self.assertEqual(particle_set.y.unit.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.unit.dtype, numpy.int32)
+        self.assertEqual(particle_set.x.number.dtype, numpy.float64)
+        self.assertEqual(particle_set.y.number.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.number.dtype, numpy.int32)
 
-        self.assertTrue((set.x.number == [1, 2, 3]).all())
-        self.assertAlmostEqual(set.y.number, [1.0, 2.0, 3.0], 6)
-        self.assertEqual(set.z.number, [2, 5, 6])
+        self.assertTrue((particle_set.x.number == [1, 2, 3]).all())
+        self.assertAlmostEqual(particle_set.y.number, [1.0, 2.0, 3.0], 6)
+        self.assertEqual(particle_set.z.number, [2, 5, 6])
 
     def test3(self):
         print "Adding particles: stored unit with dtype remains"
-        set = self.new_set_with_specific_dtype()
+        particle_set = self.new_set_with_specific_dtype()
         set2 = datamodel.Particles(3)
         set2.position = [[1.3]*3, [2.7]*3, [numpy.pi]*3] | units.m
-        set.add_particles(set2)
-        self.assertEqual(set.x.unit.dtype, None)
-        self.assertEqual(set.y.unit.dtype, numpy.float32)
-        self.assertEqual(set.z.unit.dtype, numpy.int32)
-        self.assertEqual(set.x.number.dtype, numpy.float64)
-        self.assertEqual(set.y.number.dtype, numpy.float32)
-        self.assertEqual(set.z.number.dtype, numpy.int32)
+        particle_set.add_particles(set2)
+        self.assertEqual(particle_set.x.unit.dtype, None)
+        self.assertEqual(particle_set.y.unit.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.unit.dtype, numpy.int32)
+        self.assertEqual(particle_set.x.number.dtype, numpy.float64)
+        self.assertEqual(particle_set.y.number.dtype, numpy.float32)
+        self.assertEqual(particle_set.z.number.dtype, numpy.int32)
 
-        self.assertTrue((set.x.number == [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi]).all())
-        self.assertAlmostEqual(set.y.number, [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi], 6)
-        self.assertEqual(set.z.number, [1, 2, 3, 1, 2, 3])
+        self.assertTrue((particle_set.x.number == [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi]).all())
+        self.assertAlmostEqual(particle_set.y.number, [1.3, 2.7, numpy.pi, 1.3, 2.7, numpy.pi], 6)
+        self.assertEqual(particle_set.z.number, [1, 2, 3, 1, 2, 3])
