@@ -7,7 +7,7 @@ from amuse.support.interface import InCodeComponentImplementation
 from amuse.rfi.core import legacy_function
 from amuse.rfi.core import LegacyFunctionSpecification
 
-import sys
+
 class CommonCodeInterface(object):
 
     @legacy_function
@@ -24,12 +24,12 @@ class CommonCodeInterface(object):
         0 - OK
             Code is initialized
         -1 - ERROR
-            Error happened during initialization, this error needs to be further specified by every code implemention
+            Error happened during initialization, this error needs to be
+            further specified by every code implemention
         -2 - ERROR
             not yet implemented
         """
         return function
-
 
     @legacy_function
     def cleanup_code():
@@ -44,12 +44,12 @@ class CommonCodeInterface(object):
         0 - OK
             Code is initialized
         -1 - ERROR
-            Error happened during cleanup, this error needs to be further specified by every code implemention
+            Error happened during cleanup, this error needs to be further
+            specified by every code implemention
         -2 - ERROR
             not yet implemented
         """
         return function
-
 
     @legacy_function
     def commit_parameters():
@@ -64,7 +64,8 @@ class CommonCodeInterface(object):
         0 - OK
             Code is initialized
         -1 - ERROR
-            Error happened during initialization, this error needs to be further specified by every code implemention
+            Error happened during initialization, this error needs to be
+            further specified by every code implemention
         -2 - ERROR
             not yet implemented
         """
@@ -83,50 +84,50 @@ class CommonCodeInterface(object):
         0 - OK
             Model is initialized and evolution can start
          -1 - ERROR
-            Error happened during initialization, this error needs to be further specified by every code implemention
+            Error happened during initialization, this error needs to be
+            further specified by every code implemention
         """
 
         return function
 
     def invoke_state_change(self):
         pass
-        
-        
+
 
 class CommonCode(InCodeComponentImplementation):
 
     def define_state(self, object):
         object.set_initial_state('UNINITIALIZED')
-        object.add_transition('UNINITIALIZED', 'INITIALIZED', 'initialize_code')
+        object.add_transition(
+            'UNINITIALIZED', 'INITIALIZED', 'initialize_code')
         object.add_method('INITIALIZED', 'before_get_parameter')
         object.add_method('INITIALIZED', 'before_set_parameter')
         object.add_method('END', 'before_get_parameter')
         object.add_transition('!UNINITIALIZED!STOPPED', 'END', 'cleanup_code')
         object.add_transition('END', 'STOPPED', 'stop', False)
         object.add_method('STOPPED', 'stop')
-    
+
     def define_methods(self, object):
         object.add_method(
             'initialize_code',
             (),
             (object.ERROR_CODE)
         )
-        
+
         object.add_method(
             'cleanup_code',
             (),
             (object.ERROR_CODE)
         )
-        
+
         object.add_method(
             'commit_parameters',
             (),
             (object.ERROR_CODE)
         )
-        
+
         object.add_method(
             'recommit_parameters',
             (),
             (object.ERROR_CODE)
         )
-    
