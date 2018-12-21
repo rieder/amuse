@@ -120,9 +120,9 @@ class Hydro:
             self.density_threshold
         self.code.commit_parameters()
 
-        if len(self.gas_particles) > 0:
+        if self.gas_particles:
             self.code.gas_particles.add_particles(self.gas_particles)
-        if len(self.star_particles) > 0:
+        if self.star_particles:
             self.code.dm_particles.add_particles(self.star_particles)
 
         self.parameters = self.code.parameters
@@ -155,7 +155,7 @@ class Hydro:
         print("Time=", self.code.model_time.in_(units.Myr))
         print("N=", len(self.gas_particles), len(self.star_particles))
 
-        if len(self.star_particles) > 0:
+        if self.star_particles:
             print("Sink masses:", len(self.code.dm_particles.mass))
             print("Sink masses:", len(self.star_particles.mass))
 
@@ -164,7 +164,7 @@ class Hydro:
         write_set_to_file(
             self.gas_particles, filename, "amuse", append_to_file=False
         )
-        if len(self.star_particles):
+        if self.star_particles:
             write_set_to_file(
                 self.star_particles, filename, "amuse"
             )  # , attribute_names=self.star_attributes)
@@ -217,7 +217,7 @@ class Hydro:
 
         self.merge_stars()
 
-        if len(self.star_particles) > 0:
+        if self.star_particles:
             sinks = new_sink_particles(self.star_particles)
             sinks.accrete(self.gas_particles)
             for si in range(len(self.star_particles)):
@@ -297,7 +297,7 @@ class Hydro:
             print("N candidates:", len(candidate_stars))
 
     def merge_stars(self):
-        if len(self.star_particles) <= 0:
+        if not self.star_particles:
             return
         print("Let gravity take care of merging sinks")
         if self.star_particles.radius.max() <= (0 | units.AU):
@@ -306,7 +306,7 @@ class Hydro:
         ccs = self.star_particles.copy().connected_components(
             threshold=self.merge_radius
         )
-        if len(ccs):
+        if ccs:
             print("merging sink sets... ")
         nmerge = 0
         # newstars = Particles()
