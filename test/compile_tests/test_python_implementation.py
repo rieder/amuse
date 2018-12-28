@@ -780,7 +780,7 @@ class TestInterface(TestWithMPI):
         with open("pythonexe", 'w') as f:
             f.write(string)
 
-        os.chmod("pythonexe", 0755)
+        os.chmod("pythonexe", 0775)
 
         instance = ForTestingInterface(
             use_python_interpreter=True,
@@ -820,7 +820,7 @@ class TestInterface(TestWithMPI):
         with open("pythonexe", 'w') as f:
             f.write(string)
 
-        os.chmod("pythonexe", 0777)
+        os.chmod("pythonexe", 0775)
 
         instance = ForTestingInterface(
             use_python_interpreter=True,
