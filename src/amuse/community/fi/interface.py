@@ -73,8 +73,7 @@ class FiInterface(
             return 'fi_worker_mp'
         elif mode == self.MODE_PERIODIC_BOUNDARIES:
             return 'fi_worker_periodic'
-        else:
-            return 'fi_worker'
+        return 'fi_worker'
 
     def new_particle(self, mass, x, y, z, vx, vy, vz, radius=0.0):
         return self.new_dm_particle(mass, x, y, z, vx, vy, vz, radius)
@@ -1750,8 +1749,7 @@ class GlFiInterface(FiInterface):
             return 'fi_worker_gl'
         elif mode == self.MODE_PERIODIC_BOUNDARIES:
             return 'fi_worker_periodic_gl'
-        else:
-            return 'fi_worker_gl'
+        return 'fi_worker_gl'
 
     def __init__(self, mode=FiInterface.MODE_NORMAL, **options):
         self.mode = mode
@@ -3613,8 +3611,7 @@ class FiMapInterface(CodeInterface):
             return 'fi_worker_map'
         elif mode == self.MODE_NORMAL_OPENMP:
             return 'fi_worker_map_mp'
-        else:
-            return 'fi_worker_map'
+        return 'fi_worker_map'
 
     @legacy_function
     def initialize_code():
