@@ -3,10 +3,7 @@ initial conditions for the SPH evrard collapse test
 """
 import numpy
 
-from math import *
-
 from amuse.units import nbody_system
-from amuse.units import units
 
 from amuse.datamodel import Particles
 from amuse.datamodel import ParticlesWithUnitsConverted

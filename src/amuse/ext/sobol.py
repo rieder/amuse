@@ -1,5 +1,7 @@
 import math
-from numpy import *
+from numpy import (
+    zeros, transpose, bitwise_xor
+)
 
 
 __all__ = ["i4_sobol", "i4_sobol_generate"]

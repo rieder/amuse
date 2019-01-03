@@ -1,9 +1,13 @@
 """
    Calculate the radius of gyration for a star
 """
-import sys
 import numpy
-from amuse.lab import *
+
+from amuse.units import (units, constants)
+from amuse.units.quantities import zero
+from amuse.community.evtwin.interface import EVtwin
+from amuse.datamodel import Particle
+from amuse.support.console import set_printing_strategy
 
 HeWhiteDwarf = 10 | units.stellar_type
 Hertzsprung_gap = 2 | units.stellar_type

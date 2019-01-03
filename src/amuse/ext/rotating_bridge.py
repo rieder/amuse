@@ -25,10 +25,7 @@ SPLIT_10TH_SS_M35
 
 """
 
-from amuse.support.exceptions import AmuseException
-import threading
 from amuse.units import quantities
-from amuse import datamodel
 from amuse.ext.bridge import bridge
 import numpy
 

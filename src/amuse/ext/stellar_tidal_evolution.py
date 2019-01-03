@@ -1,12 +1,15 @@
 # Equations for tidal evolution of binary/planetary orbits
 # From Hansen 2010, based on Eggleton et al. 1998
 
-import threading
 import numpy
 import math
 from scipy import integrate
-from amuse.lab import *
 from amuse.support import literature
+from amuse.units import units, constants
+from amuse.units.quantities import zero
+from amuse.datamodel import Particles, ParticlesSuperset
+from amuse.community.seba.interface import SeBa
+from amuse.support.console import set_printing_strategy
 
 # 2010ApJ...723..285H
 

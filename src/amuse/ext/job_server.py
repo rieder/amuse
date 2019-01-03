@@ -28,10 +28,11 @@ derived from the main module. Easy way to achieve this is to import them from a 
    until the situation of issue 1 is resolved (so the warning given there is useless) 
 
 """
-from amuse.rfi.core import *
+from amuse.rfi.core import (
+    PythonCodeInterface, legacy_function, LegacyFunctionSpecification,
+)
 import cPickle as pickle
 from amuse.rfi.channel import AsyncRequestsPool
-import inspect
 from collections import deque
 import threading
 from time import sleep
