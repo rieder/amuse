@@ -479,7 +479,7 @@ class GalactICsImplementation(object):
         return 0
 
     def _directory_contains_valid_model(self, data_directory):
-        if (
+        return bool(
                 os.path.exists(os.path.join(data_directory))
                 and os.path.exists(os.path.join(data_directory, 'dbh.dat'))
                 and os.path.exists(os.path.join(data_directory, 'dbh.finished'))
@@ -488,10 +488,7 @@ class GalactICsImplementation(object):
                     os.path.exists(os.path.join(data_directory, 'diskdf.finished'))
                     or not self._generate_disk_flag
                 )
-        ):
-            return True
-        else:
-            return False
+        )
 
     def _location_dbh_dat(self, in_dbh, in_diskdf):
         data_directory = self._data_directory(in_dbh, in_diskdf)
