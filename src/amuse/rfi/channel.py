@@ -150,20 +150,17 @@ class DependentASyncRequest(AbstractASyncRequest):
     def is_mpi_request(self):
         if self.request is None:
             return self.parent.is_mpi_request()
-        else:
-            return self.request.is_mpi_request()
+        return self.request.is_mpi_request()
 
     def is_socket_request(self):
         if self.request is None:
             return self.parent.is_socket_request()
-        else:
-            return self.request.is_socket_request()
+        return self.request.is_socket_request()
 
     def waits_for(self):
         if self.request is not None:
             return self.request
-        else:
-            return self.parent.waits_for()
+        return self.parent.waits_for()
 
 
 class ASyncRequest(AbstractASyncRequest):
@@ -491,7 +488,7 @@ class AsyncRequestsPool(object):
         )
 
     def waitall(self):
-        while len(self) > 0:
+        while self:
             self.wait()
 
     def waitone(self):
@@ -501,7 +498,7 @@ class AsyncRequestsPool(object):
 
         # TODO need to cleanup this code
         #
-        while len(self.requests_and_handlers) > 0:
+        while self.requests_and_handlers:
             requests = [
                 x.async_request.waits_for() for x in self.requests_and_handlers
                 if x.async_request.is_other()
@@ -511,7 +508,7 @@ class AsyncRequestsPool(object):
                 if x.async_request.is_other()
             ]
 
-            if len(requests) > 0:
+            if requests:
                 for index, x in zip(indices, requests):
                     x.wait_for().waitone()
 
@@ -534,7 +531,7 @@ class AsyncRequestsPool(object):
                 i for i, x in enumerate(self.requests_and_handlers)
                 if x.async_request.is_mpi_request()
             ]
-            if len(requests) > 0:
+            if requests:
                 index = MPI.Request.Waitany(requests)
 
                 index = indices[index]
@@ -562,7 +559,7 @@ class AsyncRequestsPool(object):
                 i for i, x in enumerate(self.requests_and_handlers)
                 if x.async_request.is_socket_request()
             ]
-            if len(sockets) > 0:
+            if sockets:
                 readable, _, _ = select.select(sockets, [], [])
                 indices_to_delete = []
                 for read_socket in readable:
@@ -589,7 +586,7 @@ class AsyncRequestsPool(object):
 
                     self.requests_and_handlers.pop(x)
 
-                if len(indices_to_delete) > 0:
+                if indices_to_delete:
                     break
 
     def join(self, other):
@@ -727,32 +724,28 @@ class MPIMessage(AbstractMessage):
             result = numpy.empty(total, dtype='d')
             self.mpi_receive(comm, [result, MPI.DOUBLE])
             return result
-        else:
-            return []
+        return []
 
     def receive_ints(self, comm, total):
         if total > 0:
             result = numpy.empty(total, dtype='i')
             self.mpi_receive(comm, [result, MPI.INT])
             return result
-        else:
-            return []
+        return []
 
     def receive_longs(self, comm, total):
         if total > 0:
             result = numpy.empty(total, dtype='int64')
             self.mpi_receive(comm, [result, MPI.INTEGER8])
             return result
-        else:
-            return []
+        return []
 
     def receive_floats(self, comm, total):
         if total > 0:
             result = numpy.empty(total, dtype='f')
             self.mpi_receive(comm, [result, MPI.FLOAT])
             return result
-        else:
-            return []
+        return []
 
     def receive_booleans(self, comm, total):
         if total > 0:
@@ -760,8 +753,7 @@ class MPIMessage(AbstractMessage):
             # if C_BOOL null datatype (ie undefined) fallback
             self.mpi_receive(comm, [result, MPI.C_BOOL or MPI.BYTE])
             return numpy.logical_not(result == 0)
-        else:
-            return []
+        return []
 
     def receive_strings(self, comm, total):
         if total > 0:
@@ -789,8 +781,7 @@ class MPIMessage(AbstractMessage):
             logger.debug(
                 "got %d strings of size %s, data = %s", total, sizes, strings)
             return strings
-        else:
-            return []
+        return []
 
     def send(self, comm):
         header = numpy.array([
@@ -827,27 +818,27 @@ class MPIMessage(AbstractMessage):
         self.send_doubles(comm, self.encoded_units)
 
     def send_ints(self, comm, array):
-        if len(array) > 0:
+        if array:
             sendbuffer = numpy.array(array, dtype='int32')
             self.mpi_send(comm, [sendbuffer, MPI.INT])
 
     def send_longs(self, comm, array):
-        if len(array) > 0:
+        if array:
             sendbuffer = numpy.array(array, dtype='int64')
             self.mpi_send(comm, [sendbuffer, MPI.INTEGER8])
 
     def send_doubles(self, comm, array):
-        if len(array) > 0:
+        if array:
             sendbuffer = numpy.array(array, dtype='d')
             self.mpi_send(comm, [sendbuffer, MPI.DOUBLE])
 
     def send_floats(self, comm, array):
-        if len(array) > 0:
+        if array:
             sendbuffer = numpy.array(array, dtype='f')
             self.mpi_send(comm, [sendbuffer, MPI.FLOAT])
 
     def send_strings(self, comm, array):
-        if len(array) == 0:
+        if not array:
             return
 
         lengths = numpy.array([len(s) for s in array], dtype='i')
@@ -865,7 +856,7 @@ class MPIMessage(AbstractMessage):
         self.mpi_send(comm, [chars, MPI.CHARACTER])
 
     def send_booleans(self, comm, array):
-        if len(array) > 0:
+        if array:
             sendbuffer = numpy.array(array, dtype='b')
             self.mpi_send(comm, [sendbuffer, MPI.C_BOOL or MPI.BYTE])
 
@@ -946,7 +937,7 @@ MAPPING = {}
 
 def pack_array(array, length, dtype):
     if dtype == 'string':
-        if length == 1 and len(array) > 0 and isinstance(array[0], basestring):
+        if length == 1 and array and isinstance(array[0], basestring):
             return array
         result = []
         for x in array:
@@ -968,9 +959,9 @@ def pack_array(array, length, dtype):
         else:
             result = numpy.empty(length * len(array), dtype=dtype)
 
-        for i in range(len(array)):
+        for i, item in enumerate(array):
             offset = i * length
-            result[offset:offset + length] = array[i]
+            result[offset:offset + length] = item
         return result
 
 
@@ -1112,8 +1103,7 @@ class AbstractMessageChannel(OptionalAttributes):
     ):
         if interpreter_executable is not None:
             return interpreter_executable, [full_name_of_the_worker]
-        else:
-            return full_name_of_the_worker, []
+        return full_name_of_the_worker, []
 
     @classmethod
     def STRACE(
@@ -1261,7 +1251,7 @@ class AbstractMessageChannel(OptionalAttributes):
         )
 
         if not self.check_worker_location:
-            if len(self.worker_code_directory) > 0:
+            if self.worker_code_directory:
                 full_name_of_the_worker = os.path.join(
                     self.worker_code_directory, exe_name
                 )
@@ -1275,7 +1265,7 @@ class AbstractMessageChannel(OptionalAttributes):
         tried_workers = []
         found = False
 
-        if len(self.worker_code_directory) > 0:
+        if self.worker_code_directory:
             full_name_of_the_worker = os.path.join(
                 self.worker_code_directory, exe_name
             )
@@ -1375,7 +1365,7 @@ class AbstractMessageChannel(OptionalAttributes):
                 return result
 
         lengths = map(get_length, dtype_to_arguments.items())
-        if len(lengths) == 0:
+        if not lengths:
             return 1
 
         return max(1, max(lengths))
@@ -1497,7 +1487,7 @@ def is_mpd_running():
         try:
             process = Popen(['mpdtrace'], stdout=PIPE, stderr=PIPE)
             (output_string, error_string) = process.communicate()
-            return not (process.returncode == 255)
+            return (process.returncode != 255)
         except OSError:
             return True
     else:
@@ -1750,7 +1740,7 @@ class MpiChannel(AbstractMessageChannel):
             return 1
 
         lengths = map(get_length, dtype_to_arguments.values())
-        if len(lengths) == 0:
+        if not lengths:
             return 1
 
         return max(1, max(lengths))
@@ -1855,8 +1845,7 @@ class MpiChannel(AbstractMessageChannel):
         #         "Fatal error in code, code has exited")
         if has_units:
             return message.to_result(handle_as_array), message.encoded_units
-        else:
-            return message.to_result(handle_as_array)
+        return message.to_result(handle_as_array)
 
     def nonblocking_recv_message(
             self, call_id, function_id, handle_as_array, has_units=False):
@@ -2136,7 +2125,6 @@ m.run_mpi_channel('{2}')"""
     def _createAServerUNIXSocket(
             self, name_of_the_directory, name_of_the_socket=None):
         import uuid
-        import socket
 
         if name_of_the_socket is None:
             name_of_the_socket = os.path.join(
@@ -2197,7 +2185,7 @@ class SocketMessage(AbstractMessage):
             chunk = min(nbytes, 10240)
             data_bytes = thesocket.recv(chunk)
 
-            if len(data_bytes) == 0:
+            if not data_bytes:
                 raise exceptions.CodeException("lost connection to code")
 
             result.append(data_bytes)
@@ -2207,10 +2195,9 @@ class SocketMessage(AbstractMessage):
             #     len(data_bytes), len(result)
             # )
 
-        if len(result) > 0:
+        if result:
             return type(result[0])().join(result)
-        else:
-            return b""
+        return b""
 
     def receive(self, socket):
 
@@ -2224,10 +2211,7 @@ class SocketMessage(AbstractMessage):
             raise exceptions.CodeException(
                 "endianness in message does not match native endianness")
 
-        if flags[1]:
-            self.error = True
-        else:
-            self.error = False
+        self.error = bool(flags[1])
 
         header = numpy.copy(
             numpy.frombuffer(header_bytes, dtype="i", offset=0))
@@ -2272,8 +2256,7 @@ class SocketMessage(AbstractMessage):
             result = numpy.copy(numpy.frombuffer(data_bytes, dtype='int32'))
 
             return result
-        else:
-            return []
+        return []
 
     def receive_longs(self, socket, count):
         if count > 0:
@@ -2284,8 +2267,7 @@ class SocketMessage(AbstractMessage):
             result = numpy.copy(numpy.frombuffer(data_bytes, dtype='int64'))
 
             return result
-        else:
-            return []
+        return []
 
     def receive_floats(self, socket, count):
         if count > 0:
@@ -2296,8 +2278,7 @@ class SocketMessage(AbstractMessage):
             result = numpy.copy(numpy.frombuffer(data_bytes, dtype='f4'))
 
             return result
-        else:
-            return []
+        return []
 
     def receive_doubles(self, socket, count):
         if count > 0:
@@ -2308,8 +2289,7 @@ class SocketMessage(AbstractMessage):
             result = numpy.copy(numpy.frombuffer(data_bytes, dtype='f8'))
 
             return result
-        else:
-            return []
+        return []
 
     def receive_booleans(self, socket, count):
         if count > 0:
@@ -2320,8 +2300,7 @@ class SocketMessage(AbstractMessage):
             result = numpy.copy(numpy.frombuffer(data_bytes, dtype='b'))
 
             return result
-        else:
-            return []
+        return []
 
     def receive_strings(self, socket, count):
         if count > 0:
@@ -2338,8 +2317,7 @@ class SocketMessage(AbstractMessage):
                 begin = begin + size + 1
 
             return strings
-        else:
-            return []
+        return []
 
     def nonblocking_receive(self, socket):
         return ASyncSocketRequest(self, socket)
@@ -2382,22 +2360,22 @@ class SocketMessage(AbstractMessage):
         # logger.debug("message send")
 
     def send_doubles(self, socket, array):
-        if len(array) > 0:
+        if array:
             data_buffer = numpy.array(array, dtype='f8')
             socket.sendall(data_buffer.tostring())
 
     def send_ints(self, socket, array):
-        if len(array) > 0:
+        if array:
             data_buffer = numpy.array(array, dtype='int32')
             socket.sendall(data_buffer.tostring())
 
     def send_floats(self, socket, array):
-        if len(array) > 0:
+        if array:
             data_buffer = numpy.array(array, dtype='f4')
             socket.sendall(data_buffer.tostring())
 
     def send_strings(self, socket, array):
-        if len(array) > 0:
+        if array:
 
             lengths = numpy.array([len(s) for s in array], dtype='int32')
             chars = (chr(0).join(array)+chr(0)).encode("utf-8")
@@ -2413,12 +2391,12 @@ class SocketMessage(AbstractMessage):
             socket.sendall(chars)
 
     def send_booleans(self, socket, array):
-        if len(array) > 0:
+        if array:
             data_buffer = numpy.array(array, dtype='b')
             socket.sendall(data_buffer.tostring())
 
     def send_longs(self, socket, array):
-        if len(array) > 0:
+        if array:
             data_buffer = numpy.array(array, dtype='int64')
             socket.sendall(data_buffer.tostring())
 
@@ -2466,7 +2444,7 @@ class SocketChannel(AbstractMessageChannel):
     @option(sections=("channel",))
     def mpiexec(self):
         """mpiexec with arguments"""
-        if len(config.mpi.mpiexec):
+        if config.mpi.mpiexec:
             return config.mpi.mpiexec
         return ''
 
@@ -2551,7 +2529,7 @@ class SocketChannel(AbstractMessageChannel):
         # start arguments with command
         arguments.insert(0, command)
 
-        if self.initialize_mpi and len(self.mpiexec) > 0:
+        if self.initialize_mpi and self.mpiexec:
             mpiexec = shlex.split(self.mpiexec)
             # prepend with mpiexec and arguments back to front
             arguments.insert(0, str(self.number_of_workers))
@@ -2656,7 +2634,7 @@ class SocketChannel(AbstractMessageChannel):
                 return result
 
         lengths = map(get_length, dtype_to_arguments.items())
-        if len(lengths) == 0:
+        if not lengths:
             return 1
 
         return max(1, max(lengths))
@@ -2735,8 +2713,7 @@ class SocketChannel(AbstractMessageChannel):
 
         if has_units:
             return message.to_result(handle_as_array), message.encoded_units
-        else:
-            return message.to_result(handle_as_array)
+        return message.to_result(handle_as_array)
 
     def nonblocking_recv_message(self, call_id, function_id, handle_as_array):
         request = SocketMessage().nonblocking_receive(self.socket)
@@ -2827,7 +2804,7 @@ class OutputHandler(threading.Thread):
             # logger.debug("receiving data for output")
             data = self.socket.recv(1024)
 
-            if len(data) == 0:
+            if not data:
                 # logger.debug("end of output", len(data))
                 return
 
@@ -3080,7 +3057,7 @@ class DistributedChannel(AbstractMessageChannel):
                     return 1
 
         lengths = map(get_length, dtype_to_arguments.values())
-        if len(lengths) == 0:
+        if not lengths:
             return 1
 
         return max(1, max(lengths))
@@ -3216,8 +3193,8 @@ class LocalChannel(AbstractMessageChannel):
         pass
 
     def start(self):
-        import import_module
-        import python_code
+        import amuse.rfi.import_module as import_module
+        import amuse.rfi.python_code as python_code
 
         module = import_module.import_unique(
             self.package + "." + self.so_module)
@@ -3229,7 +3206,7 @@ class LocalChannel(AbstractMessageChannel):
         self.module = module
 
     def stop(self):
-        import import_module
+        import amuse.rfi.import_module as import_module
         import_module.cleanup_module(self.module)
         self.module = None
 
@@ -3264,8 +3241,7 @@ class LocalChannel(AbstractMessageChannel):
                 output_message.to_result(handle_as_array),
                 output_message.encoded_units
             )
-        else:
-            return output_message.to_result(handle_as_array)
+        return output_message.to_result(handle_as_array)
 
     def nonblocking_recv_message(self, call_id, function_id, handle_as_array):
         pass
