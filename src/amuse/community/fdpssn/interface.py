@@ -1,5 +1,5 @@
 """
-Interface for the SPH+Nbody FDPS code
+Interface for the FDPS Nbody+SPH sample code
 """
 from amuse.rfi.core import (
     CodeInterface,
@@ -22,9 +22,9 @@ class FDPSSNInterface(
         # StoppingConditionsInterface,
 ):
     """
-    Interface for the FDPS Nbody+SPH
+    FDPS-SN: FDPS sample Nbody + SPH implementation
 
-    .. [#] Iwasawa et al.
+    .. [#] Iwasawa, M., et al.
 
     """
 
@@ -413,7 +413,7 @@ class FDPSSN(
         GravitationalDynamics,
 ):
     """
-    Low-level interface to FDPS-SPHNbody
+    Low-level interface to FDPSSN
     """
 
     def __init__(self, convert_nbody=None, **options):
