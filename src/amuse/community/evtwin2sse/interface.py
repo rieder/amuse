@@ -1,16 +1,17 @@
-import os
 import sys
-import math
 import traceback
 
 from amuse.units import units
-from amuse.units import constants
 from amuse.community.sse.interface import SSE
 from amuse.community.evtwin.interface import EVtwin
 
-from amuse.community.cachedse.interface import CachedStellarEvolution, ParticlesTimeseries
+from amuse.community.cachedse.interface import (
+    CachedStellarEvolution, ParticlesTimeseries,
+)
 
 from amuse import datamodel
+
+
 class EVtwin2SSE:
 
     """
