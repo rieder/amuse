@@ -1,8 +1,17 @@
-from amuse.community import *
-from amuse.community.interface.gd import GravitationalDynamicsInterface
-from amuse.community.interface.gd import GravitationalDynamics
-from amuse.community.interface.gd import SinglePointGravityFieldInterface
-from amuse.community.interface.gd import GravityFieldCode
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+
+from amuse.community.interface.gd import (
+    GravitationalDynamicsInterface, GravitationalDynamics,
+    SinglePointGravityFieldInterface, GravityFieldCode,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditionInterface, StoppingConditions,
+)
+from amuse.units import nbody_system
+
 
 class BHTreeInterface(
     CodeInterface,
