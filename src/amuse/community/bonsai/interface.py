@@ -1,6 +1,18 @@
 import os.path
-from amuse.community import *
-from amuse.community.interface.gd import GravitationalDynamicsInterface, GravitationalDynamics
+
+from amuse.rfi.core import (
+    CodeInterface, CodeWithDataDirectories, legacy_function,
+    LegacyFunctionSpecification,
+)
+from amuse.community.interface.gd import (
+    GravitationalDynamicsInterface, GravitationalDynamics,
+)
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditionInterface, StoppingConditions,
+)
+from amuse.units import nbody_system
+from amuse.support.literature import LiteratureReferencesMixIn
+
 
 class BonsaiInterface(CodeInterface, LiteratureReferencesMixIn, GravitationalDynamicsInterface, 
         StoppingConditionInterface, CodeWithDataDirectories):
