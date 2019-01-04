@@ -1,10 +1,13 @@
 import numpy
-import os.path
-from amuse.community import *
-from amuse.datamodel import Particles
 from amuse import datamodel
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.support.interface import InCodeComponentImplementation
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.support import exceptions
 from amuse.units import nbody_system
-from amuse.community.interface.common import CommonCodeInterface, CommonCode
+from amuse.community.interface.common import CommonCode
 
 class FractalClusterInterface(CodeInterface,  LiteratureReferencesMixIn):
     """
