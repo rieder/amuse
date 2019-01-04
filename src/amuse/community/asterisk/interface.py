@@ -1,7 +1,12 @@
-from amuse.community import *
-from amuse.community.interface.common import CommonCodeInterface
-from amuse.community.interface.common import CommonCode
-from amuse.units import units
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.community.interface.common import (
+    CommonCodeInterface, CommonCode,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.support.options import option
+from amuse.units import generic_unit_system, nbody_system
 
 class AsteriskInterface(CodeInterface, CommonCodeInterface, LiteratureReferencesMixIn):
     """
