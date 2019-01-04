@@ -1,16 +1,20 @@
 import logging
 
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.units import units
+from amuse.support import exceptions
 
-from amuse.community import *
 from amuse.community.interface.common import CommonCodeInterface
 from amuse.community.interface.common import CommonCode
 from amuse.support import options
+from amuse.support.options import option
 from amuse.rfi.channel import DistributedChannel
 
 from distributed_datamodel import Resources, Resource
-from distributed_datamodel import Pilots, Pilot
-from distributed_datamodel import ScriptJobs, ScriptJob
-from distributed_datamodel import FunctionJobs, FunctionJob
+from distributed_datamodel import Pilots
 
 import pickle
 
