@@ -1,12 +1,18 @@
-from amuse.community import *
-
-
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditionInterface, StoppingConditions,
+)
 
 from amuse.community.interface.hydro import HydrodynamicsInterface
 from amuse.community.interface.common import CommonCode
 
+from amuse.units import generic_unit_system
+from amuse.units.generic_unit_system import (length, mass, time)
 
-from amuse.units.generic_unit_system import *
+
 class CapreoleInterface(
     CodeInterface, 
     HydrodynamicsInterface,
