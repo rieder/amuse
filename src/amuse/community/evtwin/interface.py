@@ -1,11 +1,18 @@
-import os.path
 from amuse.support import exceptions
-from amuse.community import *
-from amuse.community.interface.se import StellarEvolution, StellarEvolutionInterface, \
-    InternalStellarStructure, InternalStellarStructureInterface
+from amuse.rfi.core import (
+    CodeInterface, CodeWithDataDirectories, legacy_function,
+    LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.units import units
+from amuse import datamodel
+
+from amuse.community.interface.se import (
+    StellarEvolution, StellarEvolutionInterface, InternalStellarStructure,
+    InternalStellarStructureInterface,
+)
 
 from amuse.support.interface import InCodeComponentImplementation
-from amuse.support.options import OptionalAttributes, option
 
 
 class EVtwinInterface(CodeInterface, LiteratureReferencesMixIn, StellarEvolutionInterface,
