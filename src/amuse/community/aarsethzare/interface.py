@@ -1,5 +1,14 @@
-from amuse.community import *
-from amuse.units import units
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.support.interface import (
+    InCodeComponentImplementation,
+)
+from amuse.units import (
+    units, nbody_system,
+)
+
 
 class AarsethZareInterface(CodeInterface, LiteratureReferencesMixIn):
     """

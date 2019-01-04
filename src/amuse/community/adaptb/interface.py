@@ -1,7 +1,21 @@
 import warnings
 
-from amuse.community import *
-from amuse.community.interface.gd import GravitationalDynamicsInterface, GravitationalDynamics
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+    CodeWithDataDirectories,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.units import (
+    units, nbody_system,
+)
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditionInterface, StoppingConditions,
+)
+
+from amuse.community.interface.gd import (
+    GravitationalDynamicsInterface, GravitationalDynamics,
+)
+
 
 class AdaptbInterface(CodeInterface, GravitationalDynamicsInterface, LiteratureReferencesMixIn, 
         StoppingConditionInterface, CodeWithDataDirectories):
