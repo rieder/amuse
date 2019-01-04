@@ -1,11 +1,15 @@
-from amuse.community import *
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditions,
+)
 from amuse.community.interface.hydro import HydrodynamicsInterface
-from amuse.support.options import OptionalAttributes, option
-from amuse.units import generic_unit_system
-from amuse.units import si
+from amuse.units import (units, generic_unit_system,)
+from amuse.community import NO_UNIT
+
 from amuse.community.interface.common import CommonCode
 import numpy as np
-import os
 
 length = generic_unit_system.length
 time = generic_unit_system.time
