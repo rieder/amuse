@@ -1,6 +1,11 @@
-from amuse.community import *
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.units import nbody_system
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import GravitationalDynamicsInterface
+
 
 class EticsInterface(CodeInterface, GravitationalDynamicsInterface, LiteratureReferencesMixIn):
     """
