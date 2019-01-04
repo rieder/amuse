@@ -1,7 +1,14 @@
-from amuse.community import *
-#~from amuse.community.interface.gd import GravitationalDynamics
-from amuse.community.interface.gd import GravityFieldCode, GravityFieldInterface
-from amuse.community.interface.common import CommonCodeInterface, CommonCode
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification,
+)
+from amuse.units import nbody_system
+from amuse.community.interface.gd import (
+    GravityFieldCode, GravityFieldInterface,
+)
+from amuse.community.interface.common import (
+    CommonCodeInterface, CommonCode,
+)
+
 
 class FastKickInterface(CodeInterface, CommonCodeInterface, GravityFieldInterface):
     """
