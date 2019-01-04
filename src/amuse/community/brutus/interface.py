@@ -1,5 +1,14 @@
-from amuse.community import *
-from amuse.community.interface.gd import GravitationalDynamicsInterface, GravitationalDynamics
+from amuse.rfi.core import (
+    CodeInterface, CodeWithDataDirectories, legacy_function,
+    LegacyFunctionSpecification,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditionInterface, StoppingConditions,
+)
+from amuse.community.interface.gd import (
+    GravitationalDynamicsInterface, GravitationalDynamics,
+)
 
 """
 currently setting the particle (and possibly model time) as strings (ie to conserve 
