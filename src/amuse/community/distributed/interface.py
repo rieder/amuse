@@ -13,8 +13,12 @@ from amuse.support import options
 from amuse.support.options import option
 from amuse.rfi.channel import DistributedChannel
 
-from distributed_datamodel import Resources, Resource
-from distributed_datamodel import Pilots
+from distributed_datamodel import (
+    Resources, Resource,
+    Pilots, Pilot,
+    ScriptJobs, ScriptJob,
+    FunctionJobs, FunctionJob,
+)
 
 import pickle
 
