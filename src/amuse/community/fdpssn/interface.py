@@ -527,6 +527,23 @@ class FDPSSN(
         )
 
         object.add_method(
+            "get_state_dm",
+            (
+                object.INDEX,
+            ),
+            (
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                object.ERROR_CODE,
+            )
+        )
+
+        object.add_method(
             "get_state_sph",
             (
                 object.INDEX,
