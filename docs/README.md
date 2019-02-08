@@ -1,4 +1,4 @@
-## Welcome to AMUSE
+# Welcome to AMUSE
 
 AMUSE is the Astrophysical Multipurpose Software Environment.
 
@@ -6,8 +6,7 @@ With it, you can simulate many astrophysical systems.
 
 This website is work-in-progress and may at some point replace the current one.
 
-Getting Started
-===============
+## Getting Started
 
 1) Download AMUSE
 2) Install Python and other prerequisites
