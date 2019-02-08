@@ -1,3 +1,6 @@
+---
+title: AMUSE - Astrophysical simulations
+---
 ## Welcome to AMUSE
 
 AMUSE is the Astrophysical Multipurpose Software Environment.
