@@ -1,4 +1,4 @@
-theme: just-the-docs
+remote_theme: pmarsceill/just-the-docs
 title: Astrophysical simulations with AMUSE
 description: AMUSE provides a Python interface to many astrophysical simulation codes
 logo: images/amuse-logo.png
