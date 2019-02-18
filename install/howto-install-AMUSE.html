@@ -1,0 +1,326 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Installation of the AMUSE software &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting started with AMUSE" href="getting-started.html" />
+    <link rel="prev" title="Installing on Suse Linux" href="install-prerequisites-suse.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="getting-started.html" title="Getting started with AMUSE"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-suse.html" title="Installing on Suse Linux"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Installation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation-of-the-amuse-software">
+<h1>Installation of the AMUSE software<a class="headerlink" href="#installation-of-the-amuse-software" title="Permalink to this headline">¶</a></h1>
+<p>Before installing AMUSE the prerequisite software must be downloaded and
+installed, see <a class="reference internal" href="howto-install-prerequisites.html#prerequisite-label"><span class="std std-ref">Installation of the prerequisite software</span></a>.</p>
+<p>In the current stage of development AMUSE will not be installed in
+the python <code class="docutils literal notranslate"><span class="pre">site-packages</span></code> library. Instead, all code is build
+in the AMUSE source directories. With this setup we can easily edit
+the code and run it, without the need for an extra installation step.</p>
+<div class="section" id="configuring-the-code">
+<h2>Configuring the code<a class="headerlink" href="#configuring-the-code" title="Permalink to this headline">¶</a></h2>
+<p>The code is configured using the <code class="docutils literal notranslate"><span class="pre">configure</span></code> command.
+Before building the code, run ‘configure’ in the AMUSE
+root directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; ./configure
+</pre></div>
+</div>
+<p>The ‘configure’ script will check for all prerequisite software
+and report if any are missing.</p>
+</div>
+<div class="section" id="building-the-code">
+<h2>Building the code<a class="headerlink" href="#building-the-code" title="Permalink to this headline">¶</a></h2>
+<p>The code is build using a  <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>. To build the code run ‘make’
+in the AMUSE root directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; make clean
+&gt; make
+...
+community codes <span class="nv">build</span>
+<span class="o">==================</span>
+* sse
+* hermite0
+* bhtree
+* phiGRAPE
+running generate_main
+</pre></div>
+</div>
+<p>If everything goes well all community codes will be build (e.g. sse, hermite0,
+bhtree, phiGRAPE and many others).</p>
+<p>In order to use codes not stored in the AMUSE repository (e.g. MESA, ATHENA, Rebound and some others), the codes must be downloaded additionally.
+This is done automatically after setting the environment variable DOWNLOAD_CODES to 1.
+Alternatively, instead of a plain ‘make’ like in the example above you could do:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; make <span class="nv">DOWNLOAD_CODES</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; make mesa.code <span class="nv">DOWNLOAD_CODES</span><span class="o">=</span><span class="m">1</span>
+&gt; make athena.code <span class="nv">DOWNLOAD_CODES</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing-the-build">
+<h2>Testing the build<a class="headerlink" href="#testing-the-build" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>For MPICH2 installations, the <cite>mpd</cite> process daemon must be
+started befor testing the code. The <cite>mpd</cite> application manages
+the creation of MPI processes. If this is the first time the
+MPICH2 daemon is run it will complain about a missing
+<code class="docutils literal notranslate"><span class="pre">.mpd.conf</span></code> file. Please follow the instructions printed by
+the mpd daemon.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; mpd <span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>If the mpd deamon only complains with ‘no mpd.conf’, these
+are the steps to take, to create a mpd.conf file:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">echo</span> <span class="s1">&#39;MPD_SECRETWORD=secret&#39;</span> &gt; ~/.mpd.conf
+&gt; chmod <span class="m">600</span> ~/.mpd.conf
+</pre></div>
+</div>
+<p>Please make sure to replace ‘’‘secret’‘’.</p>
+<p class="last">After starting <cite>mpd</cite> we can start the tests.</p>
+</div>
+<p>The tests are run using the nosetests program.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; nosetests
+............................................
+Ran <span class="m">91</span> tests in <span class="m">12</span>.013s
+
+OK
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>If you have an MPICH2 installation but no mpd program your MPICH2
+installation has been configured for the Hydra process manager.
+To run amuse scripts with the hydra process manager you must start
+every command with <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; mpiexec nosetests -v
+</pre></div>
+</div>
+<p>If you do not run under mpiexec you get an error with a usage statement.
+The error starts like this:</p>
+<div class="last highlight-sh notranslate"><div class="highlight"><pre><span></span>unable to parse user arguments
+
+Usage: ./mpiexec <span class="o">[</span>global opts<span class="o">]</span> <span class="o">[</span>exec1 <span class="nb">local</span> opts<span class="o">]</span> : <span class="o">[</span>exec2 <span class="nb">local</span> opts<span class="o">]</span> : ...
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>On some laptops the hostname will not point
+to the correct internet address. For these laptops
+you can start the mpd daemon on the localhost ip. To do so,
+you need to set the <code class="docutils literal notranslate"><span class="pre">--ifhn</span></code> option:</p>
+<div class="last highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; mpd --ifhn<span class="o">=</span>localhost <span class="p">&amp;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>On OS X, when you install the prerequisites with macports,
+<code class="docutils literal notranslate"><span class="pre">nosetests</span></code> will not have a standard name. It will be named
+<code class="docutils literal notranslate"><span class="pre">nosetests-&lt;python-version&gt;</span></code>. So for python2.7 you’ll need to
+use <em>nosetests-2.7</em></p>
+<div class="last highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; nosetests-2.7
+............................................
+
+OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="real-time-testing">
+<h3>Real-time testing<a class="headerlink" href="#real-time-testing" title="Permalink to this headline">¶</a></h3>
+<p>The code includes support for real-time testing. The real-time testing
+application monitors the files in the source directories (‘src’
+and ‘test’). Every time a file is changed it will run most of the tests.
+After each test a report is created, this report can be viewed with
+a web browser.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># go to the AMUSE root directory</span>
+<span class="c1"># display help information of the realtime_test script</span>
+&gt;  python -m support.realtime_test --help
+Usage: realtime_test.py <span class="o">[</span>options<span class="o">]</span>
+
+Options:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -p PORT, --port<span class="o">=</span>PORT  start serving on PORT
+
+<span class="c1"># start the python realtime_test script on port 9080</span>
+&gt; python -m support.realtime_test -p <span class="m">9080</span>
+starting server on port:  <span class="m">9080</span>
+start <span class="nb">test</span> run
+...
+<span class="c1"># open a browser to view the results</span>
+&gt; firefox http://localhost:9080/
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="running-the-code">
+<h2>Running the code<a class="headerlink" href="#running-the-code" title="Permalink to this headline">¶</a></h2>
+<p>A python script will not find the AMUSE code as the code is not
+installed into the python ‘site-packages’ directory or any other
+directory that can be found by python automatically.</p>
+<p>During a build a shell script is created to run the AMUSE code. To
+use this script you first have to copy it to a directory in your PATH.
+The script is called ‘’amuse.sh’‘. After copying this script you can run
+amuse code from anywhere on your disk by starting ‘amuse.sh’. This
+script has exactly the same command line parameters as the normal python
+application.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; amuse.sh
+Python <span class="m">2</span>.6.2 <span class="o">(</span>r262:71600, Sep  <span class="m">1</span> <span class="m">2009</span>, <span class="m">16</span>:14:27<span class="o">)</span>
+<span class="o">[</span>GCC <span class="m">4</span>.3.2 <span class="m">20081105</span> <span class="o">(</span>Red Hat <span class="m">4</span>.3.2-7<span class="o">)]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for</span> more information.
+&gt;&gt;&gt; from amuse.units import units
+&gt;&gt;&gt; units.m
+unit&lt;m&gt;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation of the AMUSE software</a><ul>
+<li><a class="reference internal" href="#configuring-the-code">Configuring the code</a></li>
+<li><a class="reference internal" href="#building-the-code">Building the code</a></li>
+<li><a class="reference internal" href="#testing-the-build">Testing the build</a><ul>
+<li><a class="reference internal" href="#real-time-testing">Real-time testing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-the-code">Running the code</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install-prerequisites-suse.html"
+                        title="previous chapter">Installing on Suse Linux</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="getting-started.html"
+                        title="next chapter">Getting started with AMUSE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/install/howto-install-AMUSE.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="getting-started.html" title="Getting started with AMUSE"
+             >next</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-suse.html" title="Installing on Suse Linux"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

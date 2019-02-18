@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Glossary &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Design documentation" href="../design/index.html" />
+    <link rel="prev" title="Source Code Management" href="code_management.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../design/index.html" title="Design documentation"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="code_management.html" title="Source Code Management"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<dl class="glossary docutils">
+<dt id="term-amr-adaptive-mesh-refinement">AMR, adaptive mesh refinement<dt id="term-input-output-format">Input / output format<dt id="term-binary-star">Binary star</dt>
+<dd>Two stars in close orbit</dd>
+<dt id="term-application">Application</dt>
+<dd>A script that combines modules into a multi-physical simulator.</dd>
+<dt id="term-code">Code</dt>
+<dd>A computer program to solve or approximate the equations of state of
+a physical domain. Codes are usually written in Fortran or C/C++.
+For example ‘sse’ is a code to perform stellar evolution.</dd>
+<dt id="term-data-model">Data-model</dt>
+<dd>A single representation model for data of different physical codes.</dd>
+<dt id="term-dense-stellar-systems">Dense stellar systems<dt id="term-interstellar-medium">Interstellar Medium</dt>
+<dd>The matter between the stars in a galaxy.</dd>
+<dt id="term-evolve">Evolve</dt>
+<dd>Work out / develop the physical model equations. Usually, small steps
+in time are taken, the new state of the system is calculated from the
+previous state.</dd>
+<dt id="term-galaxy">Galaxy<dt id="term-star-core">Star Core<dt id="term-star-envelope">Star Envelope</dt>
+<dd></dd>
+<dt id="term-gravity-domain">Gravity Domain<dt id="term-hydrodynamics">Hydrodynamics<dt id="term-star">Star<dt id="term-stellar-evolution">Stellar Evolution<dt id="term-zams-zero-age-main-sequence">ZAMS, zero age main sequence</dt>
+<dd>Start of the main sequence in the evolution of a star. Stable stage
+after formation of the star from a collapsing gas cloud</dd>
+<dt id="term-grid">Grid</dt>
+<dd>A collection of identifyable locations or regions (for example a box
+of interstellar medium with a density, molecular composition). Every
+value in the collection can be seen as belongin to a specific
+location (x,y,z point).</dd>
+<dt id="term-interstellar-cloud">Interstellar Cloud</dt>
+<dd>Generic name for an accumulation of gas, plasma and dust. A denser
+region of the insterstellar medium</dd>
+<dt id="term-main-sequence-star">Main sequence star</dt>
+<dd>A star that derives its energy from the conversion of hydrogen into
+helium in its core.</dd>
+<dt id="term-module">Module</dt>
+<dd>Interface to a code in AMUSE. Also, file containing python definitions.
+These definitions can be imported into the main Python program</dd>
+<dt id="term-molecular-cloud">Molecular Cloud</dt>
+<dd>A type of insterstellar cloud whose density and size permits the
+formation of molecules,</dd>
+<dt id="term-numerical-experiment">Numerical Experiment<dt id="term-sph-smoothed-particle-hydrodynamics">SPH, smoothed particle hydrodynamics</dt>
+<dd>A computational method used for simulating fluid flows</dd>
+<dt id="term-physical-domain">Physical Domain</dt>
+<dd>A region in space, time and objects (stars / gas clouds) that can be
+described by a set of physical models. A physical domain is a
+limited description of the physics of a stellar system. For example
+in the gravity domain the gravitational forces are taken into
+account but not the evolution of stars or the hydrodynamics of th
+interstellar medium</dd>
+<dt id="term-production-code">Production Code</dt>
+<dd>A code used for modelling stellar systems and described in published
+articles.</dd>
+<dt id="term-run">Run</dt>
+<dd>During a run the physical models are evolved to a wanted end state.
+A run can end when a certain model time has passed. For example, one
+can run a script until the age is 12 million years.</dd>
+<dt id="term-set">Set</dt>
+<dd>A collection of identifyable objects (for example all stars in a
+globular cluster). Every value in the set can be seen as belonging
+to an object.</dd>
+<dt id="term-star-cluster">Star Cluster</dt>
+<dd>A group of stars. The mean distance between the stars in smaller
+than the mean distance between stars in the galaxy disks. Two types
+of star clusters exist: globular clusters, open clusters</dd>
+<dt id="term-29">Star cluster<dt id="term-metallicity">Metallicity</dt>
+<dd>Proportion of star matter made up of chemical elements other than
+hydrogen and helium.</dd>
+<dt id="term-step">Step</dt>
+<dd>An identifiable stage in a run or evolve. A code can take multiple
+steps during one evolve step. A step can be the integrator step,
+force calculation step.</dd>
+<dt id="term-toy-code">Toy Code</dt>
+<dd>A code with limited accurancy but that is easy to use.</dd>
+<dt id="term-unit-test">Unit test</dt>
+<dd>Automatic test case for a part of the code. For example one can
+define a unit tests that checks the result of one method given a
+specified argument.</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="code_management.html"
+                        title="previous chapter">Source Code Management</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../design/index.html"
+                        title="next chapter">Design documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/glossary.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../design/index.html" title="Design documentation"
+             >next</a></li>
+        <li class="right" >
+          <a href="code_management.html" title="Source Code Management"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Reference documentation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

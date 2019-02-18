@@ -1,0 +1,312 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Support code for AMUSE framework &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Support code for the community code interfaces" href="legacy_support.html" />
+    <link rel="prev" title="Currently supported Community Codes" href="available-codes.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="legacy_support.html" title="Support code for the community code interfaces"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="available-codes.html" title="Currently supported Community Codes"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-amuse.support.core">
+<span id="support-code-for-amuse-framework"></span><h1>Support code for AMUSE framework<a class="headerlink" href="#module-amuse.support.core" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="amuse.support.core.late">
+<em class="property">class </em><code class="descclassname">amuse.support.core.</code><code class="descname">late</code><span class="sig-paren">(</span><em>initializer</em><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.late" title="Permalink to this definition">¶</a></dt>
+<dd><p>An attribute that is set at first access.</p>
+<p>The value of the attribute will be determined from the <em>initializer</em>
+method. The name of the attribute is the same as the name of
+the <em>initializer</em> method.</p>
+<p>A late attribute is comparible with attributes set in the
+<em>__init__</em> method. Except the value of the late attribute is
+determined when first accessed and not when the class is
+instantiated.</p>
+<p>Typical use to define a managed attribute x:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">C</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="nd">@late</span>
+<span class="gp">... </span>   <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>       <span class="k">return</span> <span class="s2">&quot;i&#39;m late!&quot;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span>
+<span class="go">i&#39;m late!</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;overridden&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span>
+<span class="go">overridden</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initializer</strong> – function to determine the initial value of the property</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a descriptor to determine and set the value on first access</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="amuse.support.core.print_out">
+<em class="property">class </em><code class="descclassname">amuse.support.core.</code><code class="descname">print_out</code><a class="headerlink" href="#amuse.support.core.print_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Efficient way to contruct large strings.</p>
+<p>Strings are build up out of parts. Objects of this
+class store these parts while building the string.
+Only on request the parts are concatenated into
+a large string.</p>
+<p>Strings and numbers can be added to the print_out.
+For other objects str(object) is called before
+adding it to the print_out.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">print_out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;number of counts : &quot;</span> <span class="o">+</span> <span class="mi">10</span>    <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">string</span>
+<span class="go">number of counts : 10</span>
+</pre></div>
+</div>
+<p>All methods return the print_out instance, so that
+calls can be chained.</p>
+<dl class="method">
+<dt id="amuse.support.core.print_out.__add__">
+<code class="descname">__add__</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new part to the print_out.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.dedent">
+<code class="descname">dedent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.dedent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrease the indent. The next line will start dedented.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">print_out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;01&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">indent</span><span class="p">()</span><span class="o">.</span><span class="n">lf</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">dedent</span><span class="p">()</span><span class="o">.</span><span class="n">lf</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;01&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">string</span>
+<span class="go">01</span>
+<span class="go">  2</span>
+<span class="go">01</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.indent">
+<code class="descname">indent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.indent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase the indent. The next and following lines
+will start indented.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">print_out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;01&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">indent</span><span class="p">()</span><span class="o">.</span><span class="n">lf</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">lf</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;3&quot;</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">string</span>
+<span class="go">01</span>
+<span class="go">  2</span>
+<span class="go">  3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.indent_characters">
+<code class="descname">indent_characters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.indent_characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indent characters, by default 2 spaces.</p>
+<p>Override this method to change the indent characters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.lf">
+<code class="descname">lf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.lf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a new-line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.lf_noindent">
+<code class="descname">lf_noindent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.lf_noindent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a new-line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="amuse.support.core.print_out.n">
+<code class="descname">n</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amuse.support.core.print_out.n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a new-line, if the current line is not-empty.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">print_out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span> <span class="o">+</span> <span class="n">i</span> <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="gp">...</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="go">&lt;amuse.support.core.print_out object at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">string</span>
+<span class="go">0</span>
+<span class="go">1</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="amuse.support.core.print_out.string">
+<code class="descname">string</code><a class="headerlink" href="#amuse.support.core.print_out.string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String version of the print_out.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="amuse.support.core.OrderedDictionary">
+<em class="property">class </em><code class="descclassname">amuse.support.core.</code><code class="descname">OrderedDictionary</code><a class="headerlink" href="#amuse.support.core.OrderedDictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary that keeps the keys in the dictionary in order.</p>
+<p>Ordered dictionaries are just like regular dictionaries but they remember the
+order that items were inserted.  When iterating over an ordered dictionary,
+the values are returned in the order their keys were first added.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">OrderedDictionary</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;second&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;third&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+<span class="go">[0, 1, 2]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="available-codes.html"
+                        title="previous chapter">Currently supported Community Codes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="legacy_support.html"
+                        title="next chapter">Support code for the community code interfaces</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/core_support.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="legacy_support.html" title="Support code for the community code interfaces"
+             >next</a></li>
+        <li class="right" >
+          <a href="available-codes.html" title="Currently supported Community Codes"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Reference documentation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

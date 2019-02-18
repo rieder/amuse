@@ -1,0 +1,223 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Estimating the typical mass of the most massive star in a cluster &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Working with Particle Sets" href="particle_sets.html" />
+    <link rel="prev" title="Working with Units" href="units.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="particle_sets.html" title="Working with Particle Sets"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="units.html" title="Working with Units"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Tutorials</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="estimating-the-typical-mass-of-the-most-massive-star-in-a-cluster">
+<h1>Estimating the typical mass of the most massive star in a cluster<a class="headerlink" href="#estimating-the-typical-mass-of-the-most-massive-star-in-a-cluster" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial we will estimate the typical mass of the most
+massive star for a cluster with a Salpeter initial mass function (IMF).
+This tutorial also illustrates that the units won’t get in the way of
+calculations.</p>
+<p>First we import numpy and set the seed of its random number
+generator (RNG). All random numbers used in AMUSE are drawn from this
+RNG. Seeding it is of course not necessary, but it will make the
+results reproducible.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We will also need units and the Salpeter IMF generator. The easiest
+way to import almost everything from the AMUSE toolbox is to do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">amuse.lab</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>But here we will import the required module and function manually for clarity:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">amuse.units</span> <span class="kn">import</span> <span class="n">units</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">amuse.ext.salpeter</span> <span class="kn">import</span> <span class="n">new_salpeter_mass_distribution</span>
+</pre></div>
+</div>
+<p>Now, we can calculate the maximum stellar mass for each of
+<em>number_of_cluster_realizations</em> realizations of an
+<em>number_of_stars</em> star cluster. The Salpeter IMF runs from 0.1 to
+125 solar mass with a slope of -2.35, by default. Suppose the
+maximum of 125 solar mass is a bit too high for our taste, so we set
+it to 100 solar mass.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">number_of_stars</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">number_of_cluster_realizations</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxmasses</span> <span class="o">=</span> <span class="p">[]</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">MSun</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_cluster_realizations</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">maxmasses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">new_salpeter_mass_distribution</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">number_of_stars</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">mass_max</span> <span class="o">=</span> <span class="mf">100.</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">MSun</span>
+<span class="gp">... </span>    <span class="p">)))</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>Note that the way we initialize <em>maxmasses</em>, with the solar mass
+unit, forces it to be a VectorQuantity instead of a Python list of
+ScalarQuantities. This is always recommended, because it is much
+faster, and it will make sure that AMUSE always recognizes it as a
+Quantity.</p>
+<p>If we want to know the mean mass of the <em>maxmasses</em> VectorQuantity,
+we simply use the <em>mean</em> function of VectorQuantities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;mean:  &quot;</span><span class="p">,</span> <span class="n">maxmasses</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="go">mean:   27.4915750164 MSun</span>
+</pre></div>
+</div>
+<p>The same works for the median or the standard deviation of <em>maxmasses</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;median:&quot;</span><span class="p">,</span> <span class="n">maxmasses</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;stddev:&quot;</span><span class="p">,</span> <span class="n">maxmasses</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="go">median: 21.0983403429 MSun</span>
+<span class="go">stddev: 19.7149800906 MSun</span>
+</pre></div>
+</div>
+<p>Slightly slower, but giving the same result, we can use the numpy functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;mean:  &quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">maxmasses</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;median:&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">maxmasses</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;stddev:&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">maxmasses</span><span class="p">)</span>
+<span class="go">mean:   27.4915750164 MSun</span>
+<span class="go">median: 21.0983403429 1.98892e+30 * kg</span>
+<span class="go">stddev: 19.7149800906 MSun</span>
+</pre></div>
+</div>
+<p>Something weird has happened to the unit of the median
+mass. The result is still correct but the unit is converted to SI
+units. This is usually caused by a multiplication of a Quantity,
+where AMUSE tries to simplify the result, cancelling out for example
+factors of kg / kg. There’s no need to bother, but if it annoys you,
+it can easily be fixed by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s2">&quot;median:&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">maxmasses</span><span class="p">)</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">MSun</span><span class="p">)</span>
+<span class="go">median: 21.0983403429 MSun</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="units.html"
+                        title="previous chapter">Working with Units</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="particle_sets.html"
+                        title="next chapter">Working with Particle Sets</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorial/most_massive_from_salpeter.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="particle_sets.html" title="Working with Particle Sets"
+             >next</a></li>
+        <li class="right" >
+          <a href="units.html" title="Working with Units"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

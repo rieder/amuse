@@ -1,0 +1,275 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Using Blender for visualising Amuse results &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plotting with amuse" href="plot.html" />
+    <link rel="prev" title="Create an low-level Interface to a Code" href="legacy_code.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting with amuse"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="legacy_code.html" title="Create an low-level Interface to a Code"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Tutorials</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-blender-for-visualising-amuse-results">
+<h1>Using Blender for visualising Amuse results<a class="headerlink" href="#using-blender-for-visualising-amuse-results" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="../_images/blender.jpeg"><img alt="../_images/blender.jpeg" src="../_images/blender.jpeg" style="width: 2cm;" /></a>
+<div class="section" id="blender">
+<h2>Blender<a class="headerlink" href="#blender" title="Permalink to this headline">¶</a></h2>
+<p>Blender is a free open source 3D content creation suite, <em>GPL-ed</em>. As it is specialised in visualisation of 3D content <em>and</em>
+scriptable in python it provides handy a tool for visualisation of Amuse data.</p>
+<p>More information on Blender can be found on <a class="reference external" href="https://www.blender.org/">https://www.blender.org/</a></p>
+</div>
+<div class="section" id="starting-blender">
+<h2>Starting Blender<a class="headerlink" href="#starting-blender" title="Permalink to this headline">¶</a></h2>
+<p>We start blender from the command line, assuming all environment variables are set for amuse, and make sure mpd is running.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt;&gt;blender <span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>After blender opened we press <strong>CTRL-RIGHTCURSOR</strong> three times to open a text panel next to our 3D view. In the text panel we use the Text
+menu item to open a text file:</p>
+<a class="reference internal image-reference" href="../_images/blenderopenscript.png"><img alt="../_images/blenderopenscript.png" class="align-center" src="../_images/blenderopenscript.png" style="width: 800px;" /></a>
+<p>This way we can retrieve scripts we had written before. Now, we are going to write a new script, but use our favourite editor, and once finished
+we will load the script using the method described above.</p>
+<p><strong>Note:</strong> By default, blender places a cube in the scene. You can delete it else it will obscure the sun in our example.</p>
+<p>The script is based on the sun-earth test in Hermite. We start with that amuse script and add a couple of lines to communicate with blender, which
+are marked by comments in the example below.</p>
+</div>
+<div class="section" id="amuse-blender-api">
+<h2>Amuse blender API<a class="headerlink" href="#amuse-blender-api" title="Permalink to this headline">¶</a></h2>
+<p>To simplify communication with blender, amuse has the module amuse.ext.blender, which contains a very basic API. In our example we start with importing
+it on top of the regular stellar dynamics imports:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">amuse.ext.blender</span> <span class="kn">import</span> <span class="n">blender</span>
+</pre></div>
+</div>
+<p>To create a sphere, e.g. the sun,  with 32 segments, 32 rings and a radius of 1.0 in the current scene we type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sun</span> <span class="o">=</span> <span class="n">blender</span><span class="o">.</span><span class="n">Primitives</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="n">segments</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">rings</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">radius</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can move and rotate our object using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">sun</span><span class="o">.</span><span class="n">loc</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">sun</span><span class="o">.</span><span class="n">rotZ</span> <span class="o">=</span> <span class="n">alpha</span>
+</pre></div>
+</div>
+<p>The Hermite Sun-Earth model with blender visualisation will become like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1BPY</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name:  &#39;sun-earth&#39;</span>
+<span class="sd">Blender: 249</span>
+<span class="sd">Group:&#39;Add&#39;</span>
+<span class="sd">Tooltip: &#39;Amuse example&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">amuse.community.hermite0.interface</span> <span class="k">import</span> <span class="n">Hermite</span>
+<span class="kn">from</span> <span class="nn">amuse.units</span> <span class="k">import</span> <span class="n">nbody_system</span>
+<span class="kn">from</span> <span class="nn">amuse.units</span> <span class="k">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">amuse.ext.blender</span> <span class="k">import</span> <span class="n">blender</span>  <span class="c1"># get blender API</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">amuse</span> <span class="k">import</span> <span class="n">datamodel</span>
+
+
+<span class="k">class</span> <span class="nc">SunEarth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">new_system_of_sun_and_earth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">stars</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">Stars</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sun</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sun</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">MSun</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">sun</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+        <span class="n">sun</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">ms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+        <span class="n">sun</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">RSun</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="n">earth</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">earth</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">kg</span><span class="p">(</span><span class="mf">5.9736e24</span><span class="p">)</span>
+        <span class="n">earth</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">km</span><span class="p">(</span><span class="mi">6371</span><span class="p">)</span>
+        <span class="n">earth</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">km</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">149.5e6</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+        <span class="n">earth</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">ms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">29800</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">stars</span>
+
+    <span class="k">def</span> <span class="nf">evolve_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">convert_nbody</span> <span class="o">=</span> <span class="n">nbody_system</span><span class="o">.</span><span class="n">nbody_to_si</span><span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">MSun</span><span class="p">,</span> <span class="mf">149.5e6</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">km</span><span class="p">)</span>
+
+        <span class="n">hermite</span> <span class="o">=</span> <span class="n">Hermite</span><span class="p">(</span><span class="n">convert_nbody</span><span class="p">)</span>
+        <span class="n">hermite</span><span class="o">.</span><span class="n">initialize_code</span><span class="p">()</span>
+
+        <span class="n">hermite</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">epsilon_squared</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="n">stars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_system_of_sun_and_earth</span><span class="p">()</span>
+        <span class="n">earth</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sun</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">Earth</span> <span class="o">=</span> <span class="n">blender</span><span class="o">.</span><span class="n">Primitives</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># Make the earth avatar</span>
+        <span class="n">Sun</span> <span class="o">=</span> <span class="n">blender</span><span class="o">.</span><span class="n">Primitives</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Make the sun avatar</span>
+        <span class="n">hermite</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">add_particles</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="mi">365</span><span class="p">):</span>
+            <span class="n">hermite</span><span class="o">.</span><span class="n">evolve_model</span><span class="p">(</span><span class="n">i</span> <span class="o">|</span> <span class="n">units</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+            <span class="n">hermite</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">copy_values_of_all_attributes_to</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span>
+            <span class="c1"># update avatar positions:</span>
+            <span class="n">Earth</span><span class="o">.</span><span class="n">loc</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mi">1</span><span class="o">*</span><span class="n">earth</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="mi">1</span><span class="o">*</span><span class="n">earth</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">earth</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">Sun</span><span class="o">.</span><span class="n">loc</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mi">1</span><span class="o">*</span><span class="n">sun</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="mi">1</span><span class="o">*</span><span class="n">sun</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">sun</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">value_in</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">blender</span><span class="o">.</span><span class="n">Redraw</span><span class="p">()</span>
+
+        <span class="n">hermite</span><span class="o">.</span><span class="n">print_refs</span><span class="p">()</span>
+        <span class="n">hermite</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">SunEarth</span><span class="p">()</span>
+    <span class="n">system</span><span class="o">.</span><span class="n">evolve_model</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The path to this example code is {amusedir}/trunk/examples/applications/test_blender.py</p>
+<p>We save this file as <em>myname.py</em>, open it in blender and run it by typing <strong>ALT-P</strong> (cursor in editor):</p>
+<a class="reference internal image-reference" href="../_images/blenderrunscript.png"><img alt="../_images/blenderrunscript.png" class="align-center" src="../_images/blenderrunscript.png" style="width: 800px;" /></a>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using Blender for visualising Amuse results</a><ul>
+<li><a class="reference internal" href="#blender">Blender</a></li>
+<li><a class="reference internal" href="#starting-blender">Starting Blender</a></li>
+<li><a class="reference internal" href="#amuse-blender-api">Amuse blender API</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="legacy_code.html"
+                        title="previous chapter">Create an low-level Interface to a Code</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plot.html"
+                        title="next chapter">Plotting with amuse</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorial/blender.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting with amuse"
+             >next</a></li>
+        <li class="right" >
+          <a href="legacy_code.html" title="Create an low-level Interface to a Code"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

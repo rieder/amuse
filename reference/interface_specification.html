@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Interface Specifications &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introduction" href="introduction_interface_specification.html" />
+    <link rel="prev" title="Simplified interface function specification" href="simplified_function_interface.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="introduction_interface_specification.html" title="Introduction"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="simplified_function_interface.html" title="Simplified interface function specification"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="interface-specifications">
+<h1>Interface Specifications<a class="headerlink" href="#interface-specifications" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction_interface_specification.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction_interface_specification.html#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction_interface_specification.html#function-template">Function template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction_interface_specification.html#function-categories">Function categories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stellar_dynamics_interface_specification.html">Stellar Dynamics Interface Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#object-management">Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#object-state">Object state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#object-state-extension-mechanism">Object State, Extension Mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#model-evolution">Model evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#diagnostics">Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_dynamics_interface_specification.html#services">Services</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stellar_evolution_interface_specification.html">Stellar Evolution Interface Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#object-management">Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#object-state">Object State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#model-evolution">Model evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#diagnostics">Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stellar_evolution_interface_specification.html#services">Services</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hydrodynamics_interface_specification.html">Hydrodynamics Interface Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#grid-management">Grid Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#grid-state">Grid state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#grid-state-extension-mechanism">Grid State, Extension Mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#model-evolution">Model evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#diagnostics">Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrodynamics_interface_specification.html#external-fields">External fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="radiative_transfer_interface_specification.html">Radiative Transfer Interface Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="radiative_transfer_interface_specification.html#introduction">Introduction</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simplified_function_interface.html"
+                        title="previous chapter">Simplified interface function specification</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="introduction_interface_specification.html"
+                        title="next chapter">Introduction</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/interface_specification.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="introduction_interface_specification.html" title="Introduction"
+             >next</a></li>
+        <li class="right" >
+          <a href="simplified_function_interface.html" title="Simplified interface function specification"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Reference documentation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

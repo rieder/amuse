@@ -1,0 +1,190 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Writing documentation &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorials" href="../tutorial/index.html" />
+    <link rel="prev" title="Configuring AMUSE" href="configuration.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../tutorial/index.html" title="Tutorials"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuring AMUSE"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Installation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="writing-documentation">
+<span id="documenting"></span><h1>Writing documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>The documentation for AMUSE is generated from ReStructured Text
+using the <a class="reference external" href="http://www.sphinx-doc.org/en/master/">Sphinx</a> documentation generation tool. Sphinx version 1.0
+or later is required. You might still run into problems, so most
+developers work from the sphinx source repository (Mercurial based)
+because it is a rapidly evolving project:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; hg clone http://bitbucket.org/birkenfeld/sphinx/
+&gt; <span class="nb">cd</span> sphinx
+&gt; python setup.py install
+</pre></div>
+</div>
+<p>The documentation sources are found in the <code class="file docutils literal notranslate"><span class="pre">doc/</span></code> directory in the trunk.
+To build the AMUSE documentation in html format, cd into <code class="file docutils literal notranslate"><span class="pre">doc/</span></code> and
+do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>You can also pass a <code class="docutils literal notranslate"><span class="pre">pdflatex</span></code> flag to make to build a pdf, or pass no
+arguments to show help information.</p>
+<p>The output produced by Sphinx can be configured by editing the <code class="file docutils literal notranslate"><span class="pre">conf.py</span></code>
+file located in the <code class="file docutils literal notranslate"><span class="pre">doc/</span></code>.</p>
+</div>
+<div class="section" id="organization-of-the-amuse-documentation">
+<h2>Organization of the AMUSE documentation<a class="headerlink" href="#organization-of-the-amuse-documentation" title="Permalink to this headline">¶</a></h2>
+<p>The actual ReStructured Text files are kept in <code class="file docutils literal notranslate"><span class="pre">doc/install</span></code>,
+<code class="file docutils literal notranslate"><span class="pre">doc/design</span></code>, <code class="file docutils literal notranslate"><span class="pre">doc/tutorial</span></code>. The main entry point is
+<code class="file docutils literal notranslate"><span class="pre">doc/index.rst</span></code>. The documentation suite is
+built as a single document in order to make the most effective use of cross
+referencing, we want to make navigating the AMUSE documentation as easy as
+possible.</p>
+<p>Additional files can be added to the various sections by including their base
+file name (the .rst extension is not necessary) in the table of contents.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Writing documentation</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#organization-of-the-amuse-documentation">Organization of the AMUSE documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="configuration.html"
+                        title="previous chapter">Configuring AMUSE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../tutorial/index.html"
+                        title="next chapter">Tutorials</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/install/documenting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../tutorial/index.html" title="Tutorials"
+             >next</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuring AMUSE"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

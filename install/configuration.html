@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Configuring AMUSE &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Writing documentation" href="documenting.html" />
+    <link rel="prev" title="Getting started with AMUSE" href="getting-started.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="documenting.html" title="Writing documentation"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="getting-started.html" title="Getting started with AMUSE"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Installation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configuring-amuse">
+<span id="configuration-label"></span><h1>Configuring AMUSE<a class="headerlink" href="#configuring-amuse" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>In AMUSE a configuration script is used to for two purposes; to run
+on different operating systems and to set compile time options. The
+AMUSE framework has been built on Linux, AIX and OS X systems, it
+also runs on Windows. AMUSE can be configured to run with or without
+MPI, GPU (CUDA) and openmp. In this document we will provide a short
+overview of the configuration options and their effects.</p>
+</div>
+<div class="section" id="basic">
+<h2>Basic<a class="headerlink" href="#basic" title="Permalink to this headline">¶</a></h2>
+<p>The basic configuration of AMUSE uses MPI as the communication
+channel, does not build any GPU enabled codes (or GPU enabled
+versions) and uses openmp if available.  The configuration script
+can be run as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span>
+</pre></div>
+</div>
+<p>To get a list of options and important environment variables run
+<code class="docutils literal notranslate"><span class="pre">`configure`</span></code> with the help flag:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<p>A very important variable for the configuration script is the
+location of the python executable. The python executable is searched
+for in the PATH and you can override it by setting the <code class="docutils literal notranslate"><span class="pre">`PYTHON`</span></code>
+environment variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="n">PYTHON</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">libraries</span><span class="o">/</span><span class="n">python</span>
+</pre></div>
+</div>
+<p>The configuration script will look for dependent libraries in
+default locations of the system and, if defined, also in directories
+under the <code class="docutils literal notranslate"><span class="pre">`PREFIX`</span></code> environment variable. If you installed the
+prerequisites with the AMUSE installation scripts (see
+<a class="reference internal" href="howto-install-prerequisites.html"><span class="doc">Installation of the prerequisite software</span></a>), the configuration script should
+find all the packages installed. For most libraries the
+<code class="docutils literal notranslate"><span class="pre">`PREFIX/lib`</span></code> or <code class="docutils literal notranslate"><span class="pre">`PREFIX/lib64`</span></code> is searched before the system
+path. You can override the <code class="docutils literal notranslate"><span class="pre">`PREFIX`</span></code> environment variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="n">PREFIX</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">libraries</span><span class="o">/</span><span class="n">root</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gpu">
+<span id="configuration-gpu-label"></span><h2>GPU<a class="headerlink" href="#gpu" title="Permalink to this headline">¶</a></h2>
+<p>Currently all codes in AMUSE capable of using the GPU are based
+on CUDA. To run these codes you will need CUDA libraries and drivers.
+Once these have been installed you can run configure like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">cuda</span>
+</pre></div>
+</div>
+<p>The configuration script will look for the <code class="docutils literal notranslate"><span class="pre">`nvcc`</span></code> compiler and the
+cuda libraries, in well known paths. Unfortunately it often will not find
+the cuda tools and you have to specify the some environment variables or
+configuration options.</p>
+<p>If the configuration script cannot find the nvcc compiler (or if it
+finds the wrong one) you can specify the nvcc compiler with the
+<code class="docutils literal notranslate"><span class="pre">`NVCC`</span></code> environment variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">cuda</span> <span class="n">NVCC</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">nvcc</span>
+</pre></div>
+</div>
+<p>The configure script also searches for the nvcc compiler in the
+<code class="docutils literal notranslate"><span class="pre">`$CUDA_TK/bin`</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">cuda</span> <span class="n">CUDA_TK</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">nvidia</span>
+</pre></div>
+</div>
+<p>The configure script looks for cuda and cudart libraries in
+<code class="docutils literal notranslate"><span class="pre">`$NVCC/../lib`</span></code> or <code class="docutils literal notranslate"><span class="pre">`$NVCC/../lib64`</span></code>, if your libraries cannot
+be found there you can override the library path with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">cuda</span> <span class="o">--</span><span class="k">with</span><span class="o">-</span><span class="n">cuda</span><span class="o">-</span><span class="n">libdir</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">cuda</span><span class="o">/</span><span class="n">lib</span>
+</pre></div>
+</div>
+<p>Using <code class="docutils literal notranslate"><span class="pre">`--with-cuda-libdir`</span></code> will always override the local
+search paths and should also work if you have an old version of cuda
+in <code class="docutils literal notranslate"><span class="pre">`/usr/lib`</span></code>.</p>
+<p>Finally, if all else fails, you can edit the <code class="docutils literal notranslate"><span class="pre">`config.mk`</span></code> file
+after configure has finished. The important variables in the file are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>CUDA_ENABLED, valid values are “yes” or “no”.</li>
+<li>NVCC, absolute path to the nvcc executable.</li>
+<li>CUDA_TK, directory of the cuda toolkit installation</li>
+<li>CUDA_LIBS, library flags the add in the linking stage (-L/path -lcuda -lcudart)</li>
+</ul>
+</div></blockquote>
+<p>Please remember that the <code class="docutils literal notranslate"><span class="pre">`config.mk`</span></code> file is overwritten
+every time configure is run.</p>
+<div class="section" id="sapporo-library-version">
+<h3>Sapporo library version<a class="headerlink" href="#sapporo-library-version" title="Permalink to this headline">¶</a></h3>
+<p>The Sapporo library will be build when CUDA is enabled. The Sapporo
+library implements the GRAPE6 API on GPU hardware. AMUSE is shipped
+with two versions of the Sapporo library:</p>
+<blockquote>
+<div><ul class="simple">
+<li>An older version <code class="docutils literal notranslate"><span class="pre">`sapporo_light`</span></code> that runs on most CUDA devices but is not maintained any longer</li>
+<li>The latests version <code class="docutils literal notranslate"><span class="pre">`sapporo`</span></code> that runs on modern GPU hardware. This version should also run on
+OpenCL devices but this is still a work in progress.</li>
+</ul>
+</div></blockquote>
+<p>By default AMUSE will use the older <code class="docutils literal notranslate"><span class="pre">`sapporo_light`</span></code> version, to enable
+the latests version do:</p>
+<blockquote>
+<div>&gt; ./configure –enable-cuda –enable-sapporo2</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configuring AMUSE</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#basic">Basic</a></li>
+<li><a class="reference internal" href="#gpu">GPU</a><ul>
+<li><a class="reference internal" href="#sapporo-library-version">Sapporo library version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting-started.html"
+                        title="previous chapter">Getting started with AMUSE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="documenting.html"
+                        title="next chapter">Writing documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/install/configuration.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="documenting.html" title="Writing documentation"
+             >next</a></li>
+        <li class="right" >
+          <a href="getting-started.html" title="Getting started with AMUSE"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,252 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>From Codes to Data &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Input / Output Framework" href="ioframework.html" />
+    <link rel="prev" title="Stopping Conditions" href="stopping_conditions.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="ioframework.html" title="Input / Output Framework"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="stopping_conditions.html" title="Stopping Conditions"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="from-codes-to-data">
+<h1>From Codes to Data<a class="headerlink" href="#from-codes-to-data" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The framework contains two distinct levels on which interaction with the codes takes place.
+The first level interacts directly with the code and is implemented as a set of functions
+on a class. The second level is built on top of the first level and abstracts the function calls
+to handling objects and datasets. Often multiple function-calls on the first level can be
+abstracted to a single statement (assignment or query) on the second level.</p>
+</div>
+<div class="section" id="the-first-level">
+<h2>The first level<a class="headerlink" href="#the-first-level" title="Permalink to this headline">¶</a></h2>
+<p>The first level is a direct interface to the code, in this chapter the kind of functions
+supported by the first level interface code will be briefly described. All functions that can
+be defined on the first level fall in two categories, those that handle scalars (a single
+value for each parameter) or those that handle 1-D vectors (a list of values for each
+parameters). For functions that handle 1-D vectors each vector must be of the same length.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Not every function will fit in the two categories, but it is usually possible
+to rewrite a function or create a interfacing function that do fit into
+one of the two categories. Supporting only these two categories keeps the
+communication layer simpler and allows for some optimizations in the
+communication between python and C/Fortran codes.</p>
+</div>
+<p>An example of using the first level with scalars and vectors:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">amuse.community.codes.athena.interface</span> <span class="k">import</span> <span class="n">AthenaInterface</span>
+
+<span class="c1"># create an instance of the code (will start an application</span>
+<span class="c1"># in the background to handle all requests)</span>
+<span class="n">hydro</span> <span class="o">=</span> <span class="n">AthenaInterface</span><span class="p">()</span>
+
+<span class="c1"># set parameters needed by the code</span>
+<span class="c1"># these are functions handling one scalar input</span>
+<span class="c1"># parameter</span>
+<span class="n">hydro</span><span class="o">.</span><span class="n">set_gamma</span><span class="p">(</span><span class="mf">1.6666666666666667</span><span class="p">)</span>
+<span class="n">hydro</span><span class="o">.</span><span class="n">set_courant_friedrichs_lewy_number</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)</span>
+
+<span class="c1"># define a grid having 5 cells in all directions and</span>
+<span class="c1"># with the total length of the grid in each direction</span>
+<span class="c1"># is 1.0</span>
+<span class="c1"># this is a function handling multiple</span>
+<span class="c1"># scalar input parameters</span>
+<span class="n">hydro</span><span class="o">.</span><span class="n">setup_mesh</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># setup boundary conditions</span>
+<span class="c1"># (can be periodic, reflective, outflow)</span>
+<span class="n">hydro</span><span class="o">.</span><span class="n">set_boundary</span><span class="p">(</span>
+    <span class="s2">&quot;periodic&quot;</span><span class="p">,</span><span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;periodic&quot;</span><span class="p">,</span><span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;periodic&quot;</span><span class="p">,</span><span class="s2">&quot;periodic&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># let the code do some work</span>
+<span class="c1"># (athena will allocate the grid)</span>
+<span class="c1"># this is a function handling no</span>
+<span class="c1"># scalar input parameters and having</span>
+<span class="c1"># 1 scalar output parameter</span>
+<span class="n">hydro</span><span class="o">.</span><span class="n">commit_parameters</span><span class="p">()</span>
+
+<span class="c1"># lets print the center position</span>
+<span class="c1"># of one grid point</span>
+<span class="nb">print</span> <span class="n">hydro</span><span class="o">.</span><span class="n">get_position_of_index</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># all calls so far have been to functions handling scalar values</span>
+<span class="c1"># the next calls will be to functions handling vectors of values</span>
+
+<span class="c1"># lets print the center positions</span>
+<span class="c1"># of all grid points on one line</span>
+<span class="nb">print</span> <span class="n">hydro</span><span class="o">.</span><span class="n">get_position_of_index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the previous example we used functions with scalar parameters and
+vector parameters. The functions handling vectors often can also
+handle scalars, the framework will take care of the necessary
+conversions.</p>
+<p>All first level functions are not actual python functions, these
+functions are instances of a special Python class that
+implements function call handling. To continue our example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># let&#39;s take a look at the kind of functions</span>
+<span class="c1"># on the first level</span>
+<span class="nb">print</span> <span class="n">hydro</span><span class="o">.</span><span class="n">get_position_of_index</span>
+
+<span class="c1"># you can ask the specificition of a</span>
+<span class="c1"># first level function</span>
+<span class="nb">print</span> <span class="n">hydro</span><span class="o">.</span><span class="n">get_position_of_index</span><span class="o">.</span><span class="n">specification</span>
+</pre></div>
+</div>
+<div class="section" id="adding-units">
+<h3>Adding units<a class="headerlink" href="#adding-units" title="Permalink to this headline">¶</a></h3>
+<p>The first step after defining a first level function is to
+specify the units of the in- and output-parameters of the first
+level function.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">From Codes to Data</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#the-first-level">The first level</a><ul>
+<li><a class="reference internal" href="#adding-units">Adding units</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stopping_conditions.html"
+                        title="previous chapter">Stopping Conditions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ioframework.html"
+                        title="next chapter">Input / Output Framework</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/from_codes_to_data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="ioframework.html" title="Input / Output Framework"
+             >next</a></li>
+        <li class="right" >
+          <a href="stopping_conditions.html" title="Stopping Conditions"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Reference documentation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

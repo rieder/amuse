@@ -1,0 +1,348 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Installing on Fedora 18 &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installing on RedHat (CentOS)" href="install-prerequisites-centos.html" />
+    <link rel="prev" title="Installing on Arch Linux" href="install-prerequisites-arch.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-centos.html" title="Installing on RedHat (CentOS)"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-arch.html" title="Installing on Arch Linux"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a></li>
+          <li class="nav-item nav-item-2"><a href="howto-install-prerequisites.html" accesskey="U">Installation of the prerequisite software</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installing-on-fedora-18">
+<h1>Installing on Fedora 18<a class="headerlink" href="#installing-on-fedora-18" title="Permalink to this headline">¶</a></h1>
+<p>In this section we assume a basic install of Fedora 18 installation.</p>
+<div class="section" id="all-in-one">
+<h2>All in One<a class="headerlink" href="#all-in-one" title="Permalink to this headline">¶</a></h2>
+<p>The prerequisites can be installed with a couple of commands
+on Fedora.</p>
+<p>For mpich2 do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">make</span> <span class="n">gcc</span> <span class="n">gcc</span><span class="o">-</span><span class="n">c</span><span class="o">++</span> <span class="n">gcc</span><span class="o">-</span><span class="n">gfortran</span>\
+        <span class="n">cmake</span> <span class="n">zlib</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">mpich2</span> <span class="n">mpich2</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">hdf5</span> <span class="n">hdf5</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">fftw</span> <span class="n">fftw</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">gsl</span> <span class="n">gsl</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">gmp</span> <span class="n">gmp</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">mpfr</span> <span class="n">mpfr</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">nose</span> <span class="n">numpy</span> <span class="n">numpy</span><span class="o">-</span><span class="n">f2py</span>\
+        <span class="n">h5py</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span> <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">mpi4py</span><span class="o">-</span><span class="n">mpich2</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This line will also install <cite>matplotlib</cite>, this package is
+used for all plotting in AMUSE. If you do not need any plotting
+you can leave it out.</p>
+</div>
+<p>After installing mpich2, you need to activate it using the ‘module’
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; module load mpi/mpich2-$(uname -i)
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We recommend to put the module activation script
+in your .bashrc or .cshrc file.</p>
+</div>
+<p>For openmpi do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">make</span> <span class="n">gcc</span> <span class="n">gcc</span><span class="o">-</span><span class="n">c</span><span class="o">++</span> <span class="n">gcc</span><span class="o">-</span><span class="n">gfortran</span>\
+        <span class="n">cmake</span> <span class="n">zlib</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">openmpi</span> <span class="n">openmpi</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">hdf5</span> <span class="n">hdf5</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">fftw</span> <span class="n">fftw</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">gsl</span> <span class="n">gsl</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">gmp</span> <span class="n">gmp</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">mpfr</span> <span class="n">mpfr</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">nose</span> <span class="n">numpy</span> <span class="n">numpy</span><span class="o">-</span><span class="n">f2py</span>\
+        <span class="n">h5py</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span> <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span><span class="o">-</span><span class="n">devel</span>\
+        <span class="n">mpi4py</span><span class="o">-</span><span class="n">openmpi</span>\
+        <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span>
+</pre></div>
+</div>
+<p>After installing openmpi, you need to activate it using the ‘module’
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; module load mpi/openmpi-$(uname -i)
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>On Fedora you can install both mpich2 and openmpi, the module
+command will keep manage these separate installation, so
+no conflict will exists. If you change between implementation, you
+will need to recompile the amuse community codes with:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">make</span> <span class="n">clean</span><span class="p">;</span> <span class="n">make</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="installing-on-fedora-11">
+<h1>Installing on Fedora 11<a class="headerlink" href="#installing-on-fedora-11" title="Permalink to this headline">¶</a></h1>
+<p>In this section we assume a live-cd install of Fedora 11 installation.</p>
+<div class="section" id="python">
+<h2>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h2>
+<p>Fedora comes with python2.6 pre-installed, you can check if
+python is installed by doing:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; python --version
+Python <span class="m">2</span>.6.2
+</pre></div>
+</div>
+<p>If this fails with an error or a version before 2.6, please install
+python first(the package is called <code class="docutils literal notranslate"><span class="pre">python</span></code>). You also need
+the <code class="docutils literal notranslate"><span class="pre">python-devel</span></code> development package.
+To install it, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gcc">
+<h2>GCC<a class="headerlink" href="#gcc" title="Permalink to this headline">¶</a></h2>
+<p>By default, Fedora does not install a fortran 90 or a C++ compiler. We
+suggest using gfortran and g++. These compilers are installed with
+the <code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">gcc-c++</span></code> and the <code class="docutils literal notranslate"><span class="pre">gcc-gfortran</span></code> packages.
+To install these, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">gcc</span> <span class="n">gcc</span><span class="o">-</span><span class="n">c</span><span class="o">++</span> <span class="n">gcc</span><span class="o">-</span><span class="n">gfortran</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mpi2">
+<h2>MPI2<a class="headerlink" href="#mpi2" title="Permalink to this headline">¶</a></h2>
+<p>Fedora comes with packages for MPICH2 and Openmpi.</p>
+<p>To install MPICH2, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">mpich2</span> <span class="n">mpich2</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+<p>If you prefer OpenMpi over MPICH2, you can install openmpi
+from the Fedora yum database.
+To install the openmpi packages, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">openmpi</span> <span class="n">openmpi</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hdf5">
+<h2>HDF5<a class="headerlink" href="#hdf5" title="Permalink to this headline">¶</a></h2>
+<p>Amuse can work with HDF5 versions 1.6.* and 1.8.3. Fedora 11 has a package
+with HDF5 version 1.8.3. To install it, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">hdf5</span> <span class="n">hdf5</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fftw">
+<h2>FFTW<a class="headerlink" href="#fftw" title="Permalink to this headline">¶</a></h2>
+<p>On Fedora, FFTW can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">fftw</span> <span class="n">fftw</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gsl">
+<h2>GSL<a class="headerlink" href="#gsl" title="Permalink to this headline">¶</a></h2>
+<p>On Fedora, GSL can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">gsl</span> <span class="n">gsl</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cmake">
+<h2>CMake<a class="headerlink" href="#cmake" title="Permalink to this headline">¶</a></h2>
+<p>CMake is used to build EVTwin. On Fedora, CMake can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">cmake</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gmp">
+<h2>GMP<a class="headerlink" href="#gmp" title="Permalink to this headline">¶</a></h2>
+<p>GMP is required for Adaptb. On Fedora, GMP can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">gmp</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mpfr">
+<h2>MPFR<a class="headerlink" href="#mpfr" title="Permalink to this headline">¶</a></h2>
+<p>MPFR is required for Adaptb. On Fedora, MPFR is currently included in the gmp
+package. So, if you have not already done so, MPFR can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">gmp</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-packages-in-fedora">
+<h2>Python packages in Fedora<a class="headerlink" href="#python-packages-in-fedora" title="Permalink to this headline">¶</a></h2>
+<p>Fedora comes with python packages for nose and numpy. You also need
+the setuptools package to be able to install the <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> and <code class="docutils literal notranslate"><span class="pre">h5py</span></code>
+software. To install these , do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">nose</span> <span class="n">numpy</span> <span class="n">numpy</span><span class="o">-</span><span class="n">f2py</span> \
+    <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span> <span class="n">python</span><span class="o">-</span><span class="n">setuptools</span><span class="o">-</span><span class="n">devel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-packages-with-easy-install">
+<h2>Python packages with easy_install<a class="headerlink" href="#python-packages-with-easy-install" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code>, <code class="docutils literal notranslate"><span class="pre">h5py</span></code> and <code class="docutils literal notranslate"><span class="pre">docutils</span></code> can be
+installed with the <code class="docutils literal notranslate"><span class="pre">easy_install</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">mpi4py</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">h5py</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">docutils</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing on Fedora 18</a><ul>
+<li><a class="reference internal" href="#all-in-one">All in One</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing-on-fedora-11">Installing on Fedora 11</a><ul>
+<li><a class="reference internal" href="#python">Python</a></li>
+<li><a class="reference internal" href="#gcc">GCC</a></li>
+<li><a class="reference internal" href="#mpi2">MPI2</a></li>
+<li><a class="reference internal" href="#hdf5">HDF5</a></li>
+<li><a class="reference internal" href="#fftw">FFTW</a></li>
+<li><a class="reference internal" href="#gsl">GSL</a></li>
+<li><a class="reference internal" href="#cmake">CMake</a></li>
+<li><a class="reference internal" href="#gmp">GMP</a></li>
+<li><a class="reference internal" href="#mpfr">MPFR</a></li>
+<li><a class="reference internal" href="#python-packages-in-fedora">Python packages in Fedora</a></li>
+<li><a class="reference internal" href="#python-packages-with-easy-install">Python packages with easy_install</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install-prerequisites-arch.html"
+                        title="previous chapter">Installing on Arch Linux</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="install-prerequisites-centos.html"
+                        title="next chapter">Installing on RedHat (CentOS)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/install/install-prerequisites-fedora.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-centos.html" title="Installing on RedHat (CentOS)"
+             >next</a></li>
+        <li class="right" >
+          <a href="install-prerequisites-arch.html" title="Installing on Arch Linux"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a></li>
+          <li class="nav-item nav-item-2"><a href="howto-install-prerequisites.html" >Installation of the prerequisite software</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

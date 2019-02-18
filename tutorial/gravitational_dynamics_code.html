@@ -1,0 +1,263 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Adding a Gravitational Dynamics Code &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Create an low-level Interface to a Code" href="legacy_code.html" />
+    <link rel="prev" title="Integrate a Fortran 90 code" href="fortran_code.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="legacy_code.html" title="Create an low-level Interface to a Code"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="fortran_code.html" title="Integrate a Fortran 90 code"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Tutorials</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="adding-a-gravitational-dynamics-code">
+<h1>Adding a Gravitational Dynamics Code<a class="headerlink" href="#adding-a-gravitational-dynamics-code" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial we explain the steps to take when integrating
+a new gravitational dynamics code.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This tutorial will show the steps but will not finish in a
+working product. It will highlight the steps to take, we
+recommend you first read these tutorials
+<a class="reference internal" href="c_code.html"><span class="doc">Integrate a C++ code</span></a> and <a class="reference internal" href="fortran_code.html"><span class="doc">Integrate a Fortran 90 code</span></a>.</p>
+</div>
+<div class="section" id="environment-variables">
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>To simplify the work in the coming sections, we first define the
+environment variable ‘AMUSE_DIR’. This environment variable must
+point to the root directory of AMUSE (this is the directory
+containing the build.py script).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">export</span> <span class="nv">AMUSE_DIR</span><span class="o">=</span>&lt;path to the amuse root directory&gt;
+</pre></div>
+</div>
+<p>or in a c shell:</p>
+<div class="highlight-csh notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">setenv </span>AMUSE_DIR &lt;path to the amuse root directory&gt;
+</pre></div>
+</div>
+<p>After building the code, we want to run and test the code. Check if
+amuse is available in your python path by running the following code
+on the command line.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; python -c <span class="s2">&quot;import amuse&quot;</span>
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;&lt;string&gt;&quot;</span>, line <span class="m">1</span>, in &lt;module&gt;
+ImportError: No module named amuse
+</pre></div>
+</div>
+<p>If this code ends in a “ImportError” as shown in the example, the
+PYTHONPATH environment variable must be extended with the src directory
+in AMUSE_DIR.
+We can do so by using one of the following commands.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span>:<span class="si">${</span><span class="nv">AMUSE_DIR</span><span class="si">}</span>/src
+</pre></div>
+</div>
+<p>or in a c shell:</p>
+<div class="highlight-csh notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">setenv </span>PYTHONPATH <span class="k">${</span><span class="nv">PYTHONPATH</span><span class="k">}</span>:<span class="k">${</span><span class="nv">AMUSE_DIR</span><span class="k">}</span>/src
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-an-initial-directory-structure">
+<h2>Creating an initial directory structure<a class="headerlink" href="#creating-an-initial-directory-structure" title="Permalink to this headline">¶</a></h2>
+<p>First we need to create a directory for our project and put some
+files in it to help build the code. The fastest method to setup the
+directory is by using the build.py script.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; <span class="c1"># for C/C++ codes:</span>
+&gt; <span class="nv">$AMUSE_DIR</span>/build.py --type<span class="o">=</span>c --mode<span class="o">=</span>dir CodeName
+&gt; <span class="c1"># for fortran codes:</span>
+&gt; <span class="nv">$AMUSE_DIR</span>/build.py --type<span class="o">=</span>f90 --mode<span class="o">=</span>dir CodeName
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">`CodeName`</span></code> should be an unique name for your code. It
+should follow python rules for class names, start with
+an uppercase letter and have an uppercase letter for each word
+in the name (camelcase).</p>
+</div>
+<p>This script will create a directory called <code class="docutils literal notranslate"><span class="pre">`codename`</span></code>. The script
+will populate the directory with a make file (<code class="docutils literal notranslate"><span class="pre">`Makefile`</span></code>), a python interface
+definition file (<code class="docutils literal notranslate"><span class="pre">`interface.py`</span></code>) and a C or fortran stub file
+(containing methods implementing the definitions in interface.py,
+<code class="docutils literal notranslate"><span class="pre">`interface.cc`</span></code> or <code class="docutils literal notranslate"><span class="pre">`interface.f90`</span></code>).</p>
+</div>
+<div class="section" id="the-src-directory">
+<h2>The src directory<a class="headerlink" href="#the-src-directory" title="Permalink to this headline">¶</a></h2>
+<p>The build.py script creates a <code class="docutils literal notranslate"><span class="pre">`src`</span></code> directory in the <code class="docutils literal notranslate"><span class="pre">`codename`</span></code>
+directory. The <code class="docutils literal notranslate"><span class="pre">`src`</span></code> directory should contain a make file and
+the sources of the code to integrate. (The build.py script also creates
+some files in the <code class="docutils literal notranslate"><span class="pre">`src`</span></code> directory as an example, but you
+can remove and overwrite everything in this directory)</p>
+<p>The generated build system will call the make file with the
+<code class="docutils literal notranslate"><span class="pre">`all`</span></code> target (to build an stand-alone executable, if available)
+and the <code class="docutils literal notranslate"><span class="pre">`libcodename.a`</span></code> target (to build a static library with
+all necessary object files).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your code has a different build system or if the makefile is
+not in the main directory of the code you need to edit the
+generated make file in the <code class="docutils literal notranslate"><span class="pre">`codename`</span></code> directory. The AMUSE
+codebase contains several codes that have a different build
+system, please look into the code for <code class="docutils literal notranslate"><span class="pre">`evtwin`</span></code> (uses cmake)
+or <code class="docutils literal notranslate"><span class="pre">`athena`</span></code> (downloads and patches code) for hints.</p>
+</div>
+<p>If you already have a make file, you might need to add the
+<code class="docutils literal notranslate"><span class="pre">`libcodename.a`</span></code> target. You can define this target by
+adding the following code to your make file at the appropriate
+locations in the makefile.</p>
+<dl class="docutils">
+<dt>… code-block:: Makefile</dt>
+<dd><p class="first">CODELIB = libcodename.a</p>
+<p>CODEOBJS = …list of object files…</p>
+<p>AR = ar ruv
+RANLIB = ranlib</p>
+<dl class="last docutils">
+<dt>$(CODELIB): $(CODEOBJS)</dt>
+<dd>$(RM) -f $&#64;
+$(AR) $&#64; $(CODEOBJS)
+$(RANLIB) $&#64;</dd>
+</dl>
+</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Adding a Gravitational Dynamics Code</a><ul>
+<li><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li><a class="reference internal" href="#creating-an-initial-directory-structure">Creating an initial directory structure</a></li>
+<li><a class="reference internal" href="#the-src-directory">The src directory</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fortran_code.html"
+                        title="previous chapter">Integrate a Fortran 90 code</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="legacy_code.html"
+                        title="next chapter">Create an low-level Interface to a Code</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorial/gravitational_dynamics_code.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="legacy_code.html" title="Create an low-level Interface to a Code"
+             >next</a></li>
+        <li class="right" >
+          <a href="fortran_code.html" title="Integrate a Fortran 90 code"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>

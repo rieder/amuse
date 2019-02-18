@@ -1,0 +1,210 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Directory Structure &#8212; AMUSE 11.0 documentation</title>
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sets and Grids in Codes" href="incode_storage.html" />
+    <link rel="prev" title="Options" href="options.html" />
+     
+    <link rel="stylesheet" href="../_static/default.css" type="text/css">
+
+  </head><body>
+    <div id="banner">
+      <div id="header" py:choose="">
+        <h1><a href="/">Amuse</a></h1>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="nav" id="mainnav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a>
+    </ul>
+    </div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="incode_storage.html" title="Sets and Grids in Codes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="options.html" title="Options"
+             accesskey="P">previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="directory-structure">
+<h1>Directory Structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h1>
+<p>The amuse source-code is separated into 3 directories:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">src</span></code> - source code, implementation of the environment.</li>
+<li><code class="docutils literal notranslate"><span class="pre">test</span></code> - applications, examples and unittests.</li>
+<li><code class="docutils literal notranslate"><span class="pre">support</span></code> - build system, test system.</li>
+</ul>
+<p>Under the <code class="docutils literal notranslate"><span class="pre">src</span></code> directories all code needed to run AMUSE can be found.
+One can view this code as an <em>library</em> that can be used to create
+<em>applications</em> to do numerical astrophysical experiments. This code will
+contain the building blocks needed to interface with codes,
+import and export data, do unit conversions, and all other AMUSE
+functionality.</p>
+<p>Under the <code class="docutils literal notranslate"><span class="pre">test</span></code> directories all application and test code can be
+found. This directory tree will contain scripts to do a complete
+astrophysical experiment. Also all unit-tests can be found here. These
+unit tests each cover only a small part (unit) of the functionality of
+AMUSE. For example a  test to check the import of a file to AMUSE data
+format.</p>
+<p>Under the <code class="docutils literal notranslate"><span class="pre">support</span></code> directories all support code for the building
+system can be found.</p>
+<div class="section" id="the-src-directories">
+<h2>The <code class="docutils literal notranslate"><span class="pre">src</span></code> directories<a class="headerlink" href="#the-src-directories" title="Permalink to this headline">¶</a></h2>
+<p>The directories under the <code class="docutils literal notranslate"><span class="pre">src</span></code> directory are further split into:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">community</span></code> - contains the source code of existing astrophysical
+applications and <em>glue</em> code to the AMUSE interface classes. In other
+words this directory contains the implementation of the interfaces.</li>
+<li><code class="docutils literal notranslate"><span class="pre">support</span></code> - contains the AMUSE generic code, defines the data
+representation and input/output routines and also provides the generic
+unit handling code. Code in the <code class="docutils literal notranslate"><span class="pre">interface</span></code> and <code class="docutils literal notranslate"><span class="pre">community</span></code> directories
+use these functions and classes to provide their functionality.</li>
+</ul>
+</div>
+<div class="section" id="the-test-directories">
+<h2>The <code class="docutils literal notranslate"><span class="pre">test</span></code> directories<a class="headerlink" href="#the-test-directories" title="Permalink to this headline">¶</a></h2>
+<p>The directories under the <code class="docutils literal notranslate"><span class="pre">test</span></code> directory are further split into:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">unit_tests</span></code> - All unit testing code. These tests are coded using
+the standard unit testing framework that is included in the Python
+distribution (<code class="docutils literal notranslate"><span class="pre">unittest</span></code>). See python module documentation for further
+information: <a class="reference external" href="http://docs.python.org/library/unittest.html">http://docs.python.org/library/unittest.html</a>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">application</span></code> - contains the source code of published applications.</li>
+<li><code class="docutils literal notranslate"><span class="pre">examples</span></code> - contains documented example codes.</li>
+</ul>
+</div>
+<div class="section" id="the-support-directories">
+<h2>The <code class="docutils literal notranslate"><span class="pre">support</span></code> directories<a class="headerlink" href="#the-support-directories" title="Permalink to this headline">¶</a></h2>
+<p>The directories under the <code class="docutils literal notranslate"><span class="pre">support</span></code> directory are further split into:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">test</span></code> - Scripts to support the testing of AMUSE code.</li>
+<li><code class="docutils literal notranslate"><span class="pre">build</span></code> - Scripts used by the building system of AMUSE.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Directory Structure</a><ul>
+<li><a class="reference internal" href="#the-src-directories">The <code class="docutils literal notranslate"><span class="pre">src</span></code> directories</a></li>
+<li><a class="reference internal" href="#the-test-directories">The <code class="docutils literal notranslate"><span class="pre">test</span></code> directories</a></li>
+<li><a class="reference internal" href="#the-support-directories">The <code class="docutils literal notranslate"><span class="pre">support</span></code> directories</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="options.html"
+                        title="previous chapter">Options</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="incode_storage.html"
+                        title="next chapter">Sets and Grids in Codes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/directory-structure.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="incode_storage.html" title="Sets and Grids in Codes"
+             >next</a></li>
+        <li class="right" >
+          <a href="options.html" title="Options"
+             >previous</a></li>
+    <li><a href="http://www.amusecode.org">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">AMUSE 11.0 documentation</a></li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Reference documentation</a></li> 
+      </ul>
+    </div>
+    <!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.amusecode.org/" : "http://stats.amusecode.org/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://stats.amusecode.org/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+
+    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009-2016 The AMUSE Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+
+  </body>
+</html>
