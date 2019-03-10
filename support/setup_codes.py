@@ -156,12 +156,14 @@ class GenerateInstallIni(Command):
         outfilename = os.path.join(self.build_dir, 'amuse', 'amuserc')
         
         
-        data_dir = os.path.join(self.install_data,'share','amuse')
-        if not self.root is None:
-            data_dir = os.path.relpath(data_dir,self.root)
-            data_dir =  os.path.join('/',data_dir)
-        else:
-            data_dir = os.path.abspath(data_dir)
+        # this does not work for pip installs
+        #~ data_dir = os.path.join(self.install_data,'share','amuse')
+        #~ if not self.root is None:
+            #~ data_dir = os.path.relpath(data_dir,self.root)
+            #~ data_dir =  os.path.join('/',data_dir)
+        #~ else:
+            #~ data_dir = os.path.abspath(data_dir)
+
         installinilines = []
         installinilines.append('[channel]')
         installinilines.append('must_check_if_worker_is_up_to_date=0')
@@ -170,9 +172,9 @@ class GenerateInstallIni(Command):
         if sys.platform == 'win32':
             installinilines.append('worker_code_suffix=".exe"')
         installinilines.append('[data]')
-        installinilines.append('input_data_root_directory={0}'.format(os.path.join(data_dir, 'data')))
-        installinilines.append('output_data_root_directory=amuse-data')
-        installinilines.append('amuse_root_dir={0}'.format(data_dir))
+        #~ installinilines.append('input_data_root_directory={0}'.format(os.path.join(data_dir, 'data')))
+        installinilines.append('output_data_root_directory=_amuse_output_data')
+        #~ installinilines.append('amuse_root_dir={0}'.format(data_dir))
         
         if 'BUILD_BINARY' in os.environ:
             installinilines.append('[test]')
@@ -331,14 +333,14 @@ class CodeCommand(Command):
             
         mpif90 = os.environ['MPIF90'] if 'MPIF90' in os.environ else 'mpif90'
         
-        process = Popen([mpif90,'-show'], stdout = PIPE, stderr = PIPE)
+        process = Popen([mpif90,'-show'], stdout = PIPE, stderr = PIPE, shell=True)
         stdoutstring, stderrstring = process.communicate()
         if process.returncode == 0:
             parts = stdoutstring.split()
             self.environment['FORTRAN']  = parts[0]
             return
         
-        process = Popen([mpif90,'--showme '], stdout = PIPE, stderr = PIPE)
+        process = Popen([mpif90,'--showme '], stdout = PIPE, stderr = PIPE, shell=True)
         stdoutstring, stderrstring = process.communicate()
         if process.returncode == 0:
             parts = stdoutstring.split()
@@ -687,6 +689,14 @@ class CodeCommand(Command):
         
         stringio.close()
         return result, content
+        
+    def build_environment(self):
+        environment=self.environment.copy()
+        environment.update(os.environ)
+        path=os.path.join(environment["AMUSE_DIR"],"src")
+        path=path+':'+environment.get("PYTHONPATH", "")
+        environment["PYTHONPATH"]=path
+        return environment
     
 class SplitOutput(object) :
     def __init__(self, file1, file2) :
@@ -767,8 +777,7 @@ class BuildCodes(CodeCommand):
         build = list()
         lib_build = list()
         lib_not_build = list()
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         
         buildlog = 'build.log'
         
@@ -1022,8 +1031,7 @@ class BuildLibraries(CodeCommand):
         build = list()
         lib_build = list()
         lib_not_build = list()
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         
         buildlog = 'build.log'
         
@@ -1168,8 +1176,7 @@ class ConfigureCodes(CodeCommand):
         if os.path.exists('config.mk'):
             self.announce("Already configured, not running configure", level = 2)
             return
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         self.announce("Running configure for AMUSE", level = 2)
         self.call(['./configure'], env=environment, shell=True)
         
@@ -1179,8 +1186,7 @@ class CleanCodes(CodeCommand):
 
     def run (self):
             
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         self.announce("Cleaning libraries and community codes", level = 2)
         for x in self.makefile_paths(self.lib_dir):
             self.announce("cleaning libary " + x)
@@ -1197,8 +1203,7 @@ class DistCleanCodes(CodeCommand):
     description = "clean for distribution"
 
     def run (self):
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         
         self.announce("Cleaning for distribution, libraries and community codes", level = 2)
         for x in self.makefile_paths(self.lib_dir):
@@ -1247,8 +1252,7 @@ class BuildOneCode(CodeCommand):
         if not self.inplace:
             self.run_command("build_py")
 
-        environment = self.environment
-        environment.update(os.environ)
+        environment = self.build_environment()
         
         results = []
         
