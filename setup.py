@@ -169,7 +169,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='amuse',
-    version="12.0a4",
+    version="12.0a5",
     cmdclass=mapping_from_command_name_to_command_class,
     ext_modules=extensions,
     package_dir={'': 'src', 'amuse.test.suite' :'test', 'amuse.examples' : 'examples'},
@@ -185,7 +185,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: C',

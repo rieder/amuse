@@ -1,7 +1,7 @@
 This package contains the AMUSE software. With AMUSE you can write scripts to
 simulate astrophysical problems in different domains.
 
-This release (12.0a4) does not contain the following codes, for space-saving reasons:
+This release (12.0a5) does not contain the following codes, for space-saving reasons:
 - MESA
 - SimpleX
 - EVTwin
