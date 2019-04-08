@@ -5,7 +5,6 @@ from amuse.community import (
     LegacyFunctionSpecification,
     legacy_function,
     LiteratureReferencesMixIn,
-    # StoppingConditionInterface,
 )
 
 from amuse.community.interface.gd import (
@@ -14,14 +13,18 @@ from amuse.community.interface.gd import (
     # GravityFieldInterface,
     GravityFieldCode,
 )
-from amuse.units import nbody_system
+from amuse.community.interface.stopping_conditions import(
+    StoppingConditionInterface,
+    StoppingConditions,
+)
+from amuse.units import nbody_system, units
 
 
 class PhantomInterface(
         CodeInterface,
         LiteratureReferencesMixIn,
         GravitationalDynamicsInterface,
-        # StoppingConditionInterface,
+        StoppingConditionInterface,
         # SinglePointGravityFieldInterface,
 ):
     """
@@ -63,7 +66,8 @@ class PhantomInterface(
         for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u']:
             function.addParameter(x, dtype='float64', direction=function.IN)
         function.addParameter(
-            'h_smooth', dtype='float64', direction=function.IN, default=0.)
+            'h_smooth', dtype='float64', direction=function.IN, default=0.,
+        )
         function.result_type = 'int32'
         return function
 
@@ -689,9 +693,12 @@ class PhantomInterface(
         return function
 
     @legacy_function
-    def get_rho_crit_cgs():
+    def get_rhofinal():
         function = LegacyFunctionSpecification()
-        function.addParameter('rho_crit_cgs', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'rhofinal', dtype='float64', direction=function.OUT,
+            unit=(nbody_system.density),
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -700,9 +707,40 @@ class PhantomInterface(
         return function
 
     @legacy_function
-    def set_rho_crit_cgs():
+    def set_rhofinal():
         function = LegacyFunctionSpecification()
-        function.addParameter('rho_crit_cgs', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'rhofinal', dtype='float64', direction=function.IN,
+            unit=(nbody_system.density),
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_rho_crit():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'rho_crit', dtype='float64', direction=function.OUT,
+            unit=(nbody_system.density),
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def set_rho_crit():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'rho_crit', dtype='float64', direction=function.IN,
+            unit=(nbody_system.density),
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -713,7 +751,10 @@ class PhantomInterface(
     @legacy_function
     def get_r_crit():
         function = LegacyFunctionSpecification()
-        function.addParameter('r_crit', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'r_crit', dtype='float64', direction=function.OUT,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -724,7 +765,10 @@ class PhantomInterface(
     @legacy_function
     def set_r_crit():
         function = LegacyFunctionSpecification()
-        function.addParameter('r_crit', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'r_crit', dtype='float64', direction=function.IN,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -735,7 +779,10 @@ class PhantomInterface(
     @legacy_function
     def get_h_acc():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_acc', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'h_acc', dtype='float64', direction=function.OUT,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -746,7 +793,10 @@ class PhantomInterface(
     @legacy_function
     def set_h_acc():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_acc', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'h_acc', dtype='float64', direction=function.IN,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -757,7 +807,10 @@ class PhantomInterface(
     @legacy_function
     def get_h_soft_sinkgas():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_soft_sinkgas', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'h_soft_sinkgas', dtype='float64', direction=function.OUT,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -768,7 +821,10 @@ class PhantomInterface(
     @legacy_function
     def set_h_soft_sinkgas():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_soft_sinkgas', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'h_soft_sinkgas', dtype='float64', direction=function.IN,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -779,7 +835,10 @@ class PhantomInterface(
     @legacy_function
     def get_h_soft_sinksink():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_soft_sinksink', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'h_soft_sinksink', dtype='float64', direction=function.OUT,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -790,7 +849,10 @@ class PhantomInterface(
     @legacy_function
     def set_h_soft_sinksink():
         function = LegacyFunctionSpecification()
-        function.addParameter('h_soft_sinksink', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'h_soft_sinksink', dtype='float64', direction=function.IN,
+            unit=nbody_system.length,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -919,7 +981,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             self,
             convert_nbody=None,
             **options):
-        # self.stopping_conditions = StoppingConditions(self)
+        self.stopping_conditions = StoppingConditions(self)
 
         GravitationalDynamics.__init__(
             self,
@@ -945,6 +1007,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_transition('RUN', 'UPDATE', 'new_sink_particle', False)
         handler.add_method('EDIT', 'new_sink_particle')
         handler.add_method('UPDATE', 'new_sink_particle')
+
+        self.stopping_conditions.define_state(handler)
 
     def define_parameters(self, handler):
         handler.add_method_parameter(
@@ -1052,19 +1116,28 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         )
 
         handler.add_method_parameter(
-            "get_rho_crit_cgs",
-            "set_rho_crit_cgs",
-            "rho_crit_cgs",
-            "density above which sink particles are created (g/cm^3)",
-            default_value=1e-16
+            "get_rhofinal",
+            "set_rhofinal",
+            "rhofinal",
+            "maximum allowed density (<=0 to ignore)",
+            default_value=(0 | nbody_system.density)
+        )
+
+        handler.add_method_parameter(
+            "get_rho_crit",
+            "set_rho_crit",
+            "rho_crit",
+            "density above which sink particles are created",
+            default_value=(1e-16 | units.g * units.cm**-3)
         )
 
         handler.add_method_parameter(
             "get_r_crit",
             "set_r_crit",
             "r_crit",
-            "critical radius for point mass creation (no new sinks < r_crit from existing sink)",
-            default_value=0.001
+            "critical radius for point mass creation"
+            " (no new sinks < r_crit from existing sink)",
+            default_value=(0.001 | nbody_system.length)
         )
 
         handler.add_method_parameter(
@@ -1072,7 +1145,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_acc",
             "h_acc",
             "accretion radius for new sink particles",
-            default_value=0.001
+            default_value=(0.001 | nbody_system.length)
         )
 
         handler.add_method_parameter(
@@ -1080,7 +1153,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_soft_sinkgas",
             "h_soft_sinkgas",
             "softening length for new sink particles",
-            default_value=0.001
+            default_value=(0.001 | nbody_system.length)
         )
 
         handler.add_method_parameter(
@@ -1088,7 +1161,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_soft_sinksink",
             "h_soft_sinksink",
             "softening length between sink particles",
-            default_value=0.001
+            default_value=(0.001 | nbody_system.length)
         )
 
         handler.add_method_parameter(
@@ -1103,7 +1176,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "get_iexternalforce",
             "set_iexternalforce",
             "iexternalforce",
-            "1=star,2=coro,3=bina,4=prdr,5=toru,6=toys,7=exte,8=spir,9=Lens,10=neut,11=Eins",
+            "1=star,2=coro,3=bina,4=prdr,5=toru,6=toys,7=exte,"
+            "8=spir,9=Lens,10=neut,11=Eins",
             default_value=0
         )
 
@@ -1119,7 +1193,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "get_shearparam",
             "set_shearparam",
             "shearparam",
-            "magnitude of shear viscosity (irealvisc=1) or alpha_SS (irealvisc=2)",
+            "magnitude of shear viscosity (irealvisc=1) or alpha_SS"
+            " (irealvisc=2)",
             default_value=0.1
         )
 
@@ -1131,12 +1206,12 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             default_value=0.0
         )
 
-        # self.stopping_conditions.define_parameters(handler)
+        self.stopping_conditions.define_parameters(handler)
 
     def define_particle_sets(self, handler):
         handler.define_super_set(
             'particles',
-            ['dm_particles', 'gas_particles', 'sink_particles'],
+            ['dm_particles', 'gas_particles',],# 'sink_particles'],
             index_to_default_set=0,
         )
 
@@ -1171,17 +1246,19 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_getter('gas_particles', 'get_density', names=('density',))
         handler.add_getter('gas_particles', 'get_pressure')
 
-        handler.define_set('sink_particles', 'index_of_the_particle')
-        handler.set_new('sink_particles', 'new_sink_particle')
-        handler.set_delete('sink_particles', 'delete_particle')
-        handler.add_getter('sink_particles', 'get_state_sink')
-        handler.add_setter('sink_particles', 'set_state_sink')
-        handler.add_getter('sink_particles', 'get_mass')
-        handler.add_setter('sink_particles', 'set_mass')
-        handler.add_getter('sink_particles', 'get_position')
-        handler.add_setter('sink_particles', 'set_position')
-        handler.add_getter('sink_particles', 'get_velocity')
-        handler.add_setter('sink_particles', 'set_velocity')
+        # handler.define_set('sink_particles', 'index_of_the_particle')
+        # handler.set_new('sink_particles', 'new_sink_particle')
+        # handler.set_delete('sink_particles', 'delete_particle')
+        # handler.add_getter('sink_particles', 'get_state_sink')
+        # handler.add_setter('sink_particles', 'set_state_sink')
+        # handler.add_getter('sink_particles', 'get_mass')
+        # handler.add_setter('sink_particles', 'set_mass')
+        # handler.add_getter('sink_particles', 'get_position')
+        # handler.add_setter('sink_particles', 'set_position')
+        # handler.add_getter('sink_particles', 'get_velocity')
+        # handler.add_setter('sink_particles', 'set_velocity')
+
+        self.stopping_conditions.define_particle_set(handler, 'particles')
 
     def define_methods(self, handler):
         GravitationalDynamics.define_methods(self, handler)
@@ -1326,3 +1403,5 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE,
             )
         )
+
+        self.stopping_conditions.define_methods(handler)

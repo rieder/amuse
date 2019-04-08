@@ -3,9 +3,18 @@
 !CONTAINS
 
 function initialize_code()
+  use StoppingConditions
   implicit none
   integer :: initialize_code
+  integer :: error
   call amuse_initialize_code()
+
+  !error = set_support_for_condition(TIMEOUT_DETECTION)
+  !error = set_support_for_condition(NUMBER_OF_STEPS_DETECTION)
+  !error = set_support_for_condition(OUT_OF_BOX_DETECTION)
+  error = set_support_for_condition(DENSITY_LIMIT_DETECTION)
+  !error = set_support_for_condition(INTERNAL_ENERGY_LIMIT_DETECTION)
+
   initialize_code=0
 end function
 
@@ -148,10 +157,39 @@ function get_total_mass(mass)
 end function
 
 function evolve_model(tmax)
+  use StoppingConditions
   implicit none
   double precision :: tmax
   integer :: evolve_model
+  integer :: sc
+  integer :: i, nmax
+  integer :: is_density_limit_detection_enabled, stopping_index
+  integer :: error
+  double precision :: minimum_density_parameter, maximum_density_parameter, rho
+
+  error = reset_stopping_conditions()
+  error = is_stopping_condition_enabled(&
+      DENSITY_LIMIT_DETECTION, is_density_limit_detection_enabled)
+  error = get_stopping_condition_minimum_density_parameter(minimum_density_parameter)
+  error = get_stopping_condition_maximum_density_parameter(maximum_density_parameter)
+
   call amuse_evolve_model(tmax)
+  if (is_density_limit_detection_enabled > 0) then
+      call amuse_get_number_of_sph_particles(nmax)
+      do i=1, nmax
+          call amuse_get_density(i, rho)
+          if (&
+              (rho > maximum_density_parameter) .or. &
+              (rho < minimum_density_parameter) &
+              ) then
+              stopping_index = next_index_for_stopping_condition()
+              if (stopping_index > 0) then
+                  error = set_stopping_condition_info(stopping_index, DENSITY_LIMIT_DETECTION)
+                  error = set_stopping_condition_particle_index(stopping_index, 0, i)
+              endif
+          endif
+      enddo
+  endif
   evolve_model=0
 end function
 
@@ -217,6 +255,7 @@ function delete_particle(index_of_the_particle)
   implicit none
   integer :: index_of_the_particle
   integer :: delete_particle
+  call amuse_delete_particle(index_of_the_particle)
   delete_particle=0
 end function
 
@@ -275,7 +314,7 @@ end function
 function recommit_particles()
   implicit none
   integer :: recommit_particles
-  recommit_particles=-1
+  recommit_particles=0
 end function
 
 function get_kinetic_energy(kinetic_energy)
@@ -383,7 +422,7 @@ end function
 function recommit_parameters()
   implicit none
   integer :: recommit_parameters
-  recommit_parameters=-1
+  recommit_parameters=0
 end function
 
 function get_potential_energy(potential_energy)
@@ -459,7 +498,7 @@ end function
 function commit_parameters()
   implicit none
   integer :: commit_parameters
-  commit_parameters=-1
+  commit_parameters=0
 end function
 
 function set_velocity(index_of_the_particle, vx, vy, vz)
@@ -575,12 +614,21 @@ function set_mu(mu)
     set_mu=0
 end function
 
-function set_rho_crit_cgs(rho_crit_cgs)
+function set_rhofinal(rhofinal)
     implicit none
-    double precision :: rho_crit_cgs
-    integer :: set_rho_crit_cgs
-    call amuse_set_rho_crit_cgs(rho_crit_cgs)
-    set_rho_crit_cgs=0
+    double precision :: rhofinal
+    integer :: set_rhofinal
+    call amuse_set_rhofinal(rhofinal)
+    print *, "interface setting rhofinal to ", rhofinal
+    set_rhofinal=0
+end function
+
+function set_rho_crit(rho_crit)
+    implicit none
+    double precision :: rho_crit
+    integer :: set_rho_crit
+    call amuse_set_rho_crit(rho_crit)
+    set_rho_crit=0
 end function
 
 function set_r_crit(r_crit)
@@ -745,27 +793,35 @@ function get_idamp(idamp)
 end function
 
 function get_ieos(ieos)
-  implicit none
-  integer :: ieos
-  integer :: get_ieos
-  call amuse_get_ieos(ieos)
-  get_ieos=0
+    implicit none
+    integer :: ieos
+    integer :: get_ieos
+    call amuse_get_ieos(ieos)
+    get_ieos=0
 end function
 
 function get_mu(mu)
-  implicit none
-  double precision :: mu
-  integer :: get_mu
-  call amuse_get_mu(mu)
-  get_mu=0
+    implicit none
+    double precision :: mu
+    integer :: get_mu
+    call amuse_get_mu(mu)
+    get_mu=0
 end function
 
-function get_rho_crit_cgs(rho_crit_cgs)
+function get_rhofinal(rhofinal)
     implicit none
-    double precision :: rho_crit_cgs
-    integer :: get_rho_crit_cgs
-    call amuse_get_rho_crit_cgs(rho_crit_cgs)
-    get_rho_crit_cgs=0
+    double precision :: rhofinal
+    integer :: get_rhofinal
+    call amuse_get_rhofinal(rhofinal)
+    get_rhofinal=0
+end function
+
+function get_rho_crit(rho_crit)
+    implicit none
+    double precision :: rho_crit
+    integer :: get_rho_crit
+    call amuse_get_rho_crit(rho_crit)
+    get_rho_crit=0
 end function
 
 function get_r_crit(r_crit)
