@@ -66,7 +66,7 @@ class PhantomInterface(
         for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'u']:
             function.addParameter(x, dtype='float64', direction=function.IN)
         function.addParameter(
-            'h_smooth', dtype='float64', direction=function.IN, default=0.,
+            'h_smooth', dtype='float64', direction=function.IN, default=0.01,
         )
         function.result_type = 'int32'
         return function
@@ -280,7 +280,7 @@ class PhantomInterface(
         )
         function.addParameter(
             'u', dtype='float64', direction=function.IN,
-            description=''
+            description='',
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -356,7 +356,7 @@ class PhantomInterface(
         )
         function.addParameter(
             'u', dtype='float64', direction=function.OUT,
-            description="The current internal energy of the particle"
+            description="The current internal energy of the particle",
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1403,5 +1403,17 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE,
             )
         )
+
+        handler.add_method(
+            "set_internal_energy",
+            (
+                handler.INDEX,
+                nbody_system.specific_energy,
+            ),
+            (
+                handler.ERROR_CODE,
+            )
+        )
+
 
         self.stopping_conditions.define_methods(handler)

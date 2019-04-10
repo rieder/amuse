@@ -199,7 +199,9 @@ function set_state_sph(index_of_the_particle, mass, x, y, z, &
   integer :: index_of_the_particle
   double precision :: mass, x, y, z, vx, vy, vz, u, h_smooth
   integer :: set_state_sph
-  set_state_sph=-1
+  call amuse_set_state_gas(index_of_the_particle, mass, x, y, z, &
+      vx, vy, vz, u, h_smooth)
+  set_state_sph=0
 end function
 
 function set_eps2(epsilon_squared)
