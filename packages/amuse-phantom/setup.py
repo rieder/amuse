@@ -125,7 +125,7 @@ def find_packages(where='.', exclude=()):
 
 all_data_files = []
 
-packages = ['amuse.community.sse']
+packages = ['amuse.community.phantom']
 
 package_data = {
 }
