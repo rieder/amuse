@@ -705,6 +705,14 @@ function set_bulkvisc(bulkvisc)
     set_bulkvisc=0
 end function
 
+function set_gamma(gamma)
+    implicit none
+    double precision :: gamma
+    integer :: set_gamma
+    call amuse_set_gamma(gamma)
+    set_gamma=0
+end function
+
 function get_c_courant(C_cour)
   implicit none
   double precision :: C_cour
@@ -896,6 +904,14 @@ function get_bulkvisc(bulkvisc)
     integer :: get_bulkvisc
     call amuse_get_bulkvisc(bulkvisc)
     get_bulkvisc=0
+end function
+
+function get_gamma(gamma)
+    implicit none
+    double precision :: gamma
+    integer :: get_gamma
+    call amuse_get_gamma(gamma)
+    get_gamma=0
 end function
 
 !END MODULE
