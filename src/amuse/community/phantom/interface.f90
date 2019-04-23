@@ -275,6 +275,28 @@ function synchronize_model()
   synchronize_model=0
 end function
 
+function set_state_sink(index_of_the_particle, mass, x, y, z, &
+        vx, vy, vz)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: mass, x, y, z, vx, vy, vz
+  integer :: set_state_sink
+  call amuse_set_state_sink(index_of_the_particle, mass, x, y, z, &
+      vx, vy, vz)
+  set_state_sink=0
+end function
+
+function get_state_sink(index_of_the_particle, mass, x, y, z, &
+        vx, vy, vz)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: mass, x, y, z, vx, vy, vz
+  integer :: get_state_sink
+  call amuse_get_state_sink(index_of_the_particle, mass, x, y, z, &
+      vx, vy, vz)
+  get_state_sink=0
+end function
+
 function set_state_dm(index_of_the_particle, mass, x, y, z, &
         vx, vy, vz, radius)
   implicit none
