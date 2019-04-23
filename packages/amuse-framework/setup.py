@@ -1,29 +1,14 @@
 import sys
 import os
 
-from distutils.command.build import build
-from distutils.command.clean import clean
-from distutils.command.install import install
-from distutils.util import convert_path
-from setuptools import setup
-
-from support.generate_main import generate_main
-from support.build_latex import build_latex
-from support.setup_codes import (
-    BuildCodes, CleanCodes, DistCleanCodes, BuildOneCode, BuildLibraries,
-    ConfigureCodes, GenerateInstallIni, InstallLibraries,
-)
-from support.run_tests import run_tests
-
-if sys.hexversion > 0x03000000:
-    from distutils.command.build_py import build_py_2to3
-
+from setuptools import setup, find_packages
+from support.setup_codes import setup_commands
 
 name = 'amuse-framework'
-version = "12.0a5"
+version = "12.0.0"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
-license = "Apache License 2.0"
+license_ = "Apache License 2.0"
 url = 'http://www.amusecode.org/'
 install_requires = [
     'wheel>=0.32',
@@ -57,79 +42,6 @@ classifiers = [
 
 extensions = []
 
-
-class Clean(clean):
-
-    def run(self):
-        for cmd_name in self.get_sub_commands():
-            self.run_command(cmd_name)
-
-
-class Install(install):
-
-    def run(self):
-        for cmd_name in self.get_sub_commands():
-            self.run_command(cmd_name)
-
-        install.run(self)
-
-
-mapping_from_command_name_to_command_class = {
-    'build_latex': build_latex,
-    'build_codes': BuildCodes,
-    'build_libraries': BuildLibraries,
-    'build_code': BuildOneCode,
-    'configure_codes': ConfigureCodes,
-    'clean_codes': CleanCodes,
-    'dist_clean': DistCleanCodes,
-    'clean_python': clean,
-    'clean': Clean,
-    'tests': run_tests,
-    'generate_main': generate_main,
-    'generate_install_ini': GenerateInstallIni,
-    'install': install,
-    'install_libraries': InstallLibraries
-}
-
-if sys.hexversion > 0x03000000:
-    mapping_from_command_name_to_command_class['build_py'] = build_py_2to3
-
-build.sub_commands.insert(0, ('configure_codes', None))
-build.sub_commands.append(('build_codes', None))
-Clean.sub_commands.append(('clean_codes', None))
-Clean.sub_commands.append(('clean_python', None))
-
-Install.sub_commands.insert(0, ('generate_install_ini', None))
-Install.sub_commands.append(('install_libraries', None))
-
-
-def find_packages(where='.', exclude=()):
-    """Return a list all Python packages found within directory 'where'
-
-    'where' should be supplied as a "cross-platform" (i.e. URL-style) path; it
-    will be converted to the appropriate local path syntax.  'exclude' is a
-    sequence of package names to exclude; '*' can be used as a wildcard in the
-    names, such that 'foo.*' will exclude all subpackages of 'foo' (but not
-    'foo' itself).
-    """
-    out = []
-    stack = [(convert_path(where), '')]
-    while stack:
-        where, prefix = stack.pop(0)
-        for name in os.listdir(where):
-            fn = os.path.join(where, name)
-            if (
-                    '.' not in name and os.path.isdir(fn) and
-                    os.path.isfile(os.path.join(fn, '__init__.py'))
-            ):
-                out.append(prefix+name)
-                stack.append((fn, prefix+name+'.'))
-    for pat in list(exclude)+['ez_setup', 'distribute_setup']:
-        from fnmatch import fnmatchcase
-        out = [item for item in out if not fnmatchcase(item, pat)]
-    return out
-
-
 all_data_files = []
 all_data_files.append(('share/amuse', ['./config.mk', './build.py']))
 
@@ -155,6 +67,8 @@ package_data = {
     ]
 }
 
+mapping_from_command_name_to_command_class=setup_commands()
+
 setup(
     name=name,
     version=version,
@@ -162,6 +76,7 @@ setup(
     url=url,
     author_email=author_email,
     author=author,
+    license=license_,
     description=description,
     long_description=long_description,
     long_description_content_type=long_description_content_type,
@@ -172,4 +87,5 @@ setup(
     packages=packages,
     package_data=package_data,
     data_files=all_data_files,
+    scripts=[ "amusifier" ],
 )
