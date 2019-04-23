@@ -1,4 +1,3 @@
-"Download source for community code Phantom"
 #!/usr/bin/env python
 
 import subprocess
