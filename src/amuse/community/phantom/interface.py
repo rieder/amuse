@@ -72,9 +72,64 @@ class PhantomInterface(
         return function
 
     @legacy_function
+    def new_sink_particle():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle', dtype='int32', direction=function.OUT,
+        )
+        for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
+            function.addParameter(x, dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_state_dm():
         """
         Retrieve the current state of a DM particle. The mass, position and
+        velocity are returned.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle', dtype='int32', direction=function.IN,
+            description="""Index of the particle to get the state from. This
+            index must have been returned by an earlier call to
+            :meth:`new_particle`""")
+        function.addParameter(
+            'mass', dtype='float64', direction=function.OUT,
+            description="The current mass of the particle")
+        function.addParameter(
+            'x', dtype='float64', direction=function.OUT,
+            description="The current position vector of the particle")
+        function.addParameter(
+            'y', dtype='float64', direction=function.OUT,
+            description="The current position vector of the particle")
+        function.addParameter(
+            'z', dtype='float64', direction=function.OUT,
+            description="The current position vector of the particle")
+        function.addParameter(
+            'vx', dtype='float64', direction=function.OUT,
+            description="The current velocity vector of the particle")
+        function.addParameter(
+            'vy', dtype='float64', direction=function.OUT,
+            description="The current velocity vector of the particle")
+        function.addParameter(
+            'vz', dtype='float64', direction=function.OUT,
+            description="The current velocity vector of the particle")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was removed from the model
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def get_state_sink():
+        """
+        Retrieve the current state of a sink particle. The mass, position and
         velocity are returned.
         """
         function = LegacyFunctionSpecification()
@@ -227,6 +282,53 @@ class PhantomInterface(
     def set_state_dm():
         """
         Update the current state of a DM particle. The mass, position and
+        velocity are updated.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle', dtype='int32', direction=function.IN,
+            description="""Index of the particle for which the state is to be
+            updated. This index must have been returned by an earlier call to
+            :meth:`new_particle`""")
+        function.addParameter(
+            'mass', dtype='float64', direction=function.IN,
+            description="The new mass of the particle")
+        function.addParameter(
+            'x', dtype='float64', direction=function.IN,
+            description="The new position vector of the particle")
+        function.addParameter(
+            'y', dtype='float64', direction=function.IN,
+            description="The new position vector of the particle")
+        function.addParameter(
+            'z', dtype='float64', direction=function.IN,
+            description="The new position vector of the particle")
+        function.addParameter(
+            'vx', dtype='float64', direction=function.IN,
+            description="The new velocity vector of the particle")
+        function.addParameter(
+            'vy', dtype='float64', direction=function.IN,
+            description="The new velocity vector of the particle")
+        function.addParameter(
+            'vz', dtype='float64', direction=function.IN,
+            description="The new velocity vector of the particle")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was set
+        -1 - ERROR
+            particle could not be found
+        -2 - ERROR
+            code does not support updating of a particle
+        -3 - ERROR
+            not yet implemented
+        """
+        return function
+
+    @legacy_function
+    def set_state_sink():
+        """
+        Update the current state of a sink particle. The mass, position and
         velocity are updated.
         """
         function = LegacyFunctionSpecification()
@@ -663,6 +765,28 @@ class PhantomInterface(
     def set_ieos():
         function = LegacyFunctionSpecification()
         function.addParameter('ieos', dtype='int32', direction=function.IN)
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_gamma():
+        function = LegacyFunctionSpecification()
+        function.addParameter('gamma', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def set_gamma():
+        function = LegacyFunctionSpecification()
+        function.addParameter('gamma', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1108,6 +1232,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         )
 
         handler.add_method_parameter(
+            "get_gamma",
+            "set_gamma",
+            "gamma",
+            "gamma value ",
+            default_value=1
+        )
+
+        handler.add_method_parameter(
             "get_mu",
             "set_mu",
             "mu",
@@ -1211,7 +1343,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
     def define_particle_sets(self, handler):
         handler.define_super_set(
             'particles',
-            ['dm_particles', 'gas_particles',],# 'sink_particles'],
+            ['dm_particles', 'gas_particles', 'sink_particles'],
             index_to_default_set=0,
         )
 
@@ -1246,17 +1378,17 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_getter('gas_particles', 'get_density', names=('density',))
         handler.add_getter('gas_particles', 'get_pressure')
 
-        # handler.define_set('sink_particles', 'index_of_the_particle')
-        # handler.set_new('sink_particles', 'new_sink_particle')
-        # handler.set_delete('sink_particles', 'delete_particle')
-        # handler.add_getter('sink_particles', 'get_state_sink')
-        # handler.add_setter('sink_particles', 'set_state_sink')
-        # handler.add_getter('sink_particles', 'get_mass')
-        # handler.add_setter('sink_particles', 'set_mass')
-        # handler.add_getter('sink_particles', 'get_position')
-        # handler.add_setter('sink_particles', 'set_position')
-        # handler.add_getter('sink_particles', 'get_velocity')
-        # handler.add_setter('sink_particles', 'set_velocity')
+        handler.define_set('sink_particles', 'index_of_the_particle')
+        handler.set_new('sink_particles', 'new_sink_particle')
+        handler.set_delete('sink_particles', 'delete_particle')
+        handler.add_getter('sink_particles', 'get_state_sink')
+        handler.add_setter('sink_particles', 'set_state_sink')
+        handler.add_getter('sink_particles', 'get_mass')
+        handler.add_setter('sink_particles', 'set_mass')
+        handler.add_getter('sink_particles', 'get_position')
+        handler.add_setter('sink_particles', 'set_position')
+        handler.add_getter('sink_particles', 'get_velocity')
+        handler.add_setter('sink_particles', 'set_velocity')
 
         self.stopping_conditions.define_particle_set(handler, 'particles')
 
@@ -1292,6 +1424,23 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.specific_energy,
                 nbody_system.length,
+            ),
+            (
+                handler.INDEX,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            "new_sink_particle",
+            (
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
             ),
             (
                 handler.INDEX,
@@ -1365,6 +1514,40 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.specific_energy,
                 nbody_system.length,
+            ),
+            (
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            "get_state_sink",
+            (
+                handler.INDEX,
+            ),
+            (
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            "set_state_sink",
+            (
+                handler.INDEX,
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
             ),
             (
                 handler.ERROR_CODE,

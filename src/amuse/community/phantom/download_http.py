@@ -1,4 +1,3 @@
-"Download source for community code Phantom"
 #!/usr/bin/env python
 
 import subprocess
@@ -78,7 +77,7 @@ class MyFancyUrlopener(urllib.FancyURLopener):
 class GetCodeFromHttp(object):
     url_template = "https://bitbucket.org/danielprice/phantom/get/{version}.zip"
     filename_template = "{version}.zip"
-    version = "cb3d690e1a47"
+    version = "5b05fbee0b3c"
 
     def directory(self):
         return os.path.abspath(os.path.dirname(__file__))
@@ -140,7 +139,7 @@ def new_option_parser():
 
     result.add_option(
         "--version",
-        default='cb3d690e1a47',
+        default='5b05fbee0b3c',
         dest="version",
         help="git revision to download",
         type="string"

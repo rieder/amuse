@@ -22,16 +22,24 @@ CODE_GENERATOR = $(AMUSE_DIR)/build.py
 SETUP = cluster
 SYSTEM = gfortran
 
+DOWNLOAD_FROM_WEB = $(PYTHON) ./download_http.py
+
 all: phantom_worker 
+
+$(CODEDIR)/Makefile:
+	make -C . download
+	make libphantom
+
+download:
+	$(RM) -Rf src
+	mkdir src
+	$(DOWNLOAD_FROM_WEB)
 
 clean:
 	$(RM) -f *.so *.o *.pyc worker_code.cc worker_code.h 
 	$(RM) *~ worker_code worker_code.f90
 	$(RM) ${CODELIB}
 	make -C ${CODEDIR} clean
-
-$(CODEDIR)/Makefile:
-	make libphantom
 
 $(CODELIB):$(CODEDIR)/Makefile
 	make -C ${CODEDIR} libphantom SETUP=amuse SYSTEM=gfortran OPENMP=yes

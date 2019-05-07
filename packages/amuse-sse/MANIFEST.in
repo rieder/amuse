@@ -1,8 +1,6 @@
-include ez_setup.py
+include support/__init__.py
+include support/setup_codes.py
 
 recursive-include src *
-recursive-include support *
-
 recursive-exclude src *.pyc *.o *~ .pc ccache *.a
-
 
