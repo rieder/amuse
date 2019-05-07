@@ -19,7 +19,7 @@ if sys.hexversion > 0x03000000:
     from distutils.command.build_py import build_py_2to3
 
 name = 'amuse-phantom'
-version = "12.0a6pre1"
+version = "12.0.0b1"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license = "Apache License 2.0"
