@@ -7,7 +7,7 @@ support.use("system")
 from support.setup_codes import setup_commands
 
 name = 'amuse-phantom'
-version = "12.0.0b1"
+version = "12.0.0b2"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
@@ -19,7 +19,7 @@ install_requires = [
     'nose>=0.11.1',
     'mpi4py>=1.1.0',
     'h5py>=1.1.0',
-    'amuse-framework>=12.0.0rc2',
+    'amuse-framework>=12.0.0rc3',
 ]
 description = 'The Astrophysical Multipurpose Software Environment'
 with open("README.md", "r") as fh:
