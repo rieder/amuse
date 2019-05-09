@@ -176,7 +176,7 @@ function evolve_model(tmax)
   call amuse_evolve_model(tmax)
   if (is_density_limit_detection_enabled > 0) then
       call amuse_get_number_of_sph_particles(nmax)
-      do i=1, nmax
+      do i=1, nmax ! This will need to check for dead/disabled particles!
           call amuse_get_density(i, rho)
           if (&
               (rho > maximum_density_parameter) .or. &
