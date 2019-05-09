@@ -28,7 +28,6 @@ all: phantom_worker
 
 $(CODEDIR)/Makefile:
 	make -C . download
-	make libphantom
 
 download:
 	$(RM) -Rf src

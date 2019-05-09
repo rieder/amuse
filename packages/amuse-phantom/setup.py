@@ -6,8 +6,10 @@ import support
 support.use("system")
 from support.setup_codes import setup_commands
 
+os.environ["DOWNLOAD_ONLY"] = "1"
+
 name = 'amuse-phantom'
-version = "12.0.0b2"
+version = "12.0.0b4"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
