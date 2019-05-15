@@ -160,6 +160,9 @@ class PhantomInterface(
         function.addParameter(
             'vz', dtype='float64', direction=function.OUT,
             description="The current velocity vector of the particle")
+        function.addParameter(
+            'radius', dtype='float64', direction=function.OUT,
+            description="The accretion radius of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -359,6 +362,9 @@ class PhantomInterface(
         function.addParameter(
             'vz', dtype='float64', direction=function.IN,
             description="The new velocity vector of the particle")
+        function.addParameter(
+            'radius', dtype='float64', direction=function.IN,
+            description="The accretion radius of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1389,6 +1395,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_setter('sink_particles', 'set_position')
         handler.add_getter('sink_particles', 'get_velocity')
         handler.add_setter('sink_particles', 'set_velocity')
+        handler.add_getter('sink_particles', 'get_radius')
+        handler.add_setter('sink_particles', 'set_radius')
 
         self.stopping_conditions.define_particle_set(handler, 'particles')
 
@@ -1441,6 +1449,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
             ),
             (
                 handler.INDEX,
@@ -1461,6 +1470,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
                 handler.ERROR_CODE,
             )
         )
