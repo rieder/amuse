@@ -1,15 +1,14 @@
-import sys
 import os
-
 from setuptools import setup
-import support
-support.use("system")
 from support.setup_codes import setup_commands
+import support
+
+support.use("system")
 
 os.environ["DOWNLOAD_ONLY"] = "1"
 
 name = 'amuse-phantom'
-version = "12.0.0b4"
+version = "12.0.0b8"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
@@ -23,7 +22,7 @@ install_requires = [
     'h5py>=1.1.0',
     'amuse-framework>=12.0.0rc3',
 ]
-description = 'The Astrophysical Multipurpose Software Environment'
+description = 'The Astrophysical Multipurpose Software Environment - Phantom'
 with open("README.md", "r") as fh:
     long_description = fh.read()
 long_description_content_type = "text/markdown"
@@ -53,7 +52,7 @@ packages = ['amuse.community.phantom']
 package_data = {
 }
 
-mapping_from_command_name_to_command_class=setup_commands()
+mapping_from_command_name_to_command_class = setup_commands()
 
 setup(
     name=name,
@@ -62,7 +61,7 @@ setup(
     url=url,
     author_email=author_email,
     author=author,
-    license=license_,    
+    license=license_,
     description=description,
     long_description=long_description,
     long_description_content_type=long_description_content_type,

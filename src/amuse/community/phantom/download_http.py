@@ -77,7 +77,7 @@ class MyFancyUrlopener(urllib.FancyURLopener):
 class GetCodeFromHttp(object):
     url_template = "https://bitbucket.org/danielprice/phantom/get/{version}.zip"
     filename_template = "{version}.zip"
-    version = "de30d7ca2da0"
+    version = "8f24493c0d72"
 
     def directory(self):
         return os.path.abspath(os.path.dirname(__file__))
@@ -139,7 +139,7 @@ def new_option_parser():
 
     result.add_option(
         "--version",
-        default='de30d7ca2da0',
+        default='8f24493c0d72',
         dest="version",
         help="git revision to download",
         type="string"
