@@ -50,11 +50,14 @@ class PhantomInterface(
         )
         for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
             function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter(
+            'radius', dtype='float64', direction=function.IN, default=0.01,
+        )
         function.result_type = 'int32'
         return function
 
-    def new_particle(self, mass, x, y, z, vx, vy, vz):
-        return self.new_dm_particle(mass, x, y, z, vx, vy, vz)
+    def new_particle(self, mass, x, y, z, vx, vy, vz, radius):
+        return self.new_dm_particle(mass, x, y, z, vx, vy, vz, radius)
 
     @legacy_function
     def new_sph_particle():
@@ -80,6 +83,14 @@ class PhantomInterface(
         )
         for x in ['mass', 'x', 'y', 'z', 'vx', 'vy', 'vz']:
             function.addParameter(x, dtype='float64', direction=function.IN)
+        function.addParameter(
+            'radius', dtype='float64', direction=function.IN, default=0.01,
+            # default should be h_acc
+        )
+        function.addParameter(
+            'h_smooth', dtype='float64', direction=function.IN, default=0.01,
+            # default should be h_smooth_sinksink?
+        )
         function.result_type = 'int32'
         return function
 
@@ -117,6 +128,9 @@ class PhantomInterface(
         function.addParameter(
             'vz', dtype='float64', direction=function.OUT,
             description="The current velocity vector of the particle")
+        function.addParameter(
+            'radius', dtype='float64', direction=function.OUT,
+            description="The current softening length of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -163,6 +177,9 @@ class PhantomInterface(
         function.addParameter(
             'radius', dtype='float64', direction=function.OUT,
             description="The accretion radius of the particle")
+        function.addParameter(
+            'h_smooth', dtype='float64', direction=function.OUT,
+            description="The smoothing length of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -277,9 +294,9 @@ class PhantomInterface(
         """
         return function
 
-    def set_state(self, index_of_the_particle, mass, x, y, z, vx, vy, vz):
+    def set_state(self, index_of_the_particle, mass, x, y, z, vx, vy, vz, radius):
         return self.set_state_dm(
-            index_of_the_particle, mass, x, y, z, vx, vy, vz)
+            index_of_the_particle, mass, x, y, z, vx, vy, vz, radius)
 
     @legacy_function
     def set_state_dm():
@@ -315,6 +332,9 @@ class PhantomInterface(
         function.addParameter(
             'vz', dtype='float64', direction=function.IN,
             description="The new velocity vector of the particle")
+        function.addParameter(
+            'radius', dtype='float64', direction=function.IN,
+            description="The new softening length of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -365,6 +385,9 @@ class PhantomInterface(
         function.addParameter(
             'radius', dtype='float64', direction=function.IN,
             description="The accretion radius of the particle")
+        function.addParameter(
+            'h_smooth', dtype='float64', direction=function.IN,
+            description="The smoothing length of the particle")
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1364,6 +1387,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_setter('dm_particles', 'set_position')
         handler.add_getter('dm_particles', 'get_velocity')
         handler.add_setter('dm_particles', 'set_velocity')
+        handler.add_getter('dm_particles', 'get_radius')
+        handler.add_setter('dm_particles', 'set_radius')
 
         handler.define_set('gas_particles', 'index_of_the_particle')
         handler.set_new('gas_particles', 'new_sph_particle')
@@ -1397,6 +1422,8 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_setter('sink_particles', 'set_velocity')
         handler.add_getter('sink_particles', 'get_radius')
         handler.add_setter('sink_particles', 'set_radius')
+        handler.add_getter('sink_particles', 'get_smoothing_length')
+        handler.add_setter('sink_particles', 'set_smoothing_length')
 
         self.stopping_conditions.define_particle_set(handler, 'particles')
 
@@ -1413,6 +1440,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
             ),
             (
                 handler.INDEX,
@@ -1486,6 +1514,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
             ),
             (
                 handler.ERROR_CODE,
@@ -1543,6 +1572,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1558,6 +1588,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
             ),
             (
                 handler.ERROR_CODE,

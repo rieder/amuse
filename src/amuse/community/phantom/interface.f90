@@ -276,24 +276,24 @@ function synchronize_model()
 end function
 
 function set_state_sink(index_of_the_particle, mass, x, y, z, &
-        vx, vy, vz, radius)
+        vx, vy, vz, radius, h_smooth)
   implicit none
   integer :: index_of_the_particle
-  double precision :: mass, x, y, z, vx, vy, vz, radius
+  double precision :: mass, x, y, z, vx, vy, vz, radius, h_smooth
   integer :: set_state_sink
   call amuse_set_state_sink(index_of_the_particle, mass, x, y, z, &
-      vx, vy, vz, radius)
+      vx, vy, vz, radius, h_smooth)
   set_state_sink=0
 end function
 
 function get_state_sink(index_of_the_particle, mass, x, y, z, &
-        vx, vy, vz, radius)
+        vx, vy, vz, radius, h_smooth)
   implicit none
   integer :: index_of_the_particle
-  double precision :: mass, x, y, z, vx, vy, vz, radius
+  double precision :: mass, x, y, z, vx, vy, vz, radius, h_smooth
   integer :: get_state_sink
   call amuse_get_state_sink(index_of_the_particle, mass, x, y, z, &
-      vx, vy, vz, radius)
+      vx, vy, vz, radius, h_smooth)
   get_state_sink=0
 end function
 
@@ -424,13 +424,13 @@ function new_dm_particle(index_of_the_particle, mass, x, y, z, vx, vy, vz,  &
 end function
 
 function new_sink_particle(index_of_the_particle, mass, x, y, z, vx, vy, vz, &
-        radius)
+        radius, h_smooth)
   implicit none
   integer :: index_of_the_particle
-  double precision :: mass, x, y, z, vx, vy, vz, radius
+  double precision :: mass, x, y, z, vx, vy, vz, radius, h_smooth
   integer :: new_sink_particle
   call amuse_new_sink_particle(index_of_the_particle, mass, x, y, z, &
-      vx, vy, vz, radius)
+      vx, vy, vz, radius, h_smooth)
   new_sink_particle=0
 end function
 
