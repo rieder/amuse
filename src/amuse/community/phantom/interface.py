@@ -1478,6 +1478,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.length,
+                nbody_system.length,
             ),
             (
                 handler.INDEX,
@@ -1573,6 +1574,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.length,
+                nbody_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1588,6 +1590,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
+                nbody_system.length,
                 nbody_system.length,
             ),
             (
