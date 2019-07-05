@@ -23,7 +23,7 @@ class DistributedAmuseInterface(CodeInterface, CommonCodeInterface, LiteratureRe
         .. [#] The Distributed Amuse project is a collaboration between Sterrewacht Leiden and The Netherlands eScience Center.
     """
 
-    classpath = ['.', 'worker.jar', 'src/dist/*']
+    classpath = ['data/','data/*']
 
 # keeping a reference is no longer necessary
         
@@ -761,3 +761,4 @@ class DistributedAmuse(CommonCode):
         if not len(ids_to_add) == 0:
             self._workers._add_indices_in_attribute_storage(list(ids_to_add))
     
+Distributed=DistributedAmuse
