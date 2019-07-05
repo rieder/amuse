@@ -1,4 +1,3 @@
-import sys
 import os
 
 from setuptools import setup
@@ -7,8 +6,10 @@ import support
 support.use("system")
 from support.setup_codes import setup_commands
 
+os.environ["DOWNLOAD_ONLY"] = "1"
+
 name = 'amuse-phantom'
-version = "12.0.0b1"
+version = "12.0.0b11post2"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
@@ -53,7 +54,7 @@ packages = ['amuse.community.phantom']
 package_data = {
 }
 
-mapping_from_command_name_to_command_class=setup_commands()
+mapping_from_command_name_to_command_class = setup_commands()
 
 setup(
     name=name,
