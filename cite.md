@@ -1,7 +1,7 @@
 ---
 layout: default
-title: About
-nav_order: 4
+title: Cite
+nav_order: 3
 permalink: /cite
 ---
 
