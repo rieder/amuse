@@ -9,3 +9,6 @@ search_enabled: true
 aux_links:
     "AMUSE main github page":
         - "https://github.com/amusecode/amuse"
+
+# Color scheme currently only supports "dark" or nil (default)
+color_scheme: "dark"
