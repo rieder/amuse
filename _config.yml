@@ -1,14 +1,15 @@
 remote_theme: pmarsceill/just-the-docs
-title: AMUSE
+# Color scheme currently only supports "dark" or nil (default)
+color_scheme: "dark"
+search_enabled: true
+title: "AMUSE"
 description: AMUSE provides a Python interface to many astrophysical simulation codes
-logo: images/amuse-logo.png
+# logo: images/amuse-logo.png
 show_downloads: true
 
-search_enabled: true
 
 aux_links:
     "AMUSE main github page":
         - "https://github.com/amusecode/amuse"
-
-# Color scheme currently only supports "dark" or nil (default)
-color_scheme: "dark"
+    "Old AMUSE homepage with full documentation (somewhat outdated)":
+        - "http://www.amusecode.org"
