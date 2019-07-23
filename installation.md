@@ -5,12 +5,10 @@ nav_order: 3
 permalink: /installation
 ---
 
-## How to install AMUSE
-
+## Installing the prerequisites
 For a full AMUSE installation, you will need to install some further dependencies that can be installed via your package manager - e.g. apt or yum on Linux; macports or homebrew on macOS.
 
-### Installing the prerequisites
-#### Ubuntu
+### Ubuntu
 
 You can choose between openmpi and mpich as desired, both work with AMUSE. Please do not install both!
 In the examples below we choose GCC-7 as the compiler, but more recent versions of GCC will also work.
@@ -37,7 +35,7 @@ sudo apt-get install build-essential gfortran python-dev \
   git
 ```
 
-#### macOS
+### macOS
 
 On macOS, you will first need to install Xcode. You can do so via the app store.
 
@@ -70,7 +68,7 @@ sudo port select --set virtualenv virtualenv27
 ```
 
 
-### Installing AMUSE
+## Installing AMUSE
 
 After installing the prerequisites, you can install AMUSE.
 First, create a virtual environment to install AMUSE and other desired Python packages in.
