@@ -11,5 +11,5 @@ show_downloads: true
 aux_links:
     "AMUSE main github page":
         - "https://github.com/amusecode/amuse"
-    "Old AMUSE homepage":
-        - "http://www.amusecode.org"
+    "Documentation (old homepage)":
+        - "http://www.amusecode.org/doc"
