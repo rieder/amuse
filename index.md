@@ -9,8 +9,6 @@ AMUSE is the Astrophysical Multipurpose Software Environment.
 
 With it, you can simulate many astrophysical systems.
 
-This website is work-in-progress and may at some point replace the current one.
-
 ### Getting Started
 
 The easiest way to use AMUSE is to install it with pip.
@@ -34,3 +32,4 @@ Please do also contact us if you want to fix a bug, add a feature or do somethin
 ### Support or Contact
 
 If you have a question, bug report, or feature request, please make a new issue on the [main AMUSE github page](https://github.com/amusecode/amuse) and we will try to answer as soon as possible.
+You can also reach us by email: <info@amusecode.org>.
