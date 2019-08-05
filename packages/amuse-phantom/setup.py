@@ -9,7 +9,7 @@ from support.setup_codes import setup_commands
 os.environ["DOWNLOAD_ONLY"] = "1"
 
 name = 'amuse-phantom'
-version = "12.0.0b11post2"
+version = "12.0.0b13"
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
@@ -21,7 +21,7 @@ install_requires = [
     'nose>=0.11.1',
     'mpi4py>=1.1.0',
     'h5py>=1.1.0',
-    'amuse-framework>=12.0.0rc3',
+    'amuse-framework>=12.0.0',
 ]
 description = 'The Astrophysical Multipurpose Software Environment - Phantom'
 with open("README.md", "r") as fh:
@@ -39,6 +39,8 @@ classifiers = [
     'Programming Language :: Python :: 2.6',
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
     'Programming Language :: C',
     'Programming Language :: C++',
     'Programming Language :: Fortran',
