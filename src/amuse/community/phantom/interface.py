@@ -13,7 +13,7 @@ from amuse.community.interface.gd import (
     # GravityFieldInterface,
     GravityFieldCode,
 )
-from amuse.community.interface.stopping_conditions import(
+from amuse.community.interface.stopping_conditions import (
     StoppingConditionInterface,
     StoppingConditions,
 )
@@ -294,7 +294,9 @@ class PhantomInterface(
         """
         return function
 
-    def set_state(self, index_of_the_particle, mass, x, y, z, vx, vy, vz, radius):
+    def set_state(
+            self, index_of_the_particle, mass, x, y, z, vx, vy, vz, radius,
+    ):
         return self.set_state_dm(
             index_of_the_particle, mass, x, y, z, vx, vy, vz, radius)
 
@@ -518,7 +520,9 @@ class PhantomInterface(
     @legacy_function
     def get_c_courant():
         function = LegacyFunctionSpecification()
-        function.addParameter('c_courant', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'c_courant', dtype='float64', direction=function.OUT,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -529,7 +533,9 @@ class PhantomInterface(
     @legacy_function
     def set_c_courant():
         function = LegacyFunctionSpecification()
-        function.addParameter('c_courant', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'c_courant', dtype='float64', direction=function.IN,
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -540,7 +546,8 @@ class PhantomInterface(
     @legacy_function
     def get_dtmax():
         function = LegacyFunctionSpecification()
-        function.addParameter('dtmax', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'dtmax', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -551,7 +558,8 @@ class PhantomInterface(
     @legacy_function
     def set_dtmax():
         function = LegacyFunctionSpecification()
-        function.addParameter('dtmax', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'dtmax', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -562,7 +570,8 @@ class PhantomInterface(
     @legacy_function
     def get_c_force():
         function = LegacyFunctionSpecification()
-        function.addParameter('C_force', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'C_force', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -573,7 +582,8 @@ class PhantomInterface(
     @legacy_function
     def set_c_force():
         function = LegacyFunctionSpecification()
-        function.addParameter('C_force', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'C_force', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -584,7 +594,8 @@ class PhantomInterface(
     @legacy_function
     def get_tolv():
         function = LegacyFunctionSpecification()
-        function.addParameter('tolv', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'tolv', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -595,7 +606,8 @@ class PhantomInterface(
     @legacy_function
     def set_tolv():
         function = LegacyFunctionSpecification()
-        function.addParameter('tolv', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'tolv', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -606,7 +618,8 @@ class PhantomInterface(
     @legacy_function
     def get_hfact():
         function = LegacyFunctionSpecification()
-        function.addParameter('hfact', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'hfact', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -617,7 +630,8 @@ class PhantomInterface(
     @legacy_function
     def set_hfact():
         function = LegacyFunctionSpecification()
-        function.addParameter('hfact', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'hfact', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -628,7 +642,8 @@ class PhantomInterface(
     @legacy_function
     def get_tolh():
         function = LegacyFunctionSpecification()
-        function.addParameter('tolh', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'tolh', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -639,7 +654,8 @@ class PhantomInterface(
     @legacy_function
     def set_tolh():
         function = LegacyFunctionSpecification()
-        function.addParameter('tolh', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'tolh', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -650,7 +666,8 @@ class PhantomInterface(
     @legacy_function
     def get_tree_accuracy():
         function = LegacyFunctionSpecification()
-        function.addParameter('tree_accuracy', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'tree_accuracy', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -661,7 +678,8 @@ class PhantomInterface(
     @legacy_function
     def set_tree_accuracy():
         function = LegacyFunctionSpecification()
-        function.addParameter('tree_accuracy', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'tree_accuracy', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -672,7 +690,8 @@ class PhantomInterface(
     @legacy_function
     def get_alpha():
         function = LegacyFunctionSpecification()
-        function.addParameter('alpha', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'alpha', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -683,7 +702,8 @@ class PhantomInterface(
     @legacy_function
     def set_alpha():
         function = LegacyFunctionSpecification()
-        function.addParameter('alpha', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'alpha', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -694,7 +714,8 @@ class PhantomInterface(
     @legacy_function
     def get_alphamax():
         function = LegacyFunctionSpecification()
-        function.addParameter('alphamax', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'alphamax', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -705,7 +726,8 @@ class PhantomInterface(
     @legacy_function
     def set_alphamax():
         function = LegacyFunctionSpecification()
-        function.addParameter('alphamax', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'alphamax', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -716,7 +738,8 @@ class PhantomInterface(
     @legacy_function
     def get_beta():
         function = LegacyFunctionSpecification()
-        function.addParameter('beta', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'beta', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -727,7 +750,8 @@ class PhantomInterface(
     @legacy_function
     def set_beta():
         function = LegacyFunctionSpecification()
-        function.addParameter('beta', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'beta', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -738,7 +762,8 @@ class PhantomInterface(
     @legacy_function
     def get_avdecayconst():
         function = LegacyFunctionSpecification()
-        function.addParameter('avdecayconst', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'avdecayconst', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -749,7 +774,8 @@ class PhantomInterface(
     @legacy_function
     def set_avdecayconst():
         function = LegacyFunctionSpecification()
-        function.addParameter('avdecayconst', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'avdecayconst', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -760,7 +786,8 @@ class PhantomInterface(
     @legacy_function
     def get_idamp():
         function = LegacyFunctionSpecification()
-        function.addParameter('idamp', dtype='int32', direction=function.OUT)
+        function.addParameter(
+            'idamp', dtype='int32', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -771,7 +798,8 @@ class PhantomInterface(
     @legacy_function
     def set_idamp():
         function = LegacyFunctionSpecification()
-        function.addParameter('idamp', dtype='int32', direction=function.IN)
+        function.addParameter(
+            'idamp', dtype='int32', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -782,7 +810,8 @@ class PhantomInterface(
     @legacy_function
     def get_ieos():
         function = LegacyFunctionSpecification()
-        function.addParameter('ieos', dtype='int32', direction=function.OUT)
+        function.addParameter(
+            'ieos', dtype='int32', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -793,7 +822,8 @@ class PhantomInterface(
     @legacy_function
     def set_ieos():
         function = LegacyFunctionSpecification()
-        function.addParameter('ieos', dtype='int32', direction=function.IN)
+        function.addParameter(
+            'ieos', dtype='int32', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -804,7 +834,8 @@ class PhantomInterface(
     @legacy_function
     def get_gamma():
         function = LegacyFunctionSpecification()
-        function.addParameter('gamma', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'gamma', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -815,7 +846,8 @@ class PhantomInterface(
     @legacy_function
     def set_gamma():
         function = LegacyFunctionSpecification()
-        function.addParameter('gamma', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'gamma', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -826,7 +858,8 @@ class PhantomInterface(
     @legacy_function
     def get_mu():
         function = LegacyFunctionSpecification()
-        function.addParameter('mu', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'mu', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -837,7 +870,8 @@ class PhantomInterface(
     @legacy_function
     def set_mu():
         function = LegacyFunctionSpecification()
-        function.addParameter('mu', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'mu', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1016,7 +1050,8 @@ class PhantomInterface(
     @legacy_function
     def get_f_acc():
         function = LegacyFunctionSpecification()
-        function.addParameter('f_acc', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'f_acc', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1027,7 +1062,8 @@ class PhantomInterface(
     @legacy_function
     def set_f_acc():
         function = LegacyFunctionSpecification()
-        function.addParameter('f_acc', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'f_acc', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1038,7 +1074,8 @@ class PhantomInterface(
     @legacy_function
     def get_iexternalforce():
         function = LegacyFunctionSpecification()
-        function.addParameter('iexternalforce', dtype='int32', direction=function.OUT)
+        function.addParameter(
+            'iexternalforce', dtype='int32', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1049,7 +1086,8 @@ class PhantomInterface(
     @legacy_function
     def set_iexternalforce():
         function = LegacyFunctionSpecification()
-        function.addParameter('iexternalforce', dtype='int32', direction=function.IN)
+        function.addParameter(
+            'iexternalforce', dtype='int32', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1060,7 +1098,8 @@ class PhantomInterface(
     @legacy_function
     def get_irealvisc():
         function = LegacyFunctionSpecification()
-        function.addParameter('irealvisc', dtype='int32', direction=function.OUT)
+        function.addParameter(
+            'irealvisc', dtype='int32', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1071,7 +1110,8 @@ class PhantomInterface(
     @legacy_function
     def set_irealvisc():
         function = LegacyFunctionSpecification()
-        function.addParameter('irealvisc', dtype='int32', direction=function.IN)
+        function.addParameter(
+            'irealvisc', dtype='int32', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1082,7 +1122,8 @@ class PhantomInterface(
     @legacy_function
     def get_shearparam():
         function = LegacyFunctionSpecification()
-        function.addParameter('shearparam', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'shearparam', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1093,7 +1134,8 @@ class PhantomInterface(
     @legacy_function
     def set_shearparam():
         function = LegacyFunctionSpecification()
-        function.addParameter('shearparam', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'shearparam', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1104,7 +1146,8 @@ class PhantomInterface(
     @legacy_function
     def get_bulkvisc():
         function = LegacyFunctionSpecification()
-        function.addParameter('bulkvisc', dtype='float64', direction=function.OUT)
+        function.addParameter(
+            'bulkvisc', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1115,7 +1158,8 @@ class PhantomInterface(
     @legacy_function
     def set_bulkvisc():
         function = LegacyFunctionSpecification()
-        function.addParameter('bulkvisc', dtype='float64', direction=function.IN)
+        function.addParameter(
+            'bulkvisc', dtype='float64', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1641,6 +1685,5 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE,
             )
         )
-
 
         self.stopping_conditions.define_methods(handler)
