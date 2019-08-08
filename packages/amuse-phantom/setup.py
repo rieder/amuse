@@ -12,7 +12,7 @@ from support.setup_codes import setup_commands
 
 name = 'amuse-phantom'
 micro_version = 0
-patch_version = "b13"
+patch_version = "b14"
 version = "%i.%i.%i.%s" % (major_version, minor_version, micro_version,
                            patch_version)
 author = 'The AMUSE team'

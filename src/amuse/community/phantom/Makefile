@@ -46,6 +46,7 @@ OBJECTS = \
           ${CODEDIR}/build/eos_helmholtz.o \
           ${CODEDIR}/build/eos_mesa.o \
           ${CODEDIR}/build/eos_mesa_microphysics.o \
+          ${CODEDIR}/build/eos_shen.o \
           ${CODEDIR}/build/evolve.o \
           ${CODEDIR}/build/evwrite.o \
           ${CODEDIR}/build/extern_Bfield.o \
