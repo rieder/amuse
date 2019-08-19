@@ -832,6 +832,34 @@ class PhantomInterface(
         return function
 
     @legacy_function
+    def get_polyk():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'polyk', dtype='float64', direction=function.OUT,
+            unit=(nbody_system.speed**2)
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def set_polyk():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'polyk', dtype='float64', direction=function.IN,
+            unit=(nbody_system.speed**2)
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
     def get_gamma():
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -859,7 +887,9 @@ class PhantomInterface(
     def get_mu():
         function = LegacyFunctionSpecification()
         function.addParameter(
-            'mu', dtype='float64', direction=function.OUT)
+            'mu', dtype='float64', direction=function.OUT,
+            unit=units.amu
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -871,7 +901,9 @@ class PhantomInterface(
     def set_mu():
         function = LegacyFunctionSpecification()
         function.addParameter(
-            'mu', dtype='float64', direction=function.IN)
+            'mu', dtype='float64', direction=function.IN,
+            unit=units.amu
+        )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
@@ -1297,6 +1329,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         )
 
         handler.add_method_parameter(
+            "get_polyk",
+            "set_polyk",
+            "polyk",
+            "polyk value",
+            default_value=(0.0349200860019 | units.km**2 * units.s**-2)
+        )
+
+        handler.add_method_parameter(
             "get_ieos",
             "set_ieos",
             "ieos",
@@ -1317,7 +1357,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_mu",
             "mu",
             "mean molecular weight",
-            default_value=2.381
+            default_value=(2.381 | units.amu)
         )
 
         handler.add_method_parameter(
@@ -1649,6 +1689,28 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             ),
             (
                 nbody_system.density,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            "get_smoothing_length",
+            (
+                handler.INDEX,
+            ),
+            (
+                nbody_system.length,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            "set_smoothing_length",
+            (
+                handler.INDEX,
+                nbody_system.length,
+            ),
+            (
                 handler.ERROR_CODE,
             )
         )

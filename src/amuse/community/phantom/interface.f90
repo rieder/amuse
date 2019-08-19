@@ -14,7 +14,7 @@ function initialize_code()
   !error = set_support_for_condition(OUT_OF_BOX_DETECTION)
   error = set_support_for_condition(DENSITY_LIMIT_DETECTION)
   !error = set_support_for_condition(INTERNAL_ENERGY_LIMIT_DETECTION)
-
+  call amuse_set_polyk(8.11716011329)
   initialize_code=0
 end function
 
@@ -630,6 +630,14 @@ function set_ieos(ieos)
     set_ieos=0
 end function
 
+function set_polyk(polyk)
+    implicit none
+    double precision :: polyk
+    integer :: set_polyk
+    call amuse_set_polyk(polyk)
+    set_polyk=0
+end function
+
 function set_mu(mu)
     implicit none
     double precision :: mu
@@ -830,6 +838,14 @@ function get_ieos(ieos)
     integer :: get_ieos
     call amuse_get_ieos(ieos)
     get_ieos=0
+end function
+
+function get_polyk(polyk)
+    implicit none
+    double precision :: polyk
+    integer :: get_polyk
+    call amuse_get_polyk(polyk)
+    get_polyk=0
 end function
 
 function get_mu(mu)
