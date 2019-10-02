@@ -12,8 +12,8 @@ from support.setup_codes import setup_commands
 
 name = 'amuse-phantom'
 micro_version = 0
-patch_version = "b17"
-version = "%i.%i.%i.%s" % (major_version, minor_version, micro_version,
+patch_version = "b1"
+version = "%i.%i.%i%s" % (major_version, minor_version, micro_version,
                            patch_version)
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'

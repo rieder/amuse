@@ -165,7 +165,7 @@ function evolve_model(tmax)
   integer :: i, nmax
   integer :: is_density_limit_detection_enabled, stopping_index
   integer :: error
-  double precision :: minimum_density_parameter, maximum_density_parameter, rho
+  double precision :: minimum_density_parameter, maximum_density_parameter, rho, radius
 
   error = reset_stopping_conditions()
   error = is_stopping_condition_enabled(&
@@ -176,16 +176,19 @@ function evolve_model(tmax)
   call amuse_evolve_model(tmax)
   if (is_density_limit_detection_enabled > 0) then
       call amuse_get_number_of_sph_particles(nmax)
-      do i=1, nmax ! This will need to check for dead/disabled particles!
-          call amuse_get_density(i, rho)
-          if (&
-              (rho > maximum_density_parameter) .or. &
-              (rho < minimum_density_parameter) &
-              ) then
-              stopping_index = next_index_for_stopping_condition()
-              if (stopping_index > 0) then
-                  error = set_stopping_condition_info(stopping_index, DENSITY_LIMIT_DETECTION)
-                  error = set_stopping_condition_particle_index(stopping_index, 0, i)
+      do i=1, nmax
+          call amuse_get_radius(i, radius)
+          if (radius > 0) then
+              call amuse_get_density(i, rho)
+              if (&
+                  (rho > maximum_density_parameter) .or. &
+                  (rho < minimum_density_parameter) &
+                  ) then
+                  stopping_index = next_index_for_stopping_condition()
+                  if (stopping_index > 0) then
+                      error = set_stopping_condition_info(stopping_index, DENSITY_LIMIT_DETECTION)
+                      error = set_stopping_condition_particle_index(stopping_index, 0, i)
+                  endif
               endif
           endif
       enddo
