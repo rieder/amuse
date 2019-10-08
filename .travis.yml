@@ -10,33 +10,6 @@ matrix:
   allow_failures:
   - name: "linux openmpi"
   include:
-  - name: "linux MPICH Py3"
-    os: linux
-    language: python
-    python:
-    - '3.7'
-    compiler: gcc
-    before_install:
-    - pip install numpy scipy matplotlib nose docutils mpi4py h5py
-    install:
-    - cd packages/amuse-framework && python setup.py sdist && cd ../../
-    - pip install packages/amuse-framework/dist/*.tar.gz
-    addons:
-      apt:
-        packages:
-        - build-essential
-        - python3-dev
-        - gfortran
-        - libgsl0-dev
-        - cmake
-        - libfftw3-3
-        - libfftw3-dev
-        - libmpfr4
-        - libmpfr-dev
-        - libhdf5-serial-dev
-        - hdf5-tools
-        - libmpich-dev
-        - mpich  
   - name: "linux MPICH Py2"
     os: linux
     language: python
@@ -95,16 +68,16 @@ script:
 - export PYTHONPATH=${PWD}/src:${PWD}
 - |
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    mpiexec nosetests amuse.test.suite.compile_tests.test_python_implementation:TestInterface.test10 -sv
-    mpiexec nosetests test/reports/test_speed.py -sv
-    mpiexec nosetests -e "test_plot" test/core_tests
-    mpiexec nosetests -e "test_cython_implementation" test/compile_tests -sv
+    mpiexec pytest amuse.test.suite.compile_tests.test_python_implementation:TestInterface.test10 -v
+    mpiexec pytest test/reports/test_speed.py -v
+    mpiexec pytest -k "not test_plot" test/core_tests -v
+    mpiexec pytest -k "not test_cython_implementation" test/compile_tests -v
   elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    nosetests test/reports/test_speed.py -sv
-    nosetests -e "test_plot" test/core_tests
-    nosetests test/compile_tests/test_c_implementation.py -sv
-    #nosetests test/compile_tests/test_c_sockets_implementation.py -sv
-    nosetests test/compile_tests/test_fortran_implementation.py -sv
-    #nosetests test/compile_tests/test_fortran_sockets_implementation.py -sv
-    nosetests test/compile_tests/test_python_implementation.py -sv
+    pytest test/reports/test_speed.py -v
+    pytest -k "not test_plot" test/core_tests
+    pytest test/compile_tests/test_c_implementation.py -v
+    #pytest test/compile_tests/test_c_sockets_implementation.py -v
+    pytest test/compile_tests/test_fortran_implementation.py -v
+    #pytest test/compile_tests/test_fortran_sockets_implementation.py -v
+    pytest test/compile_tests/test_python_implementation.py -v
   fi
