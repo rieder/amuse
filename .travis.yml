@@ -18,7 +18,7 @@ matrix:
     before_install:
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - python packages/amuse-framework/setup.py sdist
+    - cd packages/amuse-framework && python setup.py sdist && cd ../../
     - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       apt:
@@ -44,7 +44,7 @@ matrix:
     before_install:
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - python packages/amuse-framework/setup.py sdist
+    - cd packages/amuse-framework && python setup.py sdist && cd ../../
     - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       apt:
@@ -64,15 +64,6 @@ matrix:
         - mpich  
   - name: "macOS 10.14 openmpi py3 homebrew"
     osx_image: xcode10.3
-    language: python
-    python:
-    - '3.7'
-    compiler: gcc
-    before_install:
-    - pip install numpy scipy matplotlib nose docutils mpi4py h5py
-    install:
-    - python packages/amuse-framework/setup.py sdist
-    - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       homebrew:
         packages:
@@ -81,6 +72,17 @@ matrix:
         - open-mpi
         - cmake
         - hdf5
+    language: python
+    python:
+    - '3.7'
+    compiler: gcc
+    before_install:
+    - pip install numpy scipy matplotlib nose docutils mpi4py h5py
+    - test -n $CC  && unset CC
+    - test -n $CXX && unset CXX
+    install:
+    - cd packages/amuse-framework && python setup.py sdist && cd ../../
+    - pip install packages/amuse-framework/dist/*.tar.gz
 
 virtualenv:
   system_site_packages: false
