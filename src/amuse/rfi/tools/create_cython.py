@@ -1,5 +1,5 @@
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.tools.create_code import GenerateASourcecodeString
 from amuse.rfi.tools.create_code import GenerateASourcecodeStringFromASpecificationClass
 from amuse.rfi.tools.create_code import DTypeSpec
@@ -78,7 +78,7 @@ STRING_UTILITY_FUNCTIONS = """
 """
 
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.tools.create_code import GenerateASourcecodeString
 from amuse.rfi.tools.create_code import GenerateASourcecodeStringFromASpecificationClass
 from amuse.rfi.tools.create_code import DTypeSpec
@@ -102,12 +102,12 @@ class MakeCythonCodeString(GenerateASourcecodeString):
 class GenerateACythonStringOfAFunctionSpecification(MakeCythonCodeString):
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
 
 
     @late
     def dtype_to_fortran_type(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
    
         
     def output_function_parameters(self):        
@@ -491,7 +491,7 @@ class GenerateACythonSourcecodeStringFromASpecificationClass\
 
     @late
     def specification_class(self):
-        raise exceptions.AmuseException("No specification_class set, please set the specification_class first")
+        raise AmuseException("No specification_class set, please set the specification_class first")
     
     @late
     def dtype_to_spec(self):
@@ -613,7 +613,7 @@ class GenerateACythonStartScriptStringFromASpecificationClass\
 
     @late
     def specification_class(self):
-        raise exceptions.AmuseException("No specification_class set, please set the specification_class first")
+        raise AmuseException("No specification_class set, please set the specification_class first")
     
    
     def start(self):
@@ -670,7 +670,7 @@ class GenerateACythonStartScriptStringFromASpecificationClass\
 class GenerateAFortranInterfaceStringOfAFunctionSpecification(MakeCythonCodeString):
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
    
         
     def output_function_parameters(self):        
@@ -1079,7 +1079,7 @@ class GenerateAFortranInterfaceSourcecodeStringFromASpecificationClass\
 
     @late
     def specification_class(self):
-        raise exceptions.AmuseException("No specification_class set, please set the specification_class first")
+        raise AmuseException("No specification_class set, please set the specification_class first")
     
     @late
     def dtype_to_spec(self):
@@ -1182,12 +1182,12 @@ class GenerateAFortranInterfaceSourcecodeStringFromASpecificationClass\
 class GenerateACFFIStringOfAFunctionSpecification(MakeCythonCodeString):
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
 
 
     @late
     def dtype_to_fortran_type(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
    
         
     def output_function_parameters(self):        
@@ -1512,12 +1512,12 @@ class GenerateACFFIStringOfAFunctionSpecification(MakeCythonCodeString):
 class GenerateAPythonStubStringOfAFunctionSpecification(MakeCythonCodeString):
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
 
 
     @late
     def dtype_to_fortran_type(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
    
         
     def output_function_parameters(self):        

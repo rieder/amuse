@@ -7,9 +7,9 @@ import inspect
 import tempfile
 
 from amuse.support import _Defaults
-from amuse.support import exceptions
 from amuse.support import literature
 from amuse.support import options
+from amuse.support.exceptions import AmuseException
 from amuse.support.core  import late
 from amuse.support import get_amuse_root_dir
 from amuse.units.quantities import none
@@ -27,7 +27,7 @@ def safe_repr(obj, short=False):
         return result
     return result[:_MAX_LENGTH] + ' [truncated]...'
 
-class SkipTest(exceptions.AmuseException):
+class SkipTest(AmuseException):
     pass
 
 class TestCase(unittest.TestCase):

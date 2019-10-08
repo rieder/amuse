@@ -11,7 +11,7 @@ from amuse.units.quantities import Quantity
 from amuse.units.quantities import new_quantity
 from amuse.units.quantities import zero
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.ext.basicgraph import Graph, MinimumSpanningTreeFromEdges, MinimumSpanningTree
 
 from amuse.datamodel import base
@@ -403,7 +403,7 @@ def virial_radius(particles):
     quantity<4.0 m>
     """
     if len(particles) < 2:
-        raise exceptions.AmuseException("Cannot calculate virial radius for a particles set with fewer than 2 particles.")
+        raise AmuseException("Cannot calculate virial radius for a particles set with fewer than 2 particles.")
     partial_sum = zero
 
     mass = particles.mass
@@ -537,7 +537,7 @@ def densitycentre_coreradius_coredens(particles, unit_converter=None, number_of_
         hop.particles.add_particles(particles)
     except Exception, ex:
         hop.stop()
-        raise exceptions.AmuseException(str(ex)+" (note: check whether Hop needs a converter here)")
+        raise AmuseException(str(ex)+" (note: check whether Hop needs a converter here)")
     hop.parameters.density_method=2
     hop.parameters.number_of_neighbors_for_local_density=number_of_neighbours
     hop.calculate_densities()

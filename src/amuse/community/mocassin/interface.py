@@ -1,6 +1,7 @@
 from amuse.community import *
 from amuse.community.interface.common import CommonCodeInterface
 from amuse.support.core import OrderedDictionary
+from amuse.support.exceptions import AmuseException
 from amuse.units import derivedsi
 from amuse.support.options import option
 
@@ -13,7 +14,7 @@ class MocassinInterface(CodeInterface, CommonCodeInterface,
     
     def __init__(self, **keyword_arguments):
         if self.channel_type == 'distributed':
-            raise exceptions.AmuseException("Distributed channel not (yet) supported by Mocassin")
+            raise AmuseException("Distributed channel not (yet) supported by Mocassin")
         CodeInterface.__init__(self, name_of_the_worker="mocassin_worker", **keyword_arguments)
         CodeWithDataDirectories.__init__(self)
         self._options = keyword_arguments

@@ -10,7 +10,7 @@ from amuse.support.options import OptionalAttributes, option
 from amuse.support.methods import CodeMethodWrapper, CodeMethodWrapperDefinition, IncorrectWrappedMethodException
 from amuse.support.methods import ProxyingMethodWrapper
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.support import state
 
 import inspect
@@ -341,7 +341,7 @@ class StateMethodDefinition(CodeMethodWrapperDefinition):
             message="While calling {0} of {1}: ".format(self.function_name, self.interface.__class__.__name__)
             try:
                 self.state_machine._get_state_transition_path_to(stored_transitions[0][0])
-            except exceptions.AmuseException as ex:
+            except AmuseException as ex:
                 args = list(ex.arguments)
                 args[0] = message+str(args[0])
                 ex.arguments = tuple(args)
@@ -546,9 +546,9 @@ class MethodWithUnitsDefinition(CodeMethodWrapperDefinition):
 
     def handle_errorcode(self, errorcode):
         if errorcode in self.wrapped_object.errorcodes:
-            raise exceptions.AmuseException("Error when calling '{0}' of a '{1}', errorcode is {2}, error is '{3}'".format(self.name, type(self.wrapped_object).__name__, errorcode,  self.wrapped_object.errorcodes[errorcode]), errorcode)
+            raise AmuseException("Error when calling '{0}' of a '{1}', errorcode is {2}, error is '{3}'".format(self.name, type(self.wrapped_object).__name__, errorcode,  self.wrapped_object.errorcodes[errorcode]), errorcode)
         elif errorcode < 0:
-            raise exceptions.AmuseException("Error when calling '{0}' of a '{1}', errorcode is {2}".format(self.name, type(self.wrapped_object).__name__, errorcode), errorcode)
+            raise AmuseException("Error when calling '{0}' of a '{1}', errorcode is {2}".format(self.name, type(self.wrapped_object).__name__, errorcode), errorcode)
         else:
             return errorcode
 
@@ -623,7 +623,7 @@ class MethodWithUnitsDefinition(CodeMethodWrapperDefinition):
             except core.IncompatibleUnitsException as ex:
                 raise ConvertArgumentsException("error while converting parameter '{0}', error: {1}".format(parameter, ex))
             except Exception as ex:
-                raise exceptions.AmuseException("error while converting parameter '{0}', error: {1}".format(parameter, ex))
+                raise AmuseException("error while converting parameter '{0}', error: {1}".format(parameter, ex))
         
         return (), result
 
@@ -824,7 +824,7 @@ class PropertyWithUnitsDefinition(object):
                 else:
                     value, errorcode = return_value
                 if errorcode < 0:
-                    raise exceptions.AmuseException("calling '{0}' to get the value for property '{1}' resulted in an error (errorcode {2})".format(self.function_or_attribute_name, self.public_name, errorcode))
+                    raise AmuseException("calling '{0}' to get the value for property '{1}' resulted in an error (errorcode {2})".format(self.function_or_attribute_name, self.public_name, errorcode))
                 else:
                     return self.unit.new_quantity(value)
             else:

@@ -1,5 +1,5 @@
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.tools.create_code import GenerateASourcecodeString
 from amuse.rfi.tools.create_code import GenerateASourcecodeStringFromASpecificationClass
 from amuse.rfi.tools.create_code import DTypeSpec
@@ -1053,7 +1053,7 @@ class MakeCCodeString(GenerateASourcecodeString):
 class GenerateACStringOfAFunctionSpecification(MakeCCodeString):
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
    
         
     def start(self):
@@ -1250,7 +1250,7 @@ class GenerateACSourcecodeStringFromASpecificationClass\
 
     @late
     def specification_class(self):
-        raise exceptions.AmuseException("No specification_class set, please set the specification_class first")
+        raise AmuseException("No specification_class set, please set the specification_class first")
     
     @late
     def dtype_to_spec(self):

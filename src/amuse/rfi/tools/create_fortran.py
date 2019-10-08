@@ -1,5 +1,5 @@
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 
 from amuse import config
 
@@ -1137,7 +1137,7 @@ class GenerateAFortranStringOfAFunctionSpecification(GenerateASourcecodeString):
     
     @late
     def specification(self):
-        raise exceptions.AmuseException("No specification set, please set the specification first")
+        raise AmuseException("No specification set, please set the specification first")
     
     @late
     def underscore_functions_from_specification_classes(self):

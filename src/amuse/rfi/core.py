@@ -17,7 +17,7 @@ import functools
 
 from subprocess import Popen, PIPE
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.support.core import late
 from amuse.support.core import print_out
 from amuse.support.core import OrderedDictionary
@@ -76,7 +76,7 @@ def _typecode_to_datatype(typecode):
     if typecode in values:
         return typecode
     
-    raise exceptions.AmuseException("{0} is not a valid typecode".format(typecode))
+    raise AmuseException("{0} is not a valid typecode".format(typecode))
     
 
 
@@ -598,7 +598,7 @@ class LegacyFunctionSpecification(object):
     def add_input_parameter(self, parameter):
         has_default_parameters = any(map(lambda x : x.has_default_value(), self.input_parameters))
         if has_default_parameters and not parameter.has_default_value():
-            raise exceptions.AmuseException("non default argument '{0}' follows default argument".format(parameter.name))
+            raise AmuseException("non default argument '{0}' follows default argument".format(parameter.name))
         self.input_parameters.append(parameter)
         parameter.index_in_input = len(self.input_parameters) - 1
         parameters = self.dtype_to_input_parameters.get(parameter.datatype, [])
@@ -966,7 +966,7 @@ class CodeInterface(OptionalAttributes):
         elif self.channel_type == 'local':
             return LocalChannel
         else:
-            raise exceptions.AmuseException("Cannot create a channel with type {0!r}, type is not supported".format(self.channel_type))
+            raise AmuseException("Cannot create a channel with type {0!r}, type is not supported".format(self.channel_type))
 
     @option(type="boolean", sections=("channel",))
     def reuse_worker(self):

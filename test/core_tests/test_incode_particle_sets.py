@@ -2,7 +2,7 @@ from amuse.test import amusetest
 from amuse.units import units
 from amuse.units import quantities
 from amuse.support import interface
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 
 from amuse import datamodel
 
@@ -391,7 +391,7 @@ class ExampleParticlesInterfaceTests(amusetest.TestCase):
         theParticle.y = 0.2 | units.m
         theParticle.z = 0.5 | units.m
         
-        self.assertRaises(exceptions.AmuseException, instance.particles.add_particle, theParticle)        
+        self.assertRaises(AmuseException, instance.particles.add_particle, theParticle)        
         
 
         

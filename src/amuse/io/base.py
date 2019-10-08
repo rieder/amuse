@@ -4,11 +4,11 @@ import numpy
 import os.path
 
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import CoreException
 
 registered_fileformat_processors = {}
 
-class IoException(exceptions.CoreException):
+class IoException(CoreException):
     formatstring = "IO exception: {0}"
     
 class UnsupportedFormatException(IoException):

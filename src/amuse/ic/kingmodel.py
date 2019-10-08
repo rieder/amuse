@@ -7,7 +7,7 @@ This module contains a function used to create King models.
 import math
 import numpy
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.units import nbody_system
 from amuse import datamodel
 
@@ -319,7 +319,7 @@ class MakeKingModel(object):
                 found_index = True
                 break
         if (not found_index):
-            raise exceptions.AmuseException("makeking: error in getpos")
+            raise AmuseException("makeking: error in getpos")
         rfac = (rno - self.zm[i1-1]) / (self.zm[i1] - self.zm[i1-1])
         radius = self.rr[i1-1] + rfac * (self.rr[i1] - self.rr[i1-1])
         potential = self.psi[i1-1] + rfac * (self.psi[i1] - self.psi[i1-1])
@@ -380,7 +380,7 @@ class MakeKingModel(object):
         #// Create a King model, and optionally initialize an N-body system
         #// with total mass = n, core radius = 1.
         if (self.W0 > 16): 
-            raise exceptions.AmuseException("makeking: must specify w0 < 16")
+            raise AmuseException("makeking: must specify w0 < 16")
         #    // Compute the cluster density/velocity/potential profile
         (nprof, v20) = self.poisson()
         zm = self.zm
@@ -392,7 +392,7 @@ class MakeKingModel(object):
             len(rr) == nprof+1 and len(v2) == nprof+1 and 
             len(psi) == nprof+1):
             print len(zm), len(d), len(rr), len(v2), len(psi), nprof+1
-            raise exceptions.AmuseException("Error in result of Poisson")
+            raise AmuseException("Error in result of Poisson")
         #    // Determine statistics and characteristic scales of the King model.
         rho0 = 1 / zm[nprof]#	 // Central density for total mass = 1
         #    // Unit of velocity = sig, where rc^2 = 9 sig^2 / (4 pi G rho0)
@@ -417,7 +417,7 @@ class MakeKingModel(object):
                 z = z + dz
         self.index.append(nprof)
         if not (len(self.index)==self.NINDX+1):
-            raise exceptions.AmuseException("Error in length of indx")
+            raise AmuseException("Error in length of indx")
         zmcore = zm[jcore] + (zm[jcore+1] - zm[jcore]) * (1 - 
             rr[jcore]) / (rr[jcore+1] - rr[jcore])
         rhalf = rr[jhalf] + (rr[jhalf+1] - rr[jhalf]) * (0.5 -  

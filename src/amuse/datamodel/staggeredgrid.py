@@ -1,5 +1,4 @@
 from amuse.units import units
-from amuse.support import exceptions
 import numpy
 
 from amuse.datamodel.grids import *

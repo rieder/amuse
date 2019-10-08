@@ -1,6 +1,8 @@
 from amuse.support.core import CompositeDictionary
 from amuse.support.core import compare_version_strings
-from amuse.support import exceptions
+from amuse.support.exceptions import (
+    AmuseException, KeysNotInStorageException, MissingAttributesAmuseException
+)
 from amuse.datamodel.base import *
 from amuse.datamodel import base
 from amuse.datamodel.memory_storage import *
@@ -514,12 +516,12 @@ class AbstractParticleSet(AbstractSet):
             particles = particles.as_set()
         original_particles_set = self._original_set()
         if not original_particles_set is particles._original_set():
-            raise exceptions.AmuseException("Can't create new subset from particles belonging to "
+            raise AmuseException("Can't create new subset from particles belonging to "
                 "separate particle sets. Try creating a superset instead.")
         keys = list(self.key) + list(particles.key)
         new_set = ParticlesSubset(original_particles_set, keys)
         if new_set.has_duplicates():
-            raise exceptions.AmuseException("Unable to add a particle, because it was already part of this set.")
+            raise AmuseException("Unable to add a particle, because it was already part of this set.")
         return new_set
 
     def __or__(self, particles):
@@ -579,7 +581,7 @@ class AbstractParticleSet(AbstractSet):
             if key in new_keys:
                 new_keys.remove(key)
             else:
-                raise exceptions.AmuseException("Unable to subtract a particle, because it is not part of this set.")
+                raise AmuseException("Unable to subtract a particle, because it is not part of this set.")
         return self._subset(new_keys)
 
     def add_particles(self, particles):
@@ -623,7 +625,7 @@ class AbstractParticleSet(AbstractSet):
                 converted.append(x)
         try:
             self.add_particles_to_store(keys, attributes, converted)
-        except exceptions.MissingAttributesAmuseException as caught_exception:
+        except MissingAttributesAmuseException as caught_exception:
             for attribute_name in caught_exception.missing_attributes:
                 if attribute_name in particles._derived_attributes:
                     attributes.append(attribute_name)
@@ -799,7 +801,7 @@ class AbstractParticleSet(AbstractSet):
                     converted.append(x)
             try:
                 other_particles.add_particles_to_store(added_keys, attributes, converted)
-            except exceptions.MissingAttributesAmuseException as caught_exception:
+            except MissingAttributesAmuseException as caught_exception:
                 for attribute_name in caught_exception.missing_attributes:
                     if attribute_name in self._derived_attributes:
                         attributes.append(attribute_name)
@@ -1271,7 +1273,7 @@ class Particles(AbstractParticleSet):
             states_and_distances.append((state, distance,))
 
         if len(states_and_distances) == 0:
-            raise exceptions.AmuseException("You asked for a state at timestamp '{0}', but the set does not have any saved states so this state cannot be returned")
+            raise AmuseException("You asked for a state at timestamp '{0}', but the set does not have any saved states so this state cannot be returned")
 
         accompanying_state, min_distance = states_and_distances[0]
         for state, distance  in states_and_distances:
@@ -1478,17 +1480,17 @@ class DerivedSupersetAttribute(DerivedAttribute):
                     raise AttributeError("Subsets return incompatible quantities for attribute '{0}', attribute cannot be queried from the superset".format(self.name))
                 offset += len(subset_result)
             else:
-                raise exceptions.AmuseException("cannot handle this type of attribute on supersets yet")
+                raise AmuseException("cannot handle this type of attribute on supersets yet")
         return result
 
     def set_values_for_entities(self, superset, value):
-        raise exceptions.AmuseException("cannot set value of attribute '{0}'")
+        raise AmuseException("cannot set value of attribute '{0}'")
 
     def get_value_for_entity(self, superset, particle, index):
-        raise exceptions.AmuseException("Internal AMUSE error, a single entity (Particle) should always be bound to the subset and not the superset")
+        raise AmuseException("Internal AMUSE error, a single entity (Particle) should always be bound to the subset and not the superset")
 
     def set_value_for_entity(self, superset, key, value):
-        raise exceptions.AmuseException("Internal AMUSE error, a single entity (Particle) should always be bound to the subset and not the superset")
+        raise AmuseException("Internal AMUSE error, a single entity (Particle) should always be bound to the subset and not the superset")
 
 class ParticlesSuperset(AbstractParticleSet):
     """A superset of particles. Attribute values are not
@@ -1547,7 +1549,7 @@ class ParticlesSuperset(AbstractParticleSet):
         self._ensure_updated_set_properties()
 
         if self.has_duplicates():
-            raise exceptions.AmuseException("Unable to add a particle, because it was already part of this set.")
+            raise AmuseException("Unable to add a particle, because it was already part of this set.")
 
 
     def _ensure_updated_set_properties(self):
@@ -1692,7 +1694,7 @@ class ParticlesSuperset(AbstractParticleSet):
             self._private.particle_sets[self._private.index_to_default_set].add_particles_to_store(keys,
                 attributes, values)
         else:
-            raise exceptions.AmuseException("Cannot add particles to a superset")
+            raise AmuseException("Cannot add particles to a superset")
 
     def remove_particles_from_store(self, indices):
         split_indices_in_subset, split_indices_in_input = self._split_indices_over_sets(indices)
@@ -1837,7 +1839,7 @@ class ParticlesSuperset(AbstractParticleSet):
                 notfoundkeys.append(x)
         
         if not len(notfoundkeys) == 0:
-            raise exceptions.KeysNotInStorageException(
+            raise KeysNotInStorageException(
                 numpy.asarray(foundkeys), 
                 numpy.asarray(result), 
                 numpy.asarray(notfoundkeys)
@@ -2048,7 +2050,7 @@ class ParticlesSubset(AbstractParticleSet):
             try:
                 self._private.indices = self._private.particles.get_indices_of_keys(self._private.keys)
                 self._private.version = self._private.particles._get_version()
-            except exceptions.KeysNotInStorageException as ex:
+            except KeysNotInStorageException as ex:
                 self._private.indices = ex.found_indices
                 self._private.keys = numpy.array(ex.found_keys, dtype='uint64')
                 self._private.set_of_keys = set(self._private.keys)
@@ -2613,7 +2615,7 @@ class ParticlesOverlay(AbstractParticleSet):
                     converted.append(x)
             try:
                 other_particles.add_particles_to_store(added_keys, attributes, converted)
-            except exceptions.MissingAttributesAmuseException as caught_exception:
+            except MissingAttributesAmuseException as caught_exception:
                 for attribute_name in caught_exception.missing_attributes:
                     if attribute_name in self._derived_attributes:
                         attributes.append(attribute_name)
@@ -2668,7 +2670,7 @@ class ParticlesWithFilteredAttributes(AbstractParticleSet):
         result = []
         for x in attributes:
             if not x in self._private.mapping_from_converted_name_to_set_name:
-                raise exceptions.AmuseException("attribute '{0}' not defined for this set".format(x))
+                raise AmuseException("attribute '{0}' not defined for this set".format(x))
             result.append(self._private.mapping_from_converted_name_to_set_name[x])
         return result
 
@@ -3566,7 +3568,7 @@ class Particle(object):
 
     def add_child(self, child):
         if self.particles_set != child.particles_set:
-            raise exceptions.AmuseException("The parent and child particles should be in the same set")
+            raise AmuseException("The parent and child particles should be in the same set")
 
         child.parent = self
 
@@ -3610,7 +3612,7 @@ class Particle(object):
         Raises an exception: cannot subtract particle(s)
         from a particle.
         """
-        raise exceptions.AmuseException("Cannot subtract particle(s) from a particle.")
+        raise AmuseException("Cannot subtract particle(s) from a particle.")
 
     def __str__(self):
         """
@@ -3885,7 +3887,7 @@ class UpdatingParticlesSubset(AbstractParticleSet):
                 self._private.set_of_keys = set(keys)
                 self._private.indices = self._private.particles.get_indices_of_keys(self._private.keys)
                 self._private.version = self._private.particles._get_version()
-            except exceptions.KeysNotInStorageException as ex:
+            except KeysNotInStorageException as ex:
                 self._private.indices = ex.found_indices
                 self._private.keys = numpy.array(ex.found_keys, dtype='uint64')
                 self._private.set_of_keys = set(self._private.keys)

@@ -90,7 +90,9 @@ from amuse.units import units
 from amuse.units import quantities
 from amuse.units.quantities import is_quantity
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import (
+    AmuseException, MissingAttributesAmuseException, KeysNotInStorageException
+)
 
 import numpy
 import inspect
@@ -170,7 +172,7 @@ class ParticleGetAttributesMethod(ParticleMappingMethod):
             elif self.method_is_code:
                 if not self.method.legacy_specification is None:
                     if not (self.method.legacy_specification.can_handle_array or self.method.legacy_specification.must_handle_array):
-                        raise exceptions.AmuseException(
+                        raise AmuseException(
                             "getter method {0} cannot handle arrays".format(self.method)
                         )
     
@@ -362,7 +364,7 @@ class ParticleSetAttributesMethod(ParticleMappingMethod):
             elif default_argument_found:
                 name_of_attribute = self.attribute_names[index]
                 if not name_of_attribute in self.optional_attribute_names:
-                    raise exceptions.AmuseException("Optional before required arguments")
+                    raise AmuseException("Optional before required arguments")
                 dict_arguments[name_of_attribute] = x
                 list_arguments[index] = not_set_marker
         
@@ -371,7 +373,7 @@ class ParticleSetAttributesMethod(ParticleMappingMethod):
                 missing_attributes_string = "{0!r} attribute".format(missing_attributes[0])
             else:
                 missing_attributes_string = "{0!r} and {1!r} attributes".format(", ".join(missing_attributes[:-1]), missing_attributes[-1])
-            raise exceptions.MissingAttributesAmuseException(
+            raise MissingAttributesAmuseException(
                 missing_attributes,
                 "To add particles to this code you need to specify the {0}".format(missing_attributes_string))
         
@@ -749,7 +751,7 @@ class AbstractInCodeAttributeStorage(base.AttributeStorage):
                     set_of_attributes -= set(access_method.attribute_names)
                     
         if set_of_attributes:
-            raise exceptions.AmuseException("Do not have attributes {0}".format(sorted(set_of_attributes)))
+            raise AmuseException("Do not have attributes {0}".format(sorted(set_of_attributes)))
         
         return result
     
@@ -762,7 +764,7 @@ class AbstractInCodeAttributeStorage(base.AttributeStorage):
                 set_of_attributes -= set(access_method.attribute_names)
                 
         if set_of_attributes:
-            raise exceptions.AmuseException("Cannot set attributes {0}".format(sorted(set_of_attributes)))
+            raise AmuseException("Cannot set attributes {0}".format(sorted(set_of_attributes)))
             
         return result
     
@@ -856,7 +858,7 @@ class InCodeAttributeStorage(AbstractInCodeAttributeStorage):
                 notfoundkeys.append(particle_key)
           
         if not len(notfoundkeys) == 0:
-            raise exceptions.KeysNotInStorageException(
+            raise KeysNotInStorageException(
                 numpy.asarray(foundkeys), 
                 numpy.asarray(indices_in_the_code), 
                 numpy.asarray(notfoundkeys)
@@ -1040,7 +1042,7 @@ class InCodeAttributeStorage(AbstractInCodeAttributeStorage):
         keys = []
         for i in indices:
             if i in self.mapping_from_index_in_the_code_to_particle_key:
-                raise exceptions.AmuseException("adding an index '{0}' that is already managed, bookkeeping is broken".format(i))
+                raise AmuseException("adding an index '{0}' that is already managed, bookkeeping is broken".format(i))
             newkey = base.UniqueKeyGenerator.next()
             self.mapping_from_index_in_the_code_to_particle_key[i] = newkey
             self.mapping_from_particle_key_to_index_in_the_code[newkey] = i
@@ -1089,10 +1091,10 @@ class InCodeGridAttributeStorage(AbstractInCodeAttributeStorage):
             raise
         
     def add_particles_to_store(self, keys, attributes = [], quantities = []):
-        raise exceptions.AmuseException("adding points to the grid is not implemented")
+        raise AmuseException("adding points to the grid is not implemented")
             
     def remove_particles_from_store(self, keys):
-        raise exceptions.AmuseException("removing points from the grid is not implemented")
+        raise AmuseException("removing points from the grid is not implemented")
     
     def _to_arrays_of_indices(self, index):
         #imin, imax, jmin, jmax, kmin, kmax = self.get_range_method(**self.extra_keyword_arguments_for_getters_and_setters)

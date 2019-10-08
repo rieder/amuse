@@ -1,5 +1,5 @@
 import os.path
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.community import *
 from amuse.community.interface.se import StellarEvolution, StellarEvolutionInterface, \
     InternalStellarStructure, InternalStellarStructureInterface
@@ -90,7 +90,7 @@ class EVtwinInterface(CodeInterface, LiteratureReferencesMixIn, StellarEvolution
 
     def new_particle_with_internal_structure(self, internal_structure, age_tag):
         if len(internal_structure) > 1:
-            raise exceptions.AmuseException("Can only add one particle with internal structure at a time.")
+            raise AmuseException("Can only add one particle with internal structure at a time.")
         internal_structure = internal_structure[0]
         self.new_stellar_model(
             internal_structure.mass[::-1].value_in(units.MSun),

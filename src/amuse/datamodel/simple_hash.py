@@ -1,7 +1,7 @@
 import os
 import ctypes
 import numpy
-from amuse.support import exceptions
+from amuse.support.exceptions import KeysNotInStorageException
 import threading
 
 # run a little code, to create import error 
@@ -57,7 +57,7 @@ class SimpleHash(object):
             has_errors = errors!=0
             missing_keys = keys[has_errors]
             no_errors = ~has_errors
-            raise exceptions.KeysNotInStorageException(keys[no_errors], values[no_errors], missing_keys)
+            raise KeysNotInStorageException(keys[no_errors], values[no_errors], missing_keys)
         return values
 
     def insert(self,keys,values=None):

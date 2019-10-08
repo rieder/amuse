@@ -8,7 +8,6 @@ from amuse.units import si
 from amuse.units import units
 from amuse.units import core
 from amuse.units.quantities import is_quantity
-from amuse.support import exceptions
 
 from amuse.datamodel import Particles
 from amuse.datamodel import AttributeStorage

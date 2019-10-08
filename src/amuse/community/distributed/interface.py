@@ -5,6 +5,7 @@ from amuse.community import *
 from amuse.community.interface.common import CommonCodeInterface
 from amuse.community.interface.common import CommonCode
 from amuse.support import options
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.channel import DistributedChannel
 
 from distributed_datamodel import Resources, Resource
@@ -527,10 +528,10 @@ class DistributedAmuseInterface(CodeInterface, CommonCodeInterface, LiteratureRe
         return 0
     
     def new_worker(self):
-        raise exceptions.AmuseException("Can't add to 'workers' directly. Create community code instances in the usual way instead.")
+        raise AmuseException("Can't add to 'workers' directly. Create community code instances in the usual way instead.")
     
     def delete_worker(self):
-        raise exceptions.AmuseException("Can't remove from 'workers' directly. Stop community code instances in the usual way instead.")
+        raise AmuseException("Can't remove from 'workers' directly. Stop community code instances in the usual way instead.")
 
 class DistributedAmuse(CommonCode):
 

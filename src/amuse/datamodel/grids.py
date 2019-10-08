@@ -8,7 +8,7 @@ from amuse.units.quantities import VectorQuantity
 from amuse.units.quantities import new_quantity
 from amuse.units.quantities import zero
 from amuse.units.quantities import column_stack
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.datamodel.base import *
 from amuse.datamodel.memory_storage import *
 import numpy
@@ -691,7 +691,7 @@ class GridInformationChannel(object):
         source_shape = self.source.shape
         target_shape = self.target.shape
         if len(source_shape) != len(target_shape):
-            raise exceptions.AmuseException("The source and target grids do not have the same dimensions, cannot use this channel")
+            raise AmuseException("The source and target grids do not have the same dimensions, cannot use this channel")
         index = [numpy.s_[0:min(x,y)] for x,y in zip(source_shape, target_shape)]
         index = tuple(index)
         

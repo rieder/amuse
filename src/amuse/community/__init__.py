@@ -8,7 +8,6 @@ from amuse.units import units
 from amuse.units import nbody_system
 from amuse.units import generic_unit_system
 from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
-from amuse.support import exceptions
 
 from amuse.support.interface import *
 
