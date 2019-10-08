@@ -18,7 +18,8 @@ matrix:
     before_install:
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - python packages/amuse-framework/setup.py install
+    - python packages/amuse-framework/setup.py sdist
+    - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       apt:
         packages:
@@ -43,7 +44,8 @@ matrix:
     before_install:
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - python packages/amuse-framework/setup.py install
+    - python packages/amuse-framework/setup.py sdist
+    - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       apt:
         packages:
@@ -69,7 +71,8 @@ matrix:
     before_install:
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - python packages/amuse-framework/setup.py install
+    - python packages/amuse-framework/setup.py sdist
+    - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       homebrew:
         packages:
