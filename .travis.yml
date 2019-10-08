@@ -37,7 +37,7 @@ matrix:
         - hdf5-tools
         - libmpich-dev
         - mpich  
-  - name: "macOS 10.14 openmpi py3 homebrew"
+  - name: "macOS 10.14 openmpi py2 homebrew"
     os: osx
     osx_image: xcode10.3
     env:
@@ -50,9 +50,10 @@ matrix:
         - open-mpi
         - cmake
         - hdf5
+        - python@2
     language: python
     python:
-    - '3.7'
+    - '2.7'
     compiler: gcc
     before_install:
     - eval "${MATRIX_EVAL}"
