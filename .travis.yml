@@ -45,7 +45,6 @@ matrix:
     addons:
       homebrew:
         packages:
-        - gcc
         - fftw
         - open-mpi
         - cmake
