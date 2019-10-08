@@ -64,6 +64,8 @@ matrix:
         - mpich  
   - name: "macOS 10.14 openmpi py3 homebrew"
     osx_image: xcode10.3
+    env:
+        - MATRIX_EVAL="brew install gcc && CC=gcc-9 && CXX=g++-9"
     addons:
       homebrew:
         packages:
@@ -77,9 +79,8 @@ matrix:
     - '3.7'
     compiler: gcc
     before_install:
+    - eval "${MATRIX_EVAL}"
     - pip install numpy scipy matplotlib nose docutils mpi4py h5py
-    - test -n $CC  && unset CC
-    - test -n $CXX && unset CXX
     install:
     - cd packages/amuse-framework && python setup.py sdist && cd ../../
     - pip install packages/amuse-framework/dist/*.tar.gz
