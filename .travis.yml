@@ -11,6 +11,7 @@ matrix:
   - name: "linux openmpi"
   include:
   - name: "linux MPICH Py3"
+    os: linux
     language: python
     python:
     - '3.7'
@@ -37,6 +38,7 @@ matrix:
         - libmpich-dev
         - mpich  
   - name: "linux MPICH Py2"
+    os: linux
     language: python
     python:
     - '2.7'
@@ -63,6 +65,7 @@ matrix:
         - libmpich-dev
         - mpich  
   - name: "macOS 10.14 openmpi py3 homebrew"
+    os: osx
     osx_image: xcode10.3
     env:
         - MATRIX_EVAL="brew install gcc && CC=gcc-9 && CXX=g++-9"
