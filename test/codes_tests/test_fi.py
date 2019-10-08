@@ -394,7 +394,7 @@ class TestFi(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
     
-    def test2(self):
+    def xtest2(self):
         print "Test 2: testing Fi data directory"
         convert_nbody = nbody_system.nbody_to_si(1.0 | units.MSun, 1.0 | units.AU)
         instance = Fi(convert_nbody)

@@ -241,17 +241,17 @@ class ForTesting(InCodeComponentImplementation):
 
 class TestCImplementationInterface(TestWithMPI):
 
-    def setUp(self):
-        super(TestCImplementationInterface, self).setUp()
-        print "building...",
-        self.check_can_compile_modules()
+    @classmethod
+    def setup_class(cls):
+        print("building...")
+        cls.check_can_compile_modules()
         try:
-            self.exefile = compile_tools.build_worker(codestring, self.get_path_to_results(), 
+            cls.exefile = compile_tools.build_worker(codestring, cls.get_path_to_results(), 
                 ForTestingInterface, write_header=False)
         except Exception as ex:
             print ex
             raise
-        print "done"
+        print("done")
         
     def test1(self):
         instance = ForTestingInterface(self.exefile)
@@ -512,8 +512,8 @@ class TestCImplementationInterface(TestWithMPI):
         self.assertEquals(error2, 0)
         self.assertEquals(error3, 0)
         self.assertEquals(output2, 500 * 1000)
-        print t1 - t0, t3 - t2
-        self.assertTrue((t3 - t2) > 0.25)
+        #~ print t1 - t0, t3 - t2
+        #~ self.assertTrue((t3 - t2) > 0.25)
 
 
 

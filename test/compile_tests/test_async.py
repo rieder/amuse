@@ -22,6 +22,8 @@ from amuse.community.distributed.interface import DistributedAmuse, Pilot
 codestring=test_c_implementation.codestring+"""
 #include <unistd.h>
 
+float _x[10] = { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
+
 int do_sleep(int in) {
     sleep(in);
     return 0;
@@ -31,6 +33,20 @@ int return_error(int * out) {
     *out=123;
     return -1;
 }
+
+int get_x(int in, float *x){
+    *x=_x[in];
+    return 0;
+    }
+
+int set_x(int in, float x){
+    _x[in]=x;
+    return 0;
+    }
+
+int dummy(){
+    return 0;
+    }
 
 """
 
@@ -61,24 +77,63 @@ class ForTestingInterface(test_c_implementation.ForTestingInterface):
         function.must_handle_array = True
         return function
 
+    @legacy_function
+    def get_x():
+        function = LegacyFunctionSpecification()
+        function.addParameter('index', dtype='int32', direction=function.IN)
+        function.addParameter('x', dtype='float32', direction=function.OUT, unit=units.m)
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        return function 
+
+    @legacy_function
+    def set_x():
+        function = LegacyFunctionSpecification()
+        function.addParameter('index', dtype='int32', direction=function.IN)
+        function.addParameter('x', dtype='float32', direction=function.IN, unit=units.m)
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        return function 
+
+    @legacy_function
+    def dummy():
+        function = LegacyFunctionSpecification()
+        function.result_type = 'int32'
+        return function 
 
 class ForTesting(InCodeComponentImplementation):
     
     def __init__(self, exefile, **options):
         InCodeComponentImplementation.__init__(self, ForTestingInterface(exefile, **options), **options)
 
+    def get_grid_range(self):
+        return (0,9)
+
+    def define_grids(self, handler):
+        handler.define_grid('grid')
+        handler.set_grid_range('grid', 'get_grid_range')
+        handler.add_getter('grid', 'get_x', names=["x"])
+        handler.add_setter('grid', 'set_x', names=["x"])
+
+class ForTestingWithState(ForTesting):
+    def define_state(self, handler):
+        handler.set_initial_state("1")
+        handler.add_transition("1", "2", "dummy")
+        handler.add_method("2", "get_x")
+        handler.add_method("2", "set_x")
+
 class TestASync(TestWithMPI):
 
-    def setUp(self):
-        super(TestASync, self).setUp()
-        print "building...",
-        self.check_can_compile_modules()
+    @classmethod
+    def setup_class(cls):
+        print("building...")
+        cls.check_can_compile_modules()
         try:
-            self.exefile = compile_tools.build_worker(codestring, self.get_path_to_results(), ForTestingInterface)
+            cls.exefile = compile_tools.build_worker(codestring, cls.get_path_to_results(), ForTestingInterface)
         except Exception as ex:
             print ex
             raise
-        print "done"
+        print("done")
         
     def test1(self):
         instance = ForTestingInterface(self.exefile)
@@ -636,18 +691,147 @@ class TestASync(TestWithMPI):
         instance1.stop()
         instance2.stop()
 
+    def test25(self):
+        """ more test of pool: calls of same code """
+        from amuse.rfi.async_request import AsyncRequestsPool
+        instance1 = ForTesting(self.exefile)
+        
+        r1=instance1.do_sleep(1, return_request=True)
+        r2=instance1.echo_int(2, return_request=True)
+        
+        p1=AsyncRequestsPool()
+        r1.wait()
+        r2.wait()
+        p1.add_request(r1)
+        p1.add_request(r2)
+        
+        #~ p1=r1.join(r2)
+        
+        p1.waitall()
+        
+        self.assertEqual(r2.result(), 2)
+        
+        instance1.stop()
+
+    def test30(self):
+        """ test a grid attribute request """
+        instance1 = ForTesting(self.exefile, redirection="none")
+        self.assertEquals(instance1.grid.x, numpy.arange(1,11) |units.m)
+        instance1.do_sleep(1, return_request=True)
+        t1=time.time()
+        request=instance1.grid.request.x
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+        self.assertEquals(request.result(), numpy.arange(1,11) | units.m)
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)
+        
+    def test31(self):
+        """ test a grid attribute request, subgrids """
+        instance1 = ForTesting(self.exefile, redirection="none")
+        self.assertEquals(instance1.grid.x, numpy.arange(1,11) |units.m)
+        instance1.do_sleep(1, return_request=True)
+        t1=time.time()
+        request=instance1.grid[:5].request.x
+        request2=instance1.grid[5:].request.x
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+        self.assertEquals(request.result(), numpy.arange(1,6) | units.m)
+        self.assertEquals(request2.result(), numpy.arange(6,11) | units.m)
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)
+
+    def test32(self):
+        """ test a grid attribute request setter """
+        instance1 = ForTesting(self.exefile, redirection="none")
+        instance1.grid.x=(66.+numpy.arange(1,11)) |units.m
+        self.assertEquals(instance1.grid.x, (66.+numpy.arange(1,11)) |units.m)
+
+        t1=time.time()
+        instance1.do_sleep(1, return_request=True)
+        instance1.grid.request.x=(11.+numpy.arange(1,11)) |units.m
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+        instance1.async_request.wait()
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)
+        t1=time.time()
+        self.assertEquals(instance1.grid.x, (11.+numpy.arange(1,11)) | units.m)
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+
+    def test33(self):
+        """ test a grid attribute request, subgrids """
+        instance1 = ForTesting(self.exefile, redirection="none")
+        self.assertEquals(instance1.grid.x, numpy.arange(1,11) |units.m)
+
+        t1=time.time()
+        instance1.do_sleep(1, return_request=True)
+        instance1.grid[::2].request.x=(11.+numpy.arange(1,11,2)) |units.m
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+        instance1.async_request.wait()
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)
+        self.assertEquals(instance1.grid.x[::2], (11.+numpy.arange(1,11,2)) | units.m)
+        self.assertEquals(instance1.grid.x[1::2], (numpy.arange(2,11,2)) | units.m)
+
+    def test34(self):
+        """ test a grid attribute request, subgrids """
+        instance1 = ForTesting(self.exefile, redirection="none")
+        grid=instance1.grid.copy()
+        request=instance1.grid.request.x
+        self.assertEquals(request.result(), numpy.arange(1,11) | units.m)
+
+    def test35(self):
+        """ test a grid attribute request setter with state"""
+        instance1 = ForTestingWithState(self.exefile, redirection="none")
+        t1=time.time()
+        instance1.do_sleep(1, return_request=True)
+        self.assertEquals(instance1.get_name_of_current_state(), '1')
+        instance1.grid.request.x=(11.+numpy.arange(1,11)) |units.m
+        self.assertEquals(instance1.get_name_of_current_state(), '2')
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)   # first time, state calls dummy (blocking) -> wait
+
+        t1=time.time()
+        instance1.do_sleep(1, return_request=True)
+        instance1.grid.request.x=(12.+numpy.arange(1,11)) |units.m
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)  # second time should be less
+                
+        instance1.async_request.wait()
+        t2=time.time()
+        self.assertGreater(t2-t1, 1.)
+        t1=time.time()
+        self.assertEquals(instance1.grid.x, (12. +numpy.arange(1,11)) | units.m)
+        t2=time.time()
+        self.assertLess(t2-t1, 0.5)
+
+    def test36(self):
+        """ more state tests"""
+        instance1 = ForTestingWithState(self.exefile, redirection="none")
+        self.assertEquals(instance1.get_name_of_current_state(), '1')
+        # this documents current behaviour:
+        instance1.dummy(return_request=True)
+        self.assertEquals(instance1.get_name_of_current_state(), '1')
+        instance1.async_request.wait() 
+        self.assertEquals(instance1.get_name_of_current_state(), '2')
+        # ie state changes upon completion of call at wait. This is 
+        # sort of ok, alternatively state could be changed immediately...
+
 
 class TestASyncDistributed(TestASync):
 
-    def setUp(self):
-        self.check_not_in_mpiexec()
-        super(TestASyncDistributed, self).setUp()
-        #instance = DistributedAmuse(redirection='none')
-        self.distinstance = self.new_instance_of_an_optional_code(DistributedAmuse)#, redirection='none')
-        self.distinstance.parameters.debug = False
+    @classmethod
+    def setup_class(cls):
+        cls.check_not_in_mpiexec()
+        super(TestASyncDistributed, cls).setup_class()
+        cls.distinstance = cls.new_instance_of_an_optional_code(DistributedAmuse)#, redirection='none')
+        cls.distinstance.parameters.debug = False
 
         #~ print "Resources:"
-        #~ print self.distinstance.resources
+        #~ print cls.distinstance.resources
 
         pilot = Pilot()
         pilot.resource_name='local'
@@ -655,19 +839,21 @@ class TestASyncDistributed(TestASync):
         pilot.time= 2|units.hour
         pilot.slots_per_node=8
         pilot.label='local'
-        self.distinstance.pilots.add_pilot(pilot)
+        cls.distinstance.pilots.add_pilot(pilot)
         #~ print "Pilots:"
-        #~ print self.distinstance.pilots
+        #~ print cls.distinstance.pilots
 
         #~ print "Waiting for pilots"
-        self.distinstance.wait_for_pilots()
-        self.distinstance.use_for_all_workers()
+        cls.distinstance.wait_for_pilots()
+        cls.distinstance.use_for_all_workers()
 
-    def tearDown(self):
+    @classmethod
+    def tearDown(cls):
         #~ print "Stopping distributed code"
-        self.distinstance.stop()
+        cls.distinstance.stop()
 
-    def check_not_in_mpiexec(self):
+    @classmethod
+    def check_not_in_mpiexec(cls):
         """
         The tests will fork another process, if the test run
         is itself an mpi process, the tests may fail. 
@@ -678,6 +864,6 @@ class TestASyncDistributed(TestASync):
         if 'HYDI_CONTROL_FD' in os.environ:
             return
         if 'HYDRA_CONTROL_FD' in os.environ or 'PMI_FD' in os.environ:
-            self.skip('cannot run the socket tests under hydra process manager')
+            cls.skip('cannot run the socket tests under hydra process manager')
 
 

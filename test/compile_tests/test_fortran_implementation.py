@@ -347,7 +347,8 @@ class ForTesting(InCodeComponentImplementation):
     """
 class TestInterface(TestWithMPI):
     
-    def skip_if_fortran_does_not_support_mpi(self):
+    @classmethod
+    def skip_if_fortran_does_not_support_mpi(cls):
         try:
             from amuse import config
             is_configured = hasattr(config, 'compilers') and hasattr(config.compilers, 'fc_iso_c_bindings')
@@ -357,13 +358,14 @@ class TestInterface(TestWithMPI):
         if is_configured and config.compilers.fc_iso_c_bindings:
             return
         else:
-            self.skip("cannot run test as fortran does not support iso c bindings")
+            cls.skip("cannot run test as fortran does not support iso c bindings")
     
-    def setUp(self):
-        super(TestInterface, self).setUp()
-        print "building"
-        self.check_can_compile_modules()
-        self.exefile=compile_tools.build_fortran_worker(codestring, self.get_path_to_results(), ForTestingInterface)
+    @classmethod
+    def setup_class(cls):
+        print("building")
+        cls.check_can_compile_modules()
+        cls.exefile=compile_tools.build_fortran_worker(codestring, cls.get_path_to_results(), ForTestingInterface)
+        print("done")
         
     def test1(self):
         instance = ForTestingInterface(self.exefile)
@@ -609,8 +611,8 @@ class TestInterface(TestWithMPI):
         self.assertEquals(error2, 0)
         self.assertEquals(error3, 0)
         self.assertEquals(output2, 500 * 1000)
-        print t1 - t0, t3 - t2
-        self.assertTrue((t3 - t2) > 0.25)
+        #~ print t1 - t0, t3 - t2
+        #~ self.assertTrue((t3 - t2) > 0.25)
     
 
     def test19(self):

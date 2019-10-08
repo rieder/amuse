@@ -246,27 +246,25 @@ class TestSmallN(TestWithMPI):
             instance.particles.copy_values_of_all_attributes_to(stars)
             stars.savepoint()
         
-        if HAS_MATPLOTLIB:
-            figure = pyplot.figure()
-            plot = figure.add_subplot(1,1,1)
-            
-            x_points = earth.get_timeline_of_attribute("x")
-            y_points = earth.get_timeline_of_attribute("y")
-            
-            x_points_in_AU = map(lambda (t,x) : x.value_in(units.AU), x_points)
-            y_points_in_AU = map(lambda (t,x) : x.value_in(units.AU), y_points)
-            
-            plot.scatter(x_points_in_AU,y_points_in_AU, color = "b", marker = 'o')
-            
-            plot.set_xlim(-1.5, 1.5)
-            plot.set_ylim(-1.5, 1.5)
-               
-            
-            test_results_path = self.get_path_to_results()
-            output_file = os.path.join(test_results_path, "smalln-earth-sun2.svg")
-            figure.savefig(output_file)
-        
-        
+        # if HAS_MATPLOTLIB:
+        #     figure = pyplot.figure()
+        #     plot = figure.add_subplot(1,1,1)
+        #     
+        #     x_points = earth.get_timeline_of_attribute("x")
+        #     y_points = earth.get_timeline_of_attribute("y")
+        #     
+        #     x_points_in_AU = map(lambda (t,x) : x.value_in(units.AU), x_points)
+        #     y_points_in_AU = map(lambda (t,x) : x.value_in(units.AU), y_points)
+        #     
+        #     plot.scatter(x_points_in_AU,y_points_in_AU, color = "b", marker = 'o')
+        #     
+        #     plot.set_xlim(-1.5, 1.5)
+        #     plot.set_ylim(-1.5, 1.5)
+        #        
+        #     
+        #     test_results_path = self.get_path_to_results()
+        #     output_file = os.path.join(test_results_path, "smalln-earth-sun2.svg")
+        #     figure.savefig(output_file)
         
         instance.cleanup_code()
         instance.stop()
