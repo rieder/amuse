@@ -10,16 +10,17 @@ matrix:
   allow_failures:
   - name: "linux openmpi"
   include:
-  - name: "linux MPICH"
+  - name: "linux MPICH Py2"
+    os: linux
     language: python
     python:
-    - '2.7'
+    - 2.7
     compiler: gcc
     before_install:
-    - pip install numpy scipy matplotlib nose docutils mpi4py h5py Cython
+    - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - ./configure
-    - make framework
+    - cd packages/amuse-framework && python setup.py sdist && cd ../../
+    - pip install packages/amuse-framework/dist/*.tar.gz
     addons:
       apt:
         packages:
@@ -36,53 +37,28 @@ matrix:
         - hdf5-tools
         - libmpich-dev
         - mpich  
-  - name: "linux openmpi"
-    language: python
-    python:
-    - '2.7'
+  - name: "macOS 10.14 openmpi py2 homebrew"
+    os: osx
+    osx_image: xcode10.3
+    env:
+        - MATRIX_EVAL="brew install gcc && CC=gcc-9 && CXX=g++-9"
+    addons:
+      homebrew:
+        packages:
+        - gcc
+        - fftw
+        - open-mpi
+        - cmake
+        - hdf5
+        - python@2
+    language: shell
     compiler: gcc
     before_install:
-    - pip install numpy scipy matplotlib nose docutils mpi4py h5py Cython
+    - eval "${MATRIX_EVAL}"
+    - pip install numpy scipy matplotlib nose docutils mpi4py h5py
     install:
-    - ./configure
-    - make framework
-    addons:
-      apt:
-        packages:
-        - build-essential
-        - python-dev
-        - gfortran
-        - libgsl0-dev
-        - cmake
-        - libfftw3-3
-        - libfftw3-dev
-        - libmpfr4
-        - libmpfr-dev
-        - libhdf5-serial-dev
-        - hdf5-tools
-        - libopenmpi-dev
-        - openmpi-bin
-  - name: "osx openmpi"
-    language: generic
-    os: osx
-    before_install:
-    - export MINICONDA_OS=$MINICONDA_OSX
-    - wget "http://repo.continuum.io/miniconda/Miniconda$MINICONDA_PYTHON_MAJOR-$MINICONDA_VERSION-$MINICONDA_OS.sh" -O miniconda.sh;
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export CONDA_PREFIX=$HOME/miniconda
-    - export PATH="$CONDA_PREFIX/bin:$PATH"
-    - hash -r
-    - conda update -yq conda
-    # gather the conda packages to install in one go, saving time
-    - export CONDA_OPTIONS="-c conda-forge -c anaconda"  # N.B.: order matters, first is search first!
-    - export CONDA_PACKAGES="gfortran_osx-64"  # configure wants this, even just for the framework target
-    - export CONDA_PACKAGES="${CONDA_PACKAGES} mpi4py nose numpy docutils h5py"  # additional basic dependencies
-    - export CONDA_PACKAGES="${CONDA_PACKAGES} openmpi cython"  # for the compile_tests
-      #- export CONDA_PACKAGES="${CONDA_PACKAGES} -c conda-forge fftw mpfr gsl gmp pkg-config"  # for a full build including community codes
-    - conda install -y ${CONDA_OPTIONS} ${CONDA_PACKAGES}
-    install:
-    - env CXX=clang++ CC=clang LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib" ./configure --with-hdf5=$CONDA_PREFIX --with-gmp=$CONDA_PREFIX --with-mpfr=$CONDA_PREFIX --with-fftw=$CONDA_PREFIX --with-gsl-prefix=$CONDA_PREFIX
-    - make framework
+    - cd packages/amuse-framework && python setup.py sdist && cd ../../
+    - pip install packages/amuse-framework/dist/*.tar.gz
 
 virtualenv:
   system_site_packages: false
@@ -91,16 +67,16 @@ script:
 - export PYTHONPATH=${PWD}/src:${PWD}
 - |
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    mpiexec nosetests amuse.test.suite.compile_tests.test_python_implementation:TestInterface.test10 -sv
-    mpiexec nosetests test/reports/test_speed.py -sv
-    mpiexec nosetests -e "test_plot" test/core_tests
-    mpiexec nosetests -e "test_cython_implementation" test/compile_tests -sv
+    mpiexec pytest amuse.test.suite.compile_tests.test_python_implementation:TestInterface.test10 -v
+    mpiexec pytest test/reports/test_speed.py -v
+    mpiexec pytest -k "not test_plot" test/core_tests -v
+    mpiexec pytest -k "not test_cython_implementation" test/compile_tests -v
   elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    nosetests test/reports/test_speed.py -sv
-    nosetests -e "test_plot" test/core_tests
-    nosetests test/compile_tests/test_c_implementation.py -sv
-    #nosetests test/compile_tests/test_c_sockets_implementation.py -sv
-    nosetests test/compile_tests/test_fortran_implementation.py -sv
-    #nosetests test/compile_tests/test_fortran_sockets_implementation.py -sv
-    nosetests test/compile_tests/test_python_implementation.py -sv
+    pytest test/reports/test_speed.py -v
+    pytest -k "not test_plot" test/core_tests
+    pytest test/compile_tests/test_c_implementation.py -v
+    #pytest test/compile_tests/test_c_sockets_implementation.py -v
+    pytest test/compile_tests/test_fortran_implementation.py -v
+    #pytest test/compile_tests/test_fortran_sockets_implementation.py -v
+    pytest test/compile_tests/test_python_implementation.py -v
   fi

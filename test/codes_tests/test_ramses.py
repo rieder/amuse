@@ -36,7 +36,7 @@ class TestRamsesInterface(TestWithMPI):
         self.assertAlmostEqual(time, 0.1, 2)
         instance.stop()
     
-    def xtest1b(self):
+    def test1b(self):
         instance=RamsesInterface()
         instance.initialize_code()
         instance.setup_mesh(50,40,30,1.,1.,1.)
