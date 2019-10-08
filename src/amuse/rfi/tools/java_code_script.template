@@ -7,8 +7,8 @@ import sys
 java = '{java}'
 
 try:
-    from amuse.support import options
-    amuse_root_dir = options.GlobalOptions.instance().amuse_rootdirectory
+    from amuse.support.options import GlobalOptions
+    amuse_root_dir = GlobalOptions.instance().amuse_rootdirectory
 except:
 # fallback if amuse is not findable
     amuse_root_dir = '{amuse_root_dir}'

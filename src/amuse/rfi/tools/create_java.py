@@ -1,6 +1,6 @@
 from amuse.support.core import late
 from amuse.support.exceptions import AmuseException
-from amuse.support import options
+from amuse.support.options import GlobalOptions
 from amuse import config
 from amuse.rfi.tools.create_code import GenerateASourcecodeString
 from amuse.rfi.tools.create_code import GenerateASourcecodeStringFromASpecificationClass
@@ -1471,7 +1471,7 @@ class GenerateAJavaWorkerScript(GenerateASourcecodeString):
 
     @late
     def amuse_root_dir(self):
-        return os.path.abspath(options.GlobalOptions.instance().amuse_rootdirectory)
+        return os.path.abspath(GlobalOptions.instance().amuse_rootdirectory)
 
     @late
     def code_dir(self):

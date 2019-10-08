@@ -15,7 +15,7 @@ from amuse.units import quantities
 from amuse.units.quantities import as_vector_quantity
 from amuse.units.quantities import zero
 
-from amuse.support import options
+from amuse.support.options import OptionalAttributes
 from amuse.support import code
 from amuse.support import interface
 from amuse import io
@@ -1764,7 +1764,7 @@ class MultiplesStoppingConditions(object):
             self.encounter_detection.is_set()
         )
         
-class Multiples(options.OptionalAttributes):
+class Multiples(OptionalAttributes):
     """
     
     Data model:
@@ -1787,7 +1787,7 @@ class Multiples(options.OptionalAttributes):
             **opts
         ):
             
-        options.OptionalAttributes.__init__(self, **opts)
+        OptionalAttributes.__init__(self, **opts)
 
        
         self.gravity_code = gravity_code

@@ -4,7 +4,7 @@ import logging
 from amuse.community import *
 from amuse.community.interface.common import CommonCodeInterface
 from amuse.community.interface.common import CommonCode
-from amuse.support import options
+from amuse.support.options import GlobalOptions
 from amuse.support.exceptions import AmuseException
 from amuse.rfi.channel import DistributedChannel
 
@@ -577,7 +577,7 @@ class DistributedAmuse(CommonCode):
         resource = Resource()
         resource.name = "local"
         resource.location = ""
-        resource.amuse_dir = options.GlobalOptions.instance().amuse_rootdirectory
+        resource.amuse_dir = GlobalOptions.instance().amuse_rootdirectory
         resource.scheduler_type = "local"
         self.resources.add_resource(resource)
                 
@@ -593,19 +593,19 @@ class DistributedAmuse(CommonCode):
     def use_for_all_workers(self, enable=True):
         if enable:
             DistributedChannel.default_distributed_instance=self
-            options.GlobalOptions.instance().override_value_for_option("channel_type", "distributed")
+            GlobalOptions.instance().override_value_for_option("channel_type", "distributed")
         else:
             if DistributedChannel.default_distributed_instance is self \
-                     and options.GlobalOptions.instance().overriden_options.has_key("channel_type"):
+                     and GlobalOptions.instance().overriden_options.has_key("channel_type"):
                 DistributedChannel.default_distributed_instance=None
-                del options.GlobalOptions.instance().overriden_options["channel_type"]
+                del GlobalOptions.instance().overriden_options["channel_type"]
             
 
     def cleanup_code(self):
         if DistributedChannel.default_distributed_instance is self:
             DistributedChannel.default_distributed_instance=None
-            if options.GlobalOptions.instance().overriden_options.has_key("channel_type"):
-                del options.GlobalOptions.instance().overriden_options["channel_type"]
+            if GlobalOptions.instance().overriden_options.has_key("channel_type"):
+                del GlobalOptions.instance().overriden_options["channel_type"]
                 
         self.overridden().cleanup_code()
         
