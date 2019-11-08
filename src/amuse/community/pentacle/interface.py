@@ -1,0 +1,131 @@
+"""
+Interface for Pentacle
+"""
+
+from amuse.rfi.core import (
+    CodeInterface,
+    LegacyFunctionSpecification,
+    legacy_function,
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.community.interface.gd import (
+    GravitationalDynamicsInterface,
+    GravitationalDynamics,
+)
+from amuse.units import nbody_system
+
+
+class PentacleInterface(
+    CodeInterface,
+    LiteratureReferencesMixIn,
+    GravitationalDynamicsInterface,
+):
+    """
+    Pentacle hybrid particle-particle particle-tree code based on FDPS
+
+    .. [#] Iwasawa, M., et al.
+    """
+    
+    include_headers = ['worker_code.h']
+    
+    def __init__(self, **keyword_arguments):
+        CodeInterface.__init__(
+            self,
+            name_of_the_worker="pentacle_worker",
+            **keyword_arguments
+        )
+        LiteratureReferencesMixIn.__init__(self)
+
+    @legacy_function
+    def set_eta():
+        """
+        Set the current accuracy parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'eta', dtype='float64',
+            direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_eta():
+        """
+        Get the current accuracy parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'eta', dtype='float64',
+            direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+class Pentacle(GravitationalDynamics):
+    """
+    Low-level Pentacle interface
+    """
+
+    def __init__(self, convert_nbody=None, **options):
+        GravitationalDynamics.__init__(
+            self,
+            PentacleInterface(**options),
+            convert_nbody,
+            **options
+        )
+
+    def define_parameters(self, handler):
+        handler.add_method_parameter(
+            "get_eta",
+            "set_eta",
+            "timestep_parameter",
+            "timestep parameter",
+            default_value = 0.1,
+        )
+
+        handler.add_method_parameter(
+            "get_eps2",
+            "set_eps2",
+            "epsilon_squared", 
+            "smoothing parameter for gravity calculations", 
+            default_value = 0.0 | nbody_system.length * nbody_system.length,
+        )
+
+    def define_methods(self, handler):
+        GravitationalDynamics.define_methods(self, handler)
+
+        handler.add_method(
+            "new_particle",
+            (
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.length,
+            ),
+            (
+                handler.INDEX,
+                handler.ERROR_CODE
+            )
+        )
+
+        handler.add_method(
+            "set_eps2",
+            (
+                nbody_system.length * nbody_system.length
+            ),
+            (
+                handler.ERROR_CODE
+            )
+        )
+
+        handler.add_method(
+            "get_eps2",
+            (),
+            (
+                nbody_system.length * nbody_system.length,
+                handler.ERROR_CODE
+            )
+        )
