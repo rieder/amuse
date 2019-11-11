@@ -306,7 +306,7 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
     particle.vel.y = vy;
     particle.vel.z = vz;
     particle.r_out = radius; // 2./256.;  // PARAM_SET.dt_soft_ * 2.0;  // cutoff radius for ptree-pp
-    particle.r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
+    particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
     const PS::F64 r_buf = 1.5 * radius;
     particle.r_search  = particle.r_out + r_buf;
     //particle.r_out = particle.r_in = particle.r_search = 0.0;
