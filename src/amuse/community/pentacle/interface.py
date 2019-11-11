@@ -16,14 +16,16 @@ from amuse.units import nbody_system
 
 
 class PentacleInterface(
-    CodeInterface,
-    LiteratureReferencesMixIn,
-    GravitationalDynamicsInterface,
+        CodeInterface,
+        LiteratureReferencesMixIn,
+        GravitationalDynamicsInterface,
 ):
     """
     Pentacle hybrid particle-particle particle-tree code based on FDPS
 
-    .. [#] Iwasawa, M., et al.
+    .. [#] Iwasawa, M. et al. (2016, Publications of the Astronomical Society of Japan, 68, 54)
+    .. [#] Namekata, D. et al. (2018, Publications of the Astronomical Society of Japan, 70, 70)
+    .. [#] Iwasawa et al., ""
     """
     
     include_headers = ['worker_code.h']
