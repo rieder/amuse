@@ -39,6 +39,30 @@ class PentacleInterface(
         LiteratureReferencesMixIn.__init__(self)
 
     @legacy_function
+    def set_time_step():
+        """
+        Set the current time step.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'time_step', dtype='float64',
+            direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_time_step():
+        """
+        Get the current time step.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'time_step', dtype='float64',
+            direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+    
+    @legacy_function
     def set_eta():
         """
         Set the current accuracy parameter.
@@ -79,9 +103,17 @@ class Pentacle(GravitationalDynamics):
         handler.add_method_parameter(
             "get_eta",
             "set_eta",
-            "timestep_parameter",
-            "timestep parameter",
+            "time_step_parameter",
+            "time step parameter for Hermite integrator",
             default_value = 0.1,
+        )
+        
+        handler.add_method_parameter(
+            "get_time_step",
+            "set_time_step",
+            "time_step",
+            "time step for Tree integrator",
+            default_value = 0.00390625 | nbody_system.time,
         )
 
         handler.add_method_parameter(
@@ -128,6 +160,25 @@ class Pentacle(GravitationalDynamics):
             (),
             (
                 nbody_system.length * nbody_system.length,
+                handler.ERROR_CODE
+            )
+        )
+
+        handler.add_method(
+            "set_time_step",
+            (
+                nbody_system.time,
+            ),
+            (
+                handler.ERROR_CODE
+            )
+        )
+
+        handler.add_method(
+            "get_time_step",
+            (),
+            (
+                nbody_system.time,
                 handler.ERROR_CODE
             )
         )
