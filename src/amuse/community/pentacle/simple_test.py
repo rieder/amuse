@@ -235,7 +235,262 @@ def test10():
         print(p.center_of_mass_velocity().in_(units.kms))
         step += 1
 
+def test11():
+    from amuse.ext.masc import new_star_cluster
+
+    numpy.random.seed(8)
+    p = new_star_cluster(
+        stellar_mass=1000 | units.MSun,
+        effective_radius=3.0 | units.parsec,
+    )
+    p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
+
+    M = p.mass.sum()
+    R = p.position.lengths().mean()
+    converter = nbody_system.nbody_to_si(M, R)
+    dt = 0.01 | units.Myr
+    g = Pentacle(converter)
+    g.parameters.time_step = dt/1.
+    print(g.parameters.time_step)
+    p_in_code = g.particles.add_particles(p)
+    time_end = 0.1 | units.Myr
+    time = 0 | units.Myr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    while time < time_end:
+        time += dt
+        # print("Step %03i - evolving to %s" % (step, time))
+        g.evolve_model(time)
+        channel.copy()
+        print(p[11].x.in_(units.parsec), p[11].y.in_(units.parsec))
+        if (time > 9.5*dt and time < 10.5*dt):
+            p_in_code.remove_particle(p_in_code[10])
+        step += 1
+
+def test12():
+    from amuse.ext.masc import new_star_cluster
+
+    numpy.random.seed(8)
+    p = new_star_cluster(
+        stellar_mass=1000 | units.MSun,
+        effective_radius=3.0 | units.parsec,
+    )
+    p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
+
+    M = p.mass.sum()
+    R = p.position.lengths().mean()
+    converter = nbody_system.nbody_to_si(M, R)
+    dt = 0.01 | units.Myr
+    g = Pentacle(converter)
+    g.parameters.time_step = dt/1.
+    print(g.parameters.time_step.in_(units.Myr))
+    p_in_code = g.particles.add_particles(p)
+    time_end = 0.1 | units.Myr
+    time = 0 | units.Myr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    while time < time_end:
+        time += dt
+        # print("Step %03i - evolving to %s" % (step, time))
+        g.evolve_model(time)
+        print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+    g.stop()
+    g = Pentacle(converter)
+    g.parameters.time_step = dt/8.
+    print(g.parameters.time_step.in_(units.Myr))
+    p_in_code = g.particles.add_particles(p)
+    time_end = 0.1 | units.Myr
+    time = 0 | units.Myr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    while time < time_end:
+        time += dt
+        # print("Step %03i - evolving to %s" % (step, time))
+        g.evolve_model(time)
+        print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+    g.stop()
+
+def test13():
+    from amuse.ext.masc import new_star_cluster
+
+    numpy.random.seed(8)
+    p = new_star_cluster(
+        stellar_mass=1000 | units.MSun,
+        effective_radius=3.0 | units.parsec,
+    )
+    p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
+
+    M = p.mass.sum()
+    R = p.position.lengths().mean()
+    converter = nbody_system.nbody_to_si(M, R)
+    dt = 0.01 | units.Myr
+    g = Pentacle(converter, redirection="none")
+    g2 = Pentacle(converter, redirection="none")
+    g.parameters.time_step = dt/1.
+    g2.parameters.time_step = dt/8.
+    print(g.parameters.time_step.in_(units.Myr))
+    print(g2.parameters.time_step.in_(units.Myr))
+    p_in_code = g.particles.add_particles(p)
+    p2_in_code = g2.particles.add_particles(p)
+    time_end = 0.02 | units.Myr
+    time = 0 | units.Myr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    while time < time_end:
+        time += dt
+        # print("Step %03i - evolving to %s" % (step, time))
+        g.evolve_model(time)
+        print("g1 done 11111111111111111111111111111111111111")
+        g2.evolve_model(time)
+        print("g2 done 22222222222222222222222222222222222222")
+        # print("g dt:   ", g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+        # print("g dt/8: ", g2.model_time.in_(units.Myr), g2.particles[11].x.in_(units.parsec))
+        print(
+            (
+                g.particles.position
+                - g2.particles.position
+            ).lengths().mean().in_(units.parsec)
+        )
+    g.stop()
+    g2.stop()
+
+def test14():
+    numpy.random.seed(8)
+    from amuse.lab import new_solar_system
+    p = new_solar_system()
+    p.radius = 9 | units.AU  # radius = switchover radius PP/PT
+
+    M = p.mass.sum()
+    R = p.position.lengths().mean()
+    converter = nbody_system.nbody_to_si(M, R)
+    dt = 0.01 | units.yr
+    g = Pentacle(converter)
+    g.parameters.time_step = dt/1.
+    print(g.parameters.time_step.in_(units.Myr))
+    p_in_code = g.particles.add_particles(p)
+    time_end = 2 | units.yr
+    time = 0 | units.yr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    while time < time_end:
+        time += dt
+        # print("Step %03i - evolving to %s" % (step, time))
+        g.evolve_model(time)
+        sun = g.particles[0]
+        print(
+            "%s %s %s %s %s" % (
+                g.model_time,
+                (
+                    g.particles[1].position - sun.position
+                ).lengths().in_(units.au),
+                (
+                    g.particles[3].position - sun.position
+                ).lengths().in_(units.au),
+                (
+                    g.particles[5].position - sun.position
+                ).lengths().in_(units.au),
+                (
+                    g.particles[7].position - sun.position
+                ).lengths().in_(units.au),
+            )
+        )
+        # print("g dt:   ", g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+    g.stop()
+
+def test15():
+    # It seems there is an error with (very) small time_step values?
+    # In this example, dt/4 will update particles at every step while dt/8 will
+    # not update ~half of the particles each timestep...
+    # Apparently dt_soft should not be smaller than ~0.00037 ??
+    from amuse.ext.masc import new_star_cluster
+
+    numpy.random.seed(8)
+    p = new_star_cluster(
+        stellar_mass=4000 | units.MSun,
+        effective_radius=3.0 | units.parsec,
+    )
+    p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
+    M = p.mass.sum()
+    R = p.position.lengths().mean()
+    converter = nbody_system.nbody_to_si(M, R)
+    print(converter.to_nbody(0.1 | units.parsec))
+    # exit()
+    dt = 0.01 | units.Myr
+    g = Pentacle(converter) #, redirection="none")
+    # print(1/len(p))
+    # g.parameters.time_step = 0.00037 | nbody_system.time
+    g.parameters.time_step = 1./4096. | nbody_system.time
+    # p.radius = converter.to_si(
+    #     g.parameters.time_step * (2 | nbody_system.speed)
+    # )
+    # print(p[0].radius.in_(units.parsec))
+    # exit()
+    # g.parameters.time_step = dt/10.
+    print(converter.to_nbody(g.parameters.time_step))
+    print(g.parameters.time_step.in_(units.Myr))
+    # exit()
+    p_in_code = g.particles.add_particles(p)
+    time_end = 10*g.parameters.time_step  # 0.05 | units.Myr
+    time = 0 | units.Myr
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    initial_pos = g.particles.x
+    while time < time_end:
+        time += g.parameters.time_step
+        # print("Step %03i - evolving to %s" % (step, time))
+        previous_pos = g.particles.x
+        g.evolve_model(time)
+        current_pos = g.particles.x
+        print(
+            len(
+                p[
+                    # current_pos == initial_pos
+                    current_pos == previous_pos
+                ]
+            )
+        )
+        # print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+    g.stop()
+
+def test16():
+    # It seems there is an error with (very) small time_step values?
+    # In this example, dt/4 will update particles at every step while dt/8 will
+    # not update ~half of the particles each timestep...
+    # Apparently dt_soft should not be smaller than ~0.00037 ??
+    from amuse.ext.masc import new_star_cluster
+
+    numpy.random.seed(8)
+    p = new_plummer_model(1024*4)
+
+    dt = (1.0/4096) | nbody_system.time
+    g = Pentacle(number_of_workers=1)
+    # print(1/len(p))
+    # g.parameters.time_step = 0.00037 | nbody_system.time
+    g.parameters.time_step = dt
+    p.radius = g.parameters.time_step * (2 | nbody_system.speed)
+    p_in_code = g.particles.add_particles(p)
+    print("Added particles")
+    time_end = 50*g.parameters.time_step
+    time = 0 | nbody_system.time
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    initial_pos = g.particles.x
+    while time < time_end:
+        time += g.parameters.time_step
+        previous_pos = g.particles.x
+        g.evolve_model(time)
+        current_pos = g.particles.x
+        print(
+            len(
+                p[
+                    # current_pos == initial_pos
+                    current_pos == previous_pos
+                ]
+            )
+        )
+        # print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+    g.stop()
 
 # testDefaultParameters()
 # test3()
-test10()
+test15()

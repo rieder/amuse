@@ -92,12 +92,12 @@ int initialize_code(){
     
     PARAM_SET.eta_    = 0.1;
     PARAM_SET.eta_s_  = PARAM_SET.eta_ * 0.01;
-    PARAM_SET.dt_hard_limit_ = PARAM_SET.dt_soft_ / 8;
+    PARAM_SET.dt_hard_limit_ = PARAM_SET.dt_soft_ / 8.;
 
     system_soft.initialize();
     system_soft.setAverageTargetNumberOfSampleParticlePerProcess(n_smp_ave);
 
-    dinfo.initialize();    
+    dinfo.initialize();
     return 0;
 }
 
@@ -147,14 +147,17 @@ int set_theta_for_tree(double theta_for_tree){
 int get_radius(int id, double* radius){
     PS::S32 i = get_particle_id(id);
     //PS::S32 i = id;
-    *radius = system_soft[i].r_out;
+    //*radius = system_soft[i].r_out;
     return 0;
 }
 
 int set_radius(int id, double radius){
     PS::S32 i = get_particle_id(id);
     //PS::S32 i = id;
-    system_soft[i].r_out = radius;
+    //system_soft[i].r_out = radius;
+    //system_soft[i].r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
+    //const PS::F64 r_buf = 1.5 * radius;
+    //system_soft[i].r_search  = system_soft[i].r_out + r_buf;
     return 0;
 }
 
@@ -190,10 +193,19 @@ int evolve_model(double time){
     // std::cerr<<"eta = "<<PARAM_SET.eta_<<std::endl;
     // std::cerr<<"eta_s = "<<PARAM_SET.eta_s_<<std::endl;
     // std::cerr<<"dt_hard_limit = "<<PARAM_SET.dt_hard_limit_<<std::endl;
-    while(time_sys < PARAM_SET.time_end_){
+        
+    // Should fix this, but the 0.0001 here is to prevent precision errors from
+    // letting the code run for a full timestep longer than intended.
+    // This loses relevance if time_end is set to something that is not meant
+    // to be a factor of dt_soft.
+    // In case an exact end time is needed (settable flag?), probably should
+    // check if (time_end - dt_soft) < 0, and only integrate for the remaining
+    // time if this is the case.
+    while(time_sys < (PARAM_SET.time_end_ - PARAM_SET.dt_soft_*0.0001)){
         std::cerr<<"time_sys:"<<time_sys<<std::endl;
         time_sys += PARAM_SET.dt_soft_;
         std::cerr<<"time_sys ->"<<time_sys<<std::endl;
+        std::cerr<<"dt:"<<PARAM_SET.dt_soft_<<std::endl;
         PS::Comm::barrier();
         if(PS::Comm::getRank()==0) std::cerr<<"n_loop= "<<n_loop<<std::endl;
 
@@ -244,12 +256,12 @@ int evolve_model(double time){
                 eng_diff_max = eng_diff;
             }
         }
-        if(PS::Comm::getRank()==0){
-            std::cerr<<"eng_diff:"<<std::endl;
-            eng_diff.dump(std::cerr);
-            std::cerr<<"eng_diff_max:"<<std::endl;
-            eng_diff_max.dump(std::cerr);
-        }
+        //if(PS::Comm::getRank()==0){
+        //    std::cerr<<"eng_diff:"<<std::endl;
+        //    eng_diff.dump(std::cerr);
+        //    std::cerr<<"eng_diff_max:"<<std::endl;
+        //    eng_diff_max.dump(std::cerr);
+        //}
 
         PS::Comm::barrier();
         if(PS::Comm::getRank()==0) std::cerr<<"check 5"<<std::endl;
@@ -290,36 +302,50 @@ int get_velocity(int id, double* vx, double* vy, double* vz){
 }
 
 int new_particle(int* id, double mass, double x, double y, double z, double vx, double vy, double vz, double radius){
-    FpSoft particle;
-    PS::S64 pid = unique_particles;
-    unique_particles++;
-    
-    //system_soft.setNumberOfParticleLocal(n_loc);
-    //PS::S32 i = unique_particles;
+    // Adding a new particle must *only* happen on process 0
+    // Solved by other community codes in these ways:
+    // Hermite:  if(mpi_rank) {return 0;}
+    // Bonsai2:  calls getCurrentStateToHost
+    if(PS::Comm::getRank()==0){
+        //std::cerr<<"Adding particle"<<std::endl;
+        FpSoft particle;
+        PS::S64 pid = unique_particles;
+        unique_particles++;
+        
+        //system_soft.setNumberOfParticleLocal(n_loc);
+        //PS::S32 i = unique_particles;
 
-    particle.id = pid;
-    particle.mass = mass;
-    particle.pos.x = x;
-    particle.pos.y = y;
-    particle.pos.z = z;
-    particle.vel.x = vx;
-    particle.vel.y = vy;
-    particle.vel.z = vz;
-    particle.r_out = radius; // 2./256.;  // PARAM_SET.dt_soft_ * 2.0;  // cutoff radius for ptree-pp
-    particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
-    const PS::F64 r_buf = 1.5 * radius;
-    particle.r_search  = particle.r_out + r_buf;
-    //particle.r_out = particle.r_in = particle.r_search = 0.0;
+        particle.id = pid;
+        particle.mass = mass;
+        particle.pos.x = x;
+        particle.pos.y = y;
+        particle.pos.z = z;
+        particle.vel.x = vx;
+        particle.vel.y = vy;
+        particle.vel.z = vz;
+        particle.r_out = PARAM_SET.dt_soft_ * 2.0;  // cutoff radius for ptree-pp
+        particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
+        const PS::F64 r_buf = 1.5 * radius;
+        particle.r_search  = particle.r_out + r_buf;
+        //particle.r_out = radius;  // cutoff radius for ptree-pp
+        //particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
+        //const PS::F64 r_buf = 1.5 * radius;
+        //particle.r_search  = particle.r_out + r_buf;
 
-    particle_id[pid] = system_soft.getNumberOfParticleGlobal();
+        particle_id[pid] = system_soft.getNumberOfParticleGlobal();
 
-    system_soft.addOneParticle(particle);
-    *id = pid;
-    n_glb++;
-    n_loc++;
-    //std::cerr<<"n_glb="<<n_glb<<std::endl;
-    //std::cerr<<"n_loc="<<n_glb<<std::endl;
-    return 0;
+        system_soft.addOneParticle(particle);
+        *id = pid;
+        n_glb++;
+        n_loc++;
+        //std::cerr<<"n_glb="<<n_glb<<std::endl;
+        //std::cerr<<"n_loc="<<n_glb<<std::endl;
+        return 0;
+    }
+    //else{
+        //std::cerr<<"Not adding particle"<<std::endl;
+        //return 0;
+    //}
 }
     
 int set_position(int id, double x, double y, double z){
@@ -346,6 +372,14 @@ int get_potential(int id, double* potential){
 
 int set_time_step(double time_step){
     PARAM_SET.dt_soft_ = time_step; // timestep for tree code
+    // // Since r_out is based on the timestep, set it again when the timestep is changed.
+    // for(auto i=0; i<n_loc; i++){
+    //     system_soft[i].r_out = PARAM_SET.dt_soft_ * 2.0;
+    //     system_soft[i].r_in  = system_soft[i].r_out * 0.1;
+    //     const PS::F64 r_buf = 3.0*PARAM_SET.dt_soft_;
+    //     system_soft[i].r_search  = system_soft[i].r_out + r_buf;
+    //     //system_soft[i].r_out = system_soft[i].r_in = system_soft[i].r_search = 0.0;
+    // }
     return 0;
 }
 
@@ -517,7 +551,7 @@ int get_state(int id, double* mass, double* x, double* y, double* z, double* vx,
     *vx = system_soft[i].vel.x;
     *vy = system_soft[i].vel.y;
     *vz = system_soft[i].vel.z;
-    *radius = system_soft[i].r_out;
+    //*radius = system_soft[i].r_out;
     return 0;
 }
 
@@ -531,6 +565,10 @@ int set_state(int id, double mass, double x, double y, double z, double vx, doub
     system_soft[i].vel.x = vx;
     system_soft[i].vel.y = vy;
     system_soft[i].vel.z = vz;
-    system_soft[i].r_out = radius;
+    //system_soft[i].r_out = radius;
+    //system_soft[i].r_in  = system_soft[i].r_out * 0.1;
+    //const PS::F64 r_buf = 1.5 * radius;
+    //system_soft[i].r_search  = system_soft[i].r_out + r_buf;
+
     return 0;
 }
