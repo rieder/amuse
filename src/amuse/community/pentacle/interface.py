@@ -121,7 +121,7 @@ class Pentacle(GravitationalDynamics):
             "set_eps2",
             "epsilon_squared", 
             "smoothing parameter for gravity calculations", 
-            default_value = 0.0 | nbody_system.length * nbody_system.length,
+            default_value = 0.01 | nbody_system.length * nbody_system.length,
         )
 
     def define_methods(self, handler):
