@@ -69,20 +69,31 @@ Energy eng_diff_max;
 
 Tree tree_soft;
 
-// ---- AMUSE specific variables
+// ---- AMUSE specific variables and functions
 
 // will be set to 1 the first time we start evolve
 bool started_running;
+bool particles_on_master;
 // Counter for all particles. This number must never decrease!
 PS::S64 unique_particles = 0;
 
-// ---- end AMUSE specific variables
-
-int find_particle_rank(PS::S32 id) {
-    // Return rank if particle is local, or -1 if it is not found.
-
+int sync_particles_to_master(){
+    // synchronise all particles back to the master process
+    // this is not ideal, but since AMUSE has no parallel i/o currently it is
+    // the easiest and fastest option.
+    // There is no real danger of running out of memory (except in very special
+    // cases) because AMUSE requires the particles to be on the master process
+    // initially anyway...
+    //const auto n_loc = system_soft.getNumberOfParticleLocal();
+    //const auto n_glb = system_soft.getNumberOfParticleGlobal();
+    FpSoft * fp_gather = new FpSoft[n_glb];
+    PS::S32 n_recv_tot = 0;
+    PS::Comm::gatherVAll(&system_soft[0], n_loc, fp_gather, n_recv_tot);
+    particles_on_master = true;
     return 0;
 }
+
+// ---- end AMUSE specific variables
 
 int initialize_code(){
     started_running = 0;
@@ -151,13 +162,21 @@ int set_theta_for_tree(double theta_for_tree){
 }
 
 int get_radius(int id, double* radius){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     *radius = system_soft[i].r_out;
     return 0;
 }
 
 int set_radius(int id, double radius){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     system_soft[i].r_out = radius;
     system_soft[i].r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
     const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
@@ -221,6 +240,7 @@ int evolve_model(double time){
         if(PS::Comm::getRank()==0) std::cerr<<"check 0"<<std::endl;
         
         system_soft.exchangeParticle(dinfo);
+        particles_on_master = false;
         n_loc = system_soft.getNumberOfParticleLocal();
         SetRankToFpOmp(&system_soft[0], n_loc);    
 
@@ -288,16 +308,28 @@ int evolve_model(double time){
 }
 
 int get_position(int id, double* x, double* y, double* z){
+    std::cerr<<"get_position"<<std::endl;
+    if (particles_on_master == false) {
+        std::cerr<<"sync_particles_to_master"<<std::endl;
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     //PS::S32 i = id;
-    *x = system_soft[i].pos.x;
-    *y = system_soft[i].pos.y;
-    *z = system_soft[i].pos.z;
-    return 0;
+    if(PS::Comm::getRank()==0) {
+        *x = system_soft[i].pos.x;
+        *y = system_soft[i].pos.y;
+        *z = system_soft[i].pos.z;
+        return 0;
+    }
 }
 
 int get_velocity(int id, double* vx, double* vy, double* vz){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     //PS::S32 i = id;
     *vx = system_soft[i].vel.x;
     *vy = system_soft[i].vel.y;
@@ -315,6 +347,8 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
         FpSoft particle;
         PS::S64 pid = unique_particles;
         unique_particles++;
+        n_glb++;
+        n_loc++;
         
         //system_soft.setNumberOfParticleLocal(n_loc);
         //PS::S32 i = unique_particles;
@@ -337,12 +371,11 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
 
         system_soft.addOneParticle(particle);
         *id = pid;
-        n_glb++;
-        n_loc++;
         //std::cerr<<"n_glb="<<n_glb<<std::endl;
         //std::cerr<<"n_loc="<<n_glb<<std::endl;
         return 0;
     }
+    return -1;
     //else{
         //std::cerr<<"Not adding particle"<<std::endl;
         //return 0;
@@ -350,7 +383,11 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
 }
     
 int set_position(int id, double x, double y, double z){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     //PS::S32 i = id;
     system_soft[i].pos.x = x;
     system_soft[i].pos.y = y;
@@ -359,7 +396,11 @@ int set_position(int id, double x, double y, double z){
 }
 
 int set_velocity(int id, double vx, double vy, double vz){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     //PS::S32 i = id;
     system_soft[i].vel.x = vx;
     system_soft[i].vel.y = vy;
@@ -410,7 +451,11 @@ int set_begin_time(double begin_time){
 }
 
 int delete_particle(int id){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     FpSoft p = system_soft[i];
     PS::S32 n_remove = 1;
     PS::S32 *idx[n_remove] = { new PS::S32[n_remove] };
@@ -423,6 +468,7 @@ int delete_particle(int id){
 int commit_particles(){
     dinfo.decomposeDomainAll(system_soft);
     system_soft.exchangeParticle(dinfo);
+    particles_on_master = false;
     n_loc = system_soft.getNumberOfParticleLocal();
     SetRankToFpOmp(&system_soft[0], n_loc);
 
@@ -531,21 +577,31 @@ int get_index_of_first_particle(int* id){
 }
 
 int get_mass(int id, double* mass){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     *mass = system_soft[i].mass;
     return 0;
 }
 
 int set_mass(int id, double mass){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
-
+    if (i == -1) return -1;
     system_soft[i].mass = mass;    
     return 0;
 }
 
 int get_state(int id, double* mass, double* x, double* y, double* z, double* vx, double* vy, double* vz, double* radius){
-    PS::S32 i = get_particle_id(id);
-
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
+    PS::S32 i = get_particle_id(id); // This must be a local map
+    if (i == -1) return -1;
     *mass = system_soft[i].mass;
     *x = system_soft[i].pos.x;
     *y = system_soft[i].pos.y;
@@ -558,7 +614,11 @@ int get_state(int id, double* mass, double* x, double* y, double* z, double* vx,
 }
 
 int set_state(int id, double mass, double x, double y, double z, double vx, double vy, double vz, double radius){
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     PS::S32 i = get_particle_id(id);
+    if (i == -1) return -1;
     
     system_soft[i].mass = mass;
     system_soft[i].pos.x = x;
@@ -571,6 +631,5 @@ int set_state(int id, double mass, double x, double y, double z, double vx, doub
     system_soft[i].r_in  = system_soft[i].r_out * 0.1;
     const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
     system_soft[i].r_search  = system_soft[i].r_out + r_buf;
-
     return 0;
 }

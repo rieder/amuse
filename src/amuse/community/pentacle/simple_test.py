@@ -406,7 +406,7 @@ def test15():
 
     numpy.random.seed(8)
     p = new_star_cluster(
-        stellar_mass=4000 | units.MSun,
+        stellar_mass=1000 | units.MSun,
         effective_radius=3.0 | units.parsec,
     )
     p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
@@ -416,7 +416,7 @@ def test15():
     print(converter.to_nbody(0.1 | units.parsec))
     # exit()
     dt = 0.01 | units.Myr
-    g = Pentacle(converter) #, redirection="none")
+    g = Pentacle(converter, number_of_workers=2, redirection="none")
     # print(1/len(p))
     # g.parameters.time_step = 0.00037 | nbody_system.time
     g.parameters.time_step = 1./4096. | nbody_system.time
