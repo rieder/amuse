@@ -22,7 +22,7 @@ CODE_GENERATOR = $(AMUSE_DIR)/build.py
 SETUP = cluster
 SYSTEM = gfortran
 
-DOWNLOAD_FROM_WEB = $(PYTHON) ./download_http.py
+DOWNLOAD_FROM_WEB = $(PYTHON) ./download.py
 
 OBJECTS = \
           ${CODEDIR}/build/boundary.o \
