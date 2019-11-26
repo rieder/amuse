@@ -27,19 +27,11 @@ from amuse.io import store_v1
 
 import warnings
 
-if sys.hexversion > 0x03000000:
-    def pickle_to_string(value):
-        return numpy.void(pickle.dumps(value, protocol=0))
+def pickle_to_string(value):
+    return numpy.void(pickle.dumps(value, protocol=0))
         
-        
-    def unpickle_from_string(value):
-        return pickle.loads(value, encoding='bytes')
-else:
-    def pickle_to_string(value):
-        return pickle.dumps(value)
-        
-    def unpickle_from_string(value):
-        return pickle.loads(value)
+def unpickle_from_string(value):
+    return pickle.loads(value, encoding='bytes')
     
 class HDF5Attribute(object):
     
@@ -69,7 +61,8 @@ class HDF5Attribute(object):
         if is_quantity(input):
             if not hasattr(shape, '__iter__'): 
                 shape = shape,
-            dataset = group.create_dataset(name, shape=shape, dtype=input.number.dtype)
+            dtype = numpy.asanyarray(input.number).dtype
+            dataset = group.create_dataset(name, shape=shape, dtype=dtype)
             dataset.attrs["units"] = input.unit.to_simple_form().reference_string().encode('ascii')
             return HDF5VectorQuantityAttribute(name, dataset, input.unit)                                     
         elif hasattr(input, 'as_set'):
@@ -121,7 +114,7 @@ class HDF5Attribute(object):
                     updated = units_string.replace('vystem.','system.')
                     unit = eval(updated, core.__dict__)
                 else:
-                    print units_string
+                    print(units_string)
                     raise
 
             return HDF5VectorQuantityAttribute(name, dataset, unit) 
@@ -290,6 +283,8 @@ class HDF5LinkedAttribute(HDF5Attribute):
         self.loader = loader
 
     def get_values(self, indices):
+        if indices is None: 
+            indices=slice(None)
         kinds = self.kind_dataset[:][indices]
         references = self.ref_dataset[:][indices]
         keys = self.keys_dataset[:][indices]
@@ -470,7 +465,7 @@ class HDF5AttributeStorage(AttributeStorage):
         return result
         
     def get_defined_attribute_names(self):
-        return self.attributesgroup.keys()
+        return list(self.attributesgroup.keys())
         
     def get_defined_settable_attribute_names(self):
         return self.get_defined_attribute_names()
@@ -544,7 +539,7 @@ class HDF5GridAttributeStorage(AttributeStorage):
         return eval(decoded, core.__dict__) 
         
     def get_defined_attribute_names(self):
-        return self.attributesgroup.keys()
+        return list(self.attributesgroup.keys())
         
     def get_values_in_store(self, indices, attributes):
             
@@ -700,8 +695,8 @@ class StoreHDF(object):
             
         if hasattr(container, 'keys') and not hasattr(container, 'as_set'):
             self.store_sets(
-                container.values(),
-                container.keys(),
+                list(container.values()),
+                list(container.keys()),
                 extra_attributes
             )
         if hasattr(container, 'shape'):
@@ -892,7 +887,7 @@ class StoreHDF(object):
         arguments_and_attributes.update(collection_attributes)
         arguments_and_attributes.update(extra_attributes)
         ref_dtype = h5py.special_dtype(ref=h5py.Reference)
-        for name, quantity in arguments_and_attributes.iteritems():
+        for name, quantity in arguments_and_attributes.items():
             if quantity is None:
                 continue 
             if is_quantity(quantity):
@@ -1038,7 +1033,6 @@ class StoreHDF(object):
         
     def load_container(self, container_group):
         number_of_saved_containers= len(container_group)
-        #~ print number_of_saved_containers, container_group
         all_containers = [None] * number_of_saved_containers
         for group_index in container_group.keys():
             group = container_group[group_index]
