@@ -84,8 +84,8 @@ int sync_particles_to_master(){
     // There is no real danger of running out of memory (except in very special
     // cases) because AMUSE requires the particles to be on the master process
     // initially anyway...
-    //const auto n_loc = system_soft.getNumberOfParticleLocal();
-    //const auto n_glb = system_soft.getNumberOfParticleGlobal();
+    const auto n_loc = system_soft.getNumberOfParticleLocal();
+    const auto n_glb = system_soft.getNumberOfParticleGlobal();
     FpSoft * fp_gather = new FpSoft[n_glb];
     PS::S32 n_recv_tot = 0;
     PS::Comm::gatherVAll(&system_soft[0], n_loc, fp_gather, n_recv_tot);
@@ -102,7 +102,7 @@ int initialize_code(){
     //PARAM_SET.time_end_ = 10.0;
     PARAM_SET.time_end_ = 0.125;
     PARAM_SET.eps_    = 0.1;
-    PARAM_SET.eps_sq_ = PARAM_SET.eps_ * PARAM_SET.eps_;
+    PARAM_SET.eps_sq_ = 0.01; //PARAM_SET.eps_ * PARAM_SET.eps_;
 
     PARAM_SET.theta_    = theta;
     PARAM_SET.dt_soft_  = 1.0 / 256.0;
@@ -166,7 +166,7 @@ int get_radius(int id, double* radius){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     *radius = system_soft[i].r_out;
     return 0;
 }
@@ -176,12 +176,14 @@ int set_radius(int id, double radius){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
-    system_soft[i].r_out = radius;
-    system_soft[i].r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
-    const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
-    system_soft[i].r_search  = system_soft[i].r_out + r_buf;
-    return 0;
+    if (i == -1) return -3;
+    if(PS::Comm::getRank()==0) {
+        system_soft[i].r_out = radius;
+        system_soft[i].r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
+        const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
+        system_soft[i].r_search  = system_soft[i].r_out + r_buf;
+        return 0;
+    }
 }
 
 int cleanup_code(){
@@ -189,6 +191,22 @@ int cleanup_code(){
 }
 
 int evolve_model(double time){
+    if (started_running != 1) {
+        // Only once
+        //KickOmp(system_soft, PARAM_SET.dt_soft_*0.5);
+
+        PS::Comm::barrier();
+        if(PS::Comm::getRank()==0)
+            std::cerr<<"start connect cluster and integrate"<<std::endl;
+        
+        // Only once
+        //system_cluster.connectClusterAndIntegrate(system_soft, tree_soft, DriveOneCluster<FpSoft>, DriveMulCluster<FpSoft>, false);
+
+        PS::Comm::barrier();
+        if(PS::Comm::getRank()==0)
+            std::cerr<<"finish connect cluster and integrate"<<std::endl;
+    }
+    
     started_running = 1;
     Energy eng_init(system_soft);
     std::cerr<<"eng_init:"<<std::endl;
@@ -198,24 +216,26 @@ int evolve_model(double time){
     PARAM_SET.time_end_ = time;
     PS::S64 n_loop = 0;
 
-    std::cerr<<"GLOBALS:"<<std::endl;
-    std::cerr<<"n_glb = "<<n_glb<<std::endl;
-    std::cerr<<"n_loc = "<<n_loc<<std::endl;
-    std::cerr<<"time_sys = "<<time_sys<<std::endl;
-    std::cerr<<"n_grp_limit = "<<n_grp_limit<<std::endl;
-    std::cerr<<"n_leaf_limit = "<<n_leaf_limit<<std::endl;
-    std::cerr<<"n_smp_ave = "<<n_smp_ave<<std::endl;
-    std::cerr<<"theta = "<<theta<<std::endl;
-    std::cerr<<std::endl;
-    std::cerr<<"PARAMETERS:"<<std::endl;
-    std::cerr<<"time_end = "<<PARAM_SET.time_end_<<std::endl;
-    std::cerr<<"eps = "<<PARAM_SET.eps_<<std::endl;
-    std::cerr<<"eps_sq = "<<PARAM_SET.eps_sq_<<std::endl;
-    std::cerr<<"theta = "<<PARAM_SET.theta_<<std::endl;
-    std::cerr<<"dt_soft = "<<PARAM_SET.dt_soft_<<std::endl;
-    std::cerr<<"eta = "<<PARAM_SET.eta_<<std::endl;
-    std::cerr<<"eta_s = "<<PARAM_SET.eta_s_<<std::endl;
-    std::cerr<<"dt_hard_limit = "<<PARAM_SET.dt_hard_limit_<<std::endl;
+    /*
+     * std::cerr<<"GLOBALS:"<<std::endl;
+     * std::cerr<<"n_glb = "<<n_glb<<std::endl;
+     * std::cerr<<"n_loc = "<<n_loc<<std::endl;
+     * std::cerr<<"time_sys = "<<time_sys<<std::endl;
+     * std::cerr<<"n_grp_limit = "<<n_grp_limit<<std::endl;
+     * std::cerr<<"n_leaf_limit = "<<n_leaf_limit<<std::endl;
+     * std::cerr<<"n_smp_ave = "<<n_smp_ave<<std::endl;
+     * std::cerr<<"theta = "<<theta<<std::endl;
+     * std::cerr<<std::endl;
+     * std::cerr<<"PARAMETERS:"<<std::endl;
+     * std::cerr<<"time_end = "<<PARAM_SET.time_end_<<std::endl;
+     * std::cerr<<"eps = "<<PARAM_SET.eps_<<std::endl;
+     * std::cerr<<"eps_sq = "<<PARAM_SET.eps_sq_<<std::endl;
+     * std::cerr<<"theta = "<<PARAM_SET.theta_<<std::endl;
+     * std::cerr<<"dt_soft = "<<PARAM_SET.dt_soft_<<std::endl;
+     * std::cerr<<"eta = "<<PARAM_SET.eta_<<std::endl;
+     * std::cerr<<"eta_s = "<<PARAM_SET.eta_s_<<std::endl;
+     * std::cerr<<"dt_hard_limit = "<<PARAM_SET.dt_hard_limit_<<std::endl;
+     */
         
     // Should fix this, but the 0.0001 here is to prevent precision errors from
     // letting the code run for a full timestep longer than intended.
@@ -303,18 +323,19 @@ int evolve_model(double time){
         n_loop++;
         //if(n_loop == 50) break;
     }
-
+    if (particles_on_master == false) {
+        sync_particles_to_master();
+    }
     return 0;
 }
 
 int get_position(int id, double* x, double* y, double* z){
-    std::cerr<<"get_position"<<std::endl;
     if (particles_on_master == false) {
         std::cerr<<"sync_particles_to_master"<<std::endl;
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     //PS::S32 i = id;
     if(PS::Comm::getRank()==0) {
         *x = system_soft[i].pos.x;
@@ -329,12 +350,14 @@ int get_velocity(int id, double* vx, double* vy, double* vz){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     //PS::S32 i = id;
-    *vx = system_soft[i].vel.x;
-    *vy = system_soft[i].vel.y;
-    *vz = system_soft[i].vel.z;
-    return 0;
+    if(PS::Comm::getRank()==0) {
+        *vx = system_soft[i].vel.x;
+        *vy = system_soft[i].vel.y;
+        *vz = system_soft[i].vel.z;
+        return 0;
+    }
 }
 
 int new_particle(int* id, double mass, double x, double y, double z, double vx, double vy, double vz, double radius){
@@ -342,44 +365,53 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
     // Solved by other community codes in these ways:
     // Hermite:  if(mpi_rank) {return 0;}
     // Bonsai2:  calls getCurrentStateToHost
-    if(PS::Comm::getRank()==0){
-        //std::cerr<<"Adding particle"<<std::endl;
-        FpSoft particle;
-        PS::S64 pid = unique_particles;
-        unique_particles++;
-        n_glb++;
-        n_loc++;
-        
-        //system_soft.setNumberOfParticleLocal(n_loc);
-        //PS::S32 i = unique_particles;
-
-        particle.id = pid;
-        particle.mass = mass;
-        particle.pos.x = x;
-        particle.pos.y = y;
-        particle.pos.z = z;
-        particle.vel.x = vx;
-        particle.vel.y = vy;
-        particle.vel.z = vz;
-        //particle.r_out = PARAM_SET.dt_soft_ * 2.0;  // cutoff radius for ptree-pp
-        particle.r_out = radius;  // cutoff radius for ptree-pp
-        particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
-        const PS::F64 r_buf = 1.5 * particle.r_out;
-        particle.r_search  = particle.r_out + r_buf;
-
-        particle_id[pid] = system_soft.getNumberOfParticleGlobal();
-
-        system_soft.addOneParticle(particle);
-        *id = pid;
-        //std::cerr<<"n_glb="<<n_glb<<std::endl;
-        //std::cerr<<"n_loc="<<n_glb<<std::endl;
+    if(PS::Comm::getRank()){
         return 0;
     }
-    return -1;
+    //if (particles_on_master == false) {
+    //    sync_particles_to_master();
+    //}
+    std::cerr<<"new particle on rank "<<PS::Comm::getRank()<<std::endl<<std::flush;
+    //std::cerr<<"Adding particle"<<std::endl;
+    FpSoft particle;
+    unique_particles++;
+    PS::S64 pid = unique_particles;
+    std::cerr<<"check 0"<<std::endl<<std::flush;
+    //system_soft.setNumberOfParticleLocal(n_loc);
+    //PS::S32 i = unique_particles;
+
+    particle.id = pid;
+    particle.mass = mass;
+    particle.pos.x = x;
+    particle.pos.y = y;
+    particle.pos.z = z;
+    particle.vel.x = vx;
+    particle.vel.y = vy;
+    particle.vel.z = vz;
+    //particle.r_out = PARAM_SET.dt_soft_ * 2.0;  // cutoff radius for ptree-pp
+    particle.r_out = radius;  // cutoff radius for ptree-pp
+    particle.r_in  = particle.r_out * 0.1; // inner cutoff radius for ptree-pp
+    const PS::F64 r_buf = 1.5 * particle.r_out;
+    particle.r_search  = particle.r_out + r_buf;
+
+    std::cerr<<"check 0.5"<<std::endl<<std::flush;
+    particle_id[pid] = n_glb; //system_soft.getNumberOfParticleGlobal();
+    std::cerr<<"check 1"<<std::endl<<std::flush;
+
+    system_soft.addOneParticle(particle);
+    n_glb++;
+    n_loc++;
+    std::cerr<<"check 2"<<std::endl<<std::flush;
+    *id = pid;
+    //std::cerr<<"n_glb="<<n_glb<<std::endl;
+    //std::cerr<<"n_loc="<<n_glb<<std::endl;
+    //return -1;
     //else{
         //std::cerr<<"Not adding particle"<<std::endl;
         //return 0;
     //}
+    std::cerr<<"check 3"<<std::endl<<std::flush;
+    return 0;
 }
     
 int set_position(int id, double x, double y, double z){
@@ -387,7 +419,7 @@ int set_position(int id, double x, double y, double z){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     //PS::S32 i = id;
     system_soft[i].pos.x = x;
     system_soft[i].pos.y = y;
@@ -400,7 +432,7 @@ int set_velocity(int id, double vx, double vy, double vz){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     //PS::S32 i = id;
     system_soft[i].vel.x = vx;
     system_soft[i].vel.y = vy;
@@ -455,7 +487,7 @@ int delete_particle(int id){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     FpSoft p = system_soft[i];
     PS::S32 n_remove = 1;
     PS::S32 *idx[n_remove] = { new PS::S32[n_remove] };
@@ -466,6 +498,10 @@ int delete_particle(int id){
 }
 
 int commit_particles(){
+    //if (particles_on_master == false) {
+    //    sync_particles_to_master();
+    //}
+
     dinfo.decomposeDomainAll(system_soft);
     system_soft.exchangeParticle(dinfo);
     particles_on_master = false;
@@ -495,20 +531,22 @@ int commit_particles(){
     }
     
     // Only once
-    KickOmp(system_soft, PARAM_SET.dt_soft_*0.5);
+    //KickOmp(system_soft, PARAM_SET.dt_soft_*0.5);
 
-    PS::Comm::barrier();
-    if(PS::Comm::getRank()==0)
-        std::cerr<<"start connect cluster and integrate"<<std::endl;
+    //PS::Comm::barrier();
+    //if(PS::Comm::getRank()==0)
+    //    std::cerr<<"start connect cluster and integrate"<<std::endl;
     
     // Only once
-    system_cluster.connectClusterAndIntegrate(system_soft, tree_soft, DriveOneCluster<FpSoft>, DriveMulCluster<FpSoft>, false);
+    //system_cluster.connectClusterAndIntegrate(system_soft, tree_soft, DriveOneCluster<FpSoft>, DriveMulCluster<FpSoft>, false);
 
-    PS::Comm::barrier();
-    if(PS::Comm::getRank()==0)
-        std::cerr<<"finish connect cluster and integrate"<<std::endl;
-
-    return 0;
+    //PS::Comm::barrier();
+    //if(PS::Comm::getRank()==0)
+    //    std::cerr<<"finish connect cluster and integrate"<<std::endl;
+    
+    //if(PS::Comm::getRank()==0) {
+        return 0;
+    //}
 }
 
 int get_acceleration(int id, double* ax, double* ay, double* az){
@@ -581,7 +619,7 @@ int get_mass(int id, double* mass){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     *mass = system_soft[i].mass;
     return 0;
 }
@@ -591,7 +629,7 @@ int set_mass(int id, double mass){
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     system_soft[i].mass = mass;    
     return 0;
 }
@@ -601,7 +639,7 @@ int get_state(int id, double* mass, double* x, double* y, double* z, double* vx,
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id); // This must be a local map
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     *mass = system_soft[i].mass;
     *x = system_soft[i].pos.x;
     *y = system_soft[i].pos.y;
@@ -618,7 +656,7 @@ int set_state(int id, double mass, double x, double y, double z, double vx, doub
         sync_particles_to_master();
     }
     PS::S32 i = get_particle_id(id);
-    if (i == -1) return -1;
+    if (i == -1) return -3;
     
     system_soft[i].mass = mass;
     system_soft[i].pos.x = x;
