@@ -1,7 +1,8 @@
 import sys
 import numpy
-from amuse.datamodel import Particle
-from amuse.units import nbody_system, units
+import math
+from amuse.datamodel import Particle, Particles
+from amuse.units import nbody_system, units, constants
 from amuse.ic.plummer import new_plummer_model
 from amuse.io import read_set_from_file
 from interface import Pentacle
@@ -406,38 +407,40 @@ def test15():
 
     numpy.random.seed(8)
     p = new_star_cluster(
-        stellar_mass=4000 | units.MSun,
-        effective_radius=3.0 | units.parsec,
+        stellar_mass=1000 | units.MSun,
+        effective_radius=5.0 | units.parsec,
     )
     p.radius = 0.1 | units.parsec  # radius = switchover radius PP/PT
+    p = new_plummer_model(65536)
+    p.radius = (2/256) | nbody_system.length
     M = p.mass.sum()
     R = p.position.lengths().mean()
-    converter = nbody_system.nbody_to_si(M, R)
-    print(converter.to_nbody(0.1 | units.parsec))
+    # converter = nbody_system.nbody_to_si(M, R)
+    # print(converter.to_nbody(0.1 | units.parsec))
     # exit()
-    dt = 0.01 | units.Myr
-    g = Pentacle(converter) #, redirection="none")
+    dt = 0.0625 | nbody_system.time  # | units.Myr
+    g = Pentacle(number_of_workers=1, redirection="none")
     # print(1/len(p))
     # g.parameters.time_step = 0.00037 | nbody_system.time
-    g.parameters.time_step = 1./4096. | nbody_system.time
+    g.parameters.time_step = 1./256. | nbody_system.time
     # p.radius = converter.to_si(
     #     g.parameters.time_step * (2 | nbody_system.speed)
     # )
     # print(p[0].radius.in_(units.parsec))
     # exit()
     # g.parameters.time_step = dt/10.
-    print(converter.to_nbody(g.parameters.time_step))
-    print(g.parameters.time_step.in_(units.Myr))
+    # print(converter.to_nbody(g.parameters.time_step))
+    # print(g.parameters.time_step.in_(units.Myr))
     # exit()
     p_in_code = g.particles.add_particles(p)
-    time_end = 10*g.parameters.time_step  # 0.05 | units.Myr
-    time = 0 | units.Myr
+    time_end = 16*g.parameters.time_step  # 0.05 | units.Myr
+    time = 0 | nbody_system.time
     channel = p_in_code.new_channel_to(p)
     step = 0
     initial_pos = g.particles.x
     while time < time_end:
         time += g.parameters.time_step
-        # print("Step %03i - evolving to %s" % (step, time))
+        print("Step %03i - evolving to %s" % (step, time))
         previous_pos = g.particles.x
         g.evolve_model(time)
         current_pos = g.particles.x
@@ -450,6 +453,7 @@ def test15():
             )
         )
         # print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+        step += 1
     g.stop()
 
 def test16():
@@ -460,10 +464,10 @@ def test16():
     from amuse.ext.masc import new_star_cluster
 
     numpy.random.seed(8)
-    p = new_plummer_model(1024*4)
+    p = new_plummer_model(2)
 
     dt = (1.0/4096) | nbody_system.time
-    g = Pentacle(number_of_workers=1)
+    g = Pentacle(number_of_workers=1, redirection="none")
     # print(1/len(p))
     # g.parameters.time_step = 0.00037 | nbody_system.time
     g.parameters.time_step = dt
@@ -491,6 +495,43 @@ def test16():
         # print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
     g.stop()
 
+def test17():
+    particles = Particles(2)
+    particles.mass = 1.0 | units.MSun
+    particles.radius = 10.0 | units.AU
+    particles.position = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]] | units.AU
+    particles.velocity = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]] | units.km / units.s
+    particles[1].vy = (constants.G * (2.0 | units.MSun) / (2.0 | units.AU)).sqrt()
+    particles.move_to_center()
+    
+    converter = nbody_system.nbody_to_si(1.0 | units.MSun, 1.0 | units.AU)
+    instance = Pentacle(converter, redirection="none")
+    instance.parameters.time_step = 8 * 0.0125 * math.pi * particles[0].x / particles[0].vy
+    instance.commit_parameters()
+    instance.particles.add_particles(particles)
+    instance.commit_particles()
+    primary = instance.particles[0]
+    
+    P = 2 * math.pi * primary.x / primary.vy
+    # print(P / instance.parameters.time_step)
+    
+    position_at_start = primary.position.x
+    dt = instance.parameters.time_step
+    time = 0 * dt
+    while time < (dt):
+        time += instance.parameters.time_step
+        instance.evolve_model(time)
+        print(time/P)
+    # instance.evolve_model(P / 4.0)
+    # print("at P/4")
+    
+    # instance.evolve_model(P / 2.0)
+    
+    # instance.evolve_model(P)
+    
+    instance.stop()
+
+
 # testDefaultParameters()
 # test3()
-test15()
+test17()
