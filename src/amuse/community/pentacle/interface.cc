@@ -432,7 +432,7 @@ int commit_particles(){
     if(PS::Comm::getRank()==0)
         std::cerr<<"start tree"<<std::endl;
     tree_soft.initialize(n_glb, theta, n_leaf_limit, n_grp_limit);
-    tree_soft.calcForceAllAndWriteBack(CalcForceEpEpWithLinearCutoffNoSimd(), CalcForceEpSpQuadNoSimd(), system_soft, dinfo);
+    tree_soft.calcForceAllAndWriteBack(CalcForceEpEpWithLinearCutoffNoSimd(), CalcForceEpSpQuadNoSimd(), system_soft, dinfo); // FDPS builds tree, exchanges information, calculates force and writes the force back to the system
 
     PS::Comm::barrier();
     if(PS::Comm::getRank()==0)
