@@ -11,6 +11,8 @@ from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.community.interface.gd import (
     GravitationalDynamicsInterface,
     GravitationalDynamics,
+    GravityFieldInterface,
+    GravityFieldCode,
 )
 from amuse.units import nbody_system
 
@@ -19,6 +21,7 @@ class PentacleInterface(
         CodeInterface,
         LiteratureReferencesMixIn,
         GravitationalDynamicsInterface,
+        GravityFieldInterface,
 ):
     """
     Pentacle hybrid particle-particle particle-tree code based on FDPS
@@ -86,7 +89,10 @@ class PentacleInterface(
         function.result_type = 'int32'
         return function
 
-class Pentacle(GravitationalDynamics):
+class Pentacle(
+        GravitationalDynamics,
+        GravityFieldCode,
+):
     """
     Low-level Pentacle interface
     """

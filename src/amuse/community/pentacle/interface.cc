@@ -182,8 +182,8 @@ int set_radius(int id, double radius){
         system_soft[i].r_in  = system_soft[i].r_out * 0.1; // inner cutoff radius for ptree-pp
         const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
         system_soft[i].r_search  = system_soft[i].r_out + r_buf;
-        return 0;
     }
+    return 0;
 }
 
 int cleanup_code(){
@@ -341,8 +341,8 @@ int get_position(int id, double* x, double* y, double* z){
         *x = system_soft[i].pos.x;
         *y = system_soft[i].pos.y;
         *z = system_soft[i].pos.z;
-        return 0;
     }
+    return 0;
 }
 
 int get_velocity(int id, double* vx, double* vy, double* vz){
@@ -356,8 +356,8 @@ int get_velocity(int id, double* vx, double* vy, double* vz){
         *vx = system_soft[i].vel.x;
         *vy = system_soft[i].vel.y;
         *vz = system_soft[i].vel.z;
-        return 0;
     }
+    return 0;
 }
 
 int new_particle(int* id, double mass, double x, double y, double z, double vx, double vy, double vz, double radius){
@@ -669,5 +669,59 @@ int set_state(int id, double mass, double x, double y, double z, double vx, doub
     system_soft[i].r_in  = system_soft[i].r_out * 0.1;
     const PS::F64 r_buf = 1.5 * system_soft[i].r_out;
     system_soft[i].r_search  = system_soft[i].r_out + r_buf;
+    return 0;
+}
+
+int get_gravity_at_point(double* eps, double* x, double* y, double*z,
+        double* forcex, double* forcey, double* forcez, int n)
+{
+    SystemSoft system_tmp;
+    FpSoft ptmp;
+    Tree tree_tmp;
+    tree_tmp.initialize(n + n_glb, theta, n_leaf_limit, n_grp_limit);
+
+    for (int i=0; i<n; i++) {
+        ptmp.pos.x = x[i];
+        ptmp.pos.y = y[i];
+        ptmp.pos.z = z[i];
+        system_tmp.addOneParticle(ptmp);
+    };
+    tree_tmp.setParticleLocalTree(system_soft);
+    tree_tmp.setParticleLocalTree(system_tmp, false);
+    tree_tmp.calcForceMakingTree(
+            CalcForceNewtonNoSimd(),
+            dinfo);
+    for (int i=0; i<n; i++) {
+        system_tmp[i].copyFromForce(tree_tmp.getForce(i+n_glb));
+        forcex[i] = system_tmp[i].acc_soft.x;
+        forcey[i] = system_tmp[i].acc_soft.y;
+        forcez[i] = system_tmp[i].acc_soft.z;
+    };
+    return 0;
+}
+
+int get_potential_at_point(double* eps, double* x, double* y, double*z,
+        double* phi, int n)
+{
+    SystemSoft system_tmp;
+    FpSoft ptmp;
+    Tree tree_tmp;
+    tree_tmp.initialize(n + n_glb, theta, n_leaf_limit, n_grp_limit);
+
+    for (int i=0; i<n; i++) {
+        ptmp.pos.x = x[i];
+        ptmp.pos.y = y[i];
+        ptmp.pos.z = z[i];
+        system_tmp.addOneParticle(ptmp);
+    };
+    tree_tmp.setParticleLocalTree(system_soft);
+    tree_tmp.setParticleLocalTree(system_tmp, false);
+    tree_tmp.calcForceMakingTree(
+            CalcForceNewtonNoSimd(),
+            dinfo);
+    for (int i=0; i<n; i++) {
+        system_tmp[i].copyFromForce(tree_tmp.getForce(i+n_glb));
+        phi[i] = system_tmp[i].pot_tot;
+    };
     return 0;
 }

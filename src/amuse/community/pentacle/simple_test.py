@@ -531,7 +531,58 @@ def test17():
     
     instance.stop()
 
+def test18():
+    # It seems there is an error with (very) small time_step values?
+    # In this example, dt/4 will update particles at every step while dt/8 will
+    # not update ~half of the particles each timestep...
+    # Apparently dt_soft should not be smaller than ~0.00037 ??
+    from amuse.ext.masc import new_star_cluster
 
+    numpy.random.seed(8)
+    p = new_plummer_model(1024)
+
+    dt = (1.0/4096) | nbody_system.time
+    # from amuse.community.ph4.interface import ph4
+    g = Pentacle(number_of_workers=1) #, redirection="none")
+    # print(1/len(p))
+    # g.parameters.time_step = 0.00037 | nbody_system.time
+    # g.parameters.time_step = dt
+    # p.radius = g.parameters.time_step * (2 | nbody_system.speed)
+    p_in_code = g.particles.add_particles(p)
+    print("Added particles")
+    time_end = 2*dt
+    time = 0 | nbody_system.time
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    initial_pos = g.particles.x
+    while time < time_end:
+        time += dt
+        previous_pos = g.particles.x
+        g.evolve_model(time)
+        current_pos = g.particles.x
+        print(g.model_time)
+        print(
+            len(
+                p[
+                    # current_pos == initial_pos
+                    current_pos == previous_pos
+                ]
+            )
+        )
+        # print(g.model_time.in_(units.Myr), g.particles[11].x.in_(units.parsec))
+        acc = g.get_potential_at_point(
+            [0, 0, 0] | nbody_system.length,
+            [0, -100, 100] | nbody_system.length,
+            [0, 0, 0] | nbody_system.length,
+            [0, 0, 0] | nbody_system.length,
+        )
+        print(
+            "gravity (center, left, right)\n",
+            acc[0], "\n",
+            acc[1], "\n",
+            acc[2]
+        )
+    g.stop()
 # testDefaultParameters()
 # test3()
-test17()
+test18()
