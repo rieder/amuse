@@ -583,6 +583,117 @@ def test18():
             acc[2]
         )
     g.stop()
+
+def test_bridge():
+    from amuse.ext.masc import new_star_cluster
+    from amuse.couple.bridge import Bridge
+    from amuse.community.ph4.interface import ph4
+    from amuse.community.bhtree.interface import BHTree
+
+    numpy.random.seed(1)
+    m_tot = 10000 | units.MSun
+    r_eff = 5 | units.parsec
+    converter = nbody_system.nbody_to_si(m_tot, r_eff)
+    p = new_plummer_model(
+        1000,
+        converter
+        # new_star_cluster(
+        # stellar_mass=m_tot,
+        #effective_radius=r_eff,
+    )
+    dt = converter.to_si(0.01 | nbody_system.time)
+    #p.radius = 2 * converter.to_si(1 | nbody_system.speed) * dt
+    
+    g = Pentacle(converter)  # , redirection="none")
+    g.parameters.time_step = 0.5 * dt
+    # g = BHTree(converter)  # , redirection="none")
+    # g.parameters.timestep = dt
+    g.parameters.opening_angle = 0.75
+    # g = ph4(converter)  # , redirection="none")
+    # g.parameters.force_sync = True
+    print(g.parameters)
+    g.particles.add_particles(p)
+
+    testp = Particles(2)
+    testp.position = [
+        [-20, 0, 0],
+    #    [-2, 0, 0],
+    ] | units.parsec
+    testp.velocity = [
+        [0, 0, 0],
+    #    [0, 0, 0],
+    ] | units.kms
+    testp.mass = 1 | units.kg
+    smalln = ph4(converter)
+    smalln.particles.add_particles(testp)
+    smalln.parameters.force_sync = True
+
+    system = Bridge(
+        timestep=2*dt,
+    )
+    system.add_system(
+        g,
+        partners=[smalln],
+    )
+    system.add_system(
+        smalln,
+        partners=[g],
+    )
+
+    time = 0 | units.yr
+    while smalln.particles[0].x < 0 | units.parsec:  # < 300 * dt:
+        time += 10*dt
+        system.evolve_model(time)
+        print(
+            time.in_(units.Myr),
+            smalln.particles[0].position.in_(units.parsec),
+            # smalln.particles[1].position.in_(units.parsec),
+        )
+    system.stop()
+
+def test_potential():
+    from amuse.ext.masc import new_star_cluster
+    from amuse.community.ph4.interface import ph4
+    from amuse.community.bhtree.interface import BHTree
+
+    numpy.random.seed(8)
+    p = new_plummer_model(1024)
+
+    dt = (1.0/4096) | nbody_system.time
+    g = Pentacle(number_of_workers=1, redirection="none")
+    p_in_code = g.particles.add_particles(p)
+    time_end = 2*dt
+    time = 0 | nbody_system.time
+    channel = p_in_code.new_channel_to(p)
+    step = 0
+    initial_pos = g.particles.x
+
+    eps = numpy.zeros(25) | nbody_system.length
+    x = [
+        -20, -1, 0, 1, 20,
+        -20, -1, 0, 1, 20,
+        -20, -1, 0, 1, 20,
+        -20, -1, 0, 1, 20,
+        -20, -1, 0, 1, 20,
+    ] | nbody_system.length
+    y = [
+        -20, -20, -20, -20, -20,
+        -1, -1, -1, -1, -1,
+        0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1,
+        20, 20, 20, 20, 20,
+    ] | nbody_system.length
+    z = eps.copy()
+
+    acc = g.get_potential_at_point(
+        eps, x, y, z,
+    ).reshape((5, 5))
+    for i in range(5):
+        print(
+            acc[i].in_(nbody_system.speed**2)
+        )
+    g.stop()
+
 # testDefaultParameters()
 # test3()
-test18()
+test_potential()
