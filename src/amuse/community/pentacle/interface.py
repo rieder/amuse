@@ -89,6 +89,45 @@ class PentacleInterface(
         function.result_type = 'int32'
         return function
 
+    @legacy_function
+    def get_theta_for_tree():
+        """
+        Get theta, the opening angle for building the tree: between 0 and 1.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'theta_for_tree', dtype='float64',
+            direction=function.OUT,
+            description = "theta, the opening angle for building the tree: between 0 and 1")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was retrieved
+        -1 - ERROR
+            could not retrieve parameter
+        """
+        return function
+        
+    @legacy_function
+    def set_theta_for_tree():
+        """
+        Set theta, the opening angle for building the tree: between 0 and 1.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'theta_for_tree', dtype='float64',
+            direction=function.IN,
+            description = "theta, the opening angle for building the tree: between 0 and 1")
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            the parameter was set
+        -1 - ERROR
+            could not set parameter
+        """
+        return function
+    
+
 class Pentacle(
         GravitationalDynamics,
         GravityFieldCode,
@@ -128,6 +167,14 @@ class Pentacle(
             "epsilon_squared", 
             "smoothing parameter for gravity calculations", 
             default_value = 0.01 | nbody_system.length * nbody_system.length,
+        )
+
+        handler.add_method_parameter(
+            "get_theta_for_tree",
+            "set_theta_for_tree",
+            "opening_angle", 
+            "opening angle, theta, for building the tree: between 0 and 1", 
+            default_value = 0.4,
         )
 
     def define_methods(self, handler):
