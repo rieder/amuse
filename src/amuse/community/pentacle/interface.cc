@@ -371,12 +371,12 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
     //if (particles_on_master == false) {
     //    sync_particles_to_master();
     //}
-    std::cerr<<"new particle on rank "<<PS::Comm::getRank()<<std::endl<<std::flush;
+    //std::cerr<<"new particle on rank "<<PS::Comm::getRank()<<std::endl<<std::flush;
     //std::cerr<<"Adding particle"<<std::endl;
     FpSoft particle;
     unique_particles++;
     PS::S64 pid = unique_particles;
-    std::cerr<<"check 0"<<std::endl<<std::flush;
+    //std::cerr<<"check 0"<<std::endl<<std::flush;
     //system_soft.setNumberOfParticleLocal(n_loc);
     //PS::S32 i = unique_particles;
 
@@ -394,14 +394,14 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
     const PS::F64 r_buf = 1.5 * particle.r_out;
     particle.r_search  = particle.r_out + r_buf;
 
-    std::cerr<<"check 0.5"<<std::endl<<std::flush;
+    //std::cerr<<"check 0.5"<<std::endl<<std::flush;
     particle_id[pid] = n_glb; //system_soft.getNumberOfParticleGlobal();
-    std::cerr<<"check 1"<<std::endl<<std::flush;
+    //std::cerr<<"check 1"<<std::endl<<std::flush;
 
     system_soft.addOneParticle(particle);
     n_glb++;
     n_loc++;
-    std::cerr<<"check 2"<<std::endl<<std::flush;
+    //std::cerr<<"check 2"<<std::endl<<std::flush;
     *id = pid;
     //std::cerr<<"n_glb="<<n_glb<<std::endl;
     //std::cerr<<"n_loc="<<n_glb<<std::endl;
@@ -410,7 +410,7 @@ int new_particle(int* id, double mass, double x, double y, double z, double vx, 
         //std::cerr<<"Not adding particle"<<std::endl;
         //return 0;
     //}
-    std::cerr<<"check 3"<<std::endl<<std::flush;
+    //std::cerr<<"check 3"<<std::endl<<std::flush;
     return 0;
 }
     
@@ -706,6 +706,9 @@ int get_potential_at_point(double* eps, double* x, double* y, double*z,
     SystemSoft system_tmp;
     FpSoft ptmp;
     Tree tree_tmp;
+
+    //PS::DomainInfo dinfo_tmp;
+    //dinfo_tmp.initialize();
     tree_tmp.initialize(n + n_glb, theta, n_leaf_limit, n_grp_limit);
 
     for (int i=0; i<n; i++) {
@@ -714,6 +717,9 @@ int get_potential_at_point(double* eps, double* x, double* y, double*z,
         ptmp.pos.z = z[i];
         system_tmp.addOneParticle(ptmp);
     };
+    dinfo.collectSampleParticle(system_soft);
+    dinfo.collectSampleParticle(system_tmp, false);
+    dinfo.decomposeDomain();
     tree_tmp.setParticleLocalTree(system_soft);
     tree_tmp.setParticleLocalTree(system_tmp, false);
     tree_tmp.calcForceMakingTree(
