@@ -544,30 +544,6 @@ class PhantomInterface(
         return function
 
     @legacy_function
-    def get_dtmax():
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dtmax', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-        -1 - ERROR
-        """
-        return function
-
-    @legacy_function
-    def set_dtmax():
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dtmax', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-        -1 - ERROR
-        """
-        return function
-
-    @legacy_function
     def get_c_force():
         function = LegacyFunctionSpecification()
         function.addParameter(

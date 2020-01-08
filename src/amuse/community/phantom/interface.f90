@@ -75,22 +75,6 @@ function set_internal_energy(index_of_the_particle, u)
   set_internal_energy=0
 end function
 
-function set_dtmax(dtmax)
-  implicit none
-  double precision :: dtmax
-  integer :: set_dtmax
-  call amuse_set_dtmax(dtmax)
-  set_dtmax=0
-end function
-
-function get_dtmax(dtmax)
-  implicit none
-  double precision :: dtmax
-  integer :: get_dtmax
-  call amuse_get_dtmax(dtmax)
-  get_dtmax=0
-end function
-
 function get_pressure(index_of_the_particle, p)
   implicit none
   integer :: index_of_the_particle
