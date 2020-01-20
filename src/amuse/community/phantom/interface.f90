@@ -638,7 +638,6 @@ function set_rhofinal(rhofinal)
     double precision :: rhofinal
     integer :: set_rhofinal
     call amuse_set_rhofinal(rhofinal)
-    print *, "interface setting rhofinal to ", rhofinal
     set_rhofinal=0
 end function
 
