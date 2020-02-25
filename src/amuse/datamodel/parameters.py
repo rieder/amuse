@@ -5,9 +5,7 @@ from amuse.units import generic_unit_system
 from amuse.units import quantities
 from amuse.units.core import IncompatibleUnitsException
 from amuse.units.quantities import is_quantity
-from amuse.support.exceptions import AmuseException, CoreException, AmuseWarning
-
-import warnings
+from amuse.support import exceptions
 
 from amuse.support.core import OrderedDictionary
 
@@ -33,7 +31,7 @@ class Parameters(object):
         #if name.startswith('__'):
         #    return object.__getattribute__(self, name)
         if not name in self._mapping_from_name_to_definition:
-            raise CoreException("tried to get unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
+            raise exceptions.CoreException("tried to get unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
         
         self._instance().before_get_parameter()
         
@@ -41,8 +39,9 @@ class Parameters(object):
 
     def __setattr__(self, name, value):
         if not name in self._mapping_from_name_to_definition:
-            warnings.warn("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), AmuseWarning)
-            return
+            #~ print "Did you mean to set one of these parameters?\n", \
+                #~ "\n  ".join(self._mapping_from_name_to_definition.keys())
+            raise exceptions.CoreException("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
         
         self._instance().before_set_parameter()
 
@@ -68,7 +67,7 @@ class Parameters(object):
 
     def get_default_value_for(self, name):
         if not name in self._mapping_from_name_to_definition:
-            raise CoreException("tried to get default value of unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
+            raise exceptions.CoreException("tried to get default value of unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
     
         definition = self._mapping_from_name_to_definition[name]
         return definition.get_default_value(self)
@@ -90,7 +89,7 @@ class Parameters(object):
 
     def get_parameter(self, name):
         if not name in self._mapping_from_name_to_definition:
-            raise AmuseException("{0!r} not defined as parameter".format(name))
+            raise exceptions.AmuseException("{0!r} not defined as parameter".format(name))
         
         if not name in self._mapping_from_name_to_parameter:
             definition = self._mapping_from_name_to_definition[name]
@@ -158,12 +157,11 @@ class Parameters(object):
     def reset_from_memento(self, memento):
         for name in memento.names():
             if not name in self._mapping_from_name_to_definition:
-                warnings.warn("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), AmuseWarning)
-                return
+                raise exceptions.CoreException("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
             
             if self.get_parameter(name).is_readonly():
                 if not getattr(memento, name) == getattr(self, name):
-                    warnings.warn("tried to change read-only parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), AmuseWarning)
+                    raise exceptions.CoreException("tried to change read-only parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__))
             else:
                 setattr(self, name, getattr(memento, name))
             
@@ -193,15 +191,14 @@ class ParametersMemento(object):
 
     def __getattr__(self, name):
         if not name in self._mapping_from_name_to_value:
-            raise CoreException("tried to get unknown parameter '{0}'".format(name))
+            raise exceptions.CoreException("tried to get unknown parameter '{0}'".format(name))
             
         
         return self._mapping_from_name_to_value[name]
 
     def __setattr__(self, name, value):
         if not name in self._mapping_from_name_to_value:
-            warnings.warn("tried to set unknown parameter '{0}'".format(name), AmuseWarning)
-            return
+            raise exceptions.CoreException("tried to set unknown parameter '{0}'".format(name))
             
         self._mapping_from_name_to_value[name] = value
 
@@ -220,9 +217,9 @@ class ParametersMemento(object):
 
     def get_default_value_for(self, name):
         if not name in self._mapping_from_name_to_value:
-            raise CoreException("tried to get default value of unknown parameter '{0}'".format(name))
+            raise exceptions.CoreException("tried to get default value of unknown parameter '{0}'".format(name))
     
-        raise CoreException("tried to get default value, for a parameter in a parameters memento")
+        raise exceptions.CoreException("tried to get default value, for a parameter in a parameters memento")
 
 
     def __str__(self):
@@ -309,7 +306,7 @@ class ParametersWithUnitsConverted(object):
 
     def __setattr__(self, name, value):
         if not name in self._original._mapping_from_name_to_definition:
-            warnings.warn("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), AmuseWarning)
+            warnings.warn("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), exceptions.AmuseWarning)
             return
         try:
             setattr(self._original, name, self._converter.from_source_to_target(value))
@@ -368,10 +365,10 @@ class AbstractParameterDefinition(object):
         return self.default_value
         
     def get_value(self, parameter, object):
-        raise AmuseException("not implemented")
+        raise exceptions.AmuseException("not implemented")
 
     def set_value(self, parameter, object, quantity):
-        raise AmuseException("not implemented")
+        raise exceptions.AmuseException("not implemented")
 
     def set_default_value(self, parameter, object):
         pass
@@ -515,7 +512,7 @@ class ModuleMethodParameterDefinition(ParameterDefinition):
         #        quantity = quantity | self.unit
         
         if self.set_method is None:
-            raise CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
+            raise exceptions.CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
         
         getattr(object, self.set_method)(quantity)
         
@@ -616,7 +613,7 @@ class ModuleVectorMethodParameterDefinition(ModuleMethodParameterDefinition):
             
     def set_value(self, parameter, object, vector_quantity):
         if self.set_method is None:
-            raise CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
+            raise exceptions.CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
         
         getattr(object, self.set_method)(*vector_quantity)
         
@@ -695,7 +692,7 @@ class ModuleArrayParameterDefinition(ParameterDefinition):
     def set_value(self, parameter, object, quantity):
         
         if self.set_method is None:
-            raise CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
+            raise exceptions.CoreException("Could not set value for parameter '{0}' of a '{1}' object, parameter is read-only".format(self.name, type(object).__name__))
         
         irange=getattr(object, self.range_method)()
         index=numpy.arange(irange[0],irange[1]+1)
