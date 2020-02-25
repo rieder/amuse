@@ -5,7 +5,7 @@ import platform
 from io import StringIO
 
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException, CoreException
 
 try:
     import pkg_resources
@@ -63,7 +63,7 @@ class GlobalOptions(object):
         if os.path.exists(os.path.join(result,'build.py')):
             return result
 
-        raise exceptions.AmuseException("Could not locate AMUSE root directory! set the AMUSE_DIR variable")
+        raise AmuseException("Could not locate AMUSE root directory! set the AMUSE_DIR variable")
         
     @late
     def amuse_rootdirectory(self):
@@ -160,7 +160,7 @@ class option(object):
         if hasattr(self, type.upper()):
             self.valuetype = getattr(self, type.upper())
         else:
-            raise exceptions.CoreException("'{0}' is not a valid type for option".format(type))
+            raise CoreException("'{0}' is not a valid type for option".format(type))
             
         self.validator = self.default_validator
         self.choices = set(choices)
@@ -218,7 +218,7 @@ class option(object):
         
     def choice_validator(self, value):
         if not value in self.choices:
-            raise exceptions.CoreException("{0} is not a valid choice for option '{1}', valid values are: {2}".format(value, self.name, sorted(self.choices)))
+            raise CoreException("{0} is not a valid choice for option '{1}', valid values are: {2}".format(value, self.name, sorted(self.choices)))
         return value
     
     def get_sections(self, instance):

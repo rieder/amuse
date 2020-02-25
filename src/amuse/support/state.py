@@ -1,4 +1,4 @@
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.support.options import OptionalAttributes
 from amuse.support.options import option
 from amuse.support.thirdparty.texttable import Texttable
@@ -254,7 +254,7 @@ class StateMachine(OptionalAttributes):
                     lines.append("{0}, automatic". format(x))
                 else:
                     lines.append("{0}, calling '{1}'". format(x, x.method.function_name))
-            exception = exceptions.AmuseException('\n'.join(lines))
+            exception = AmuseException('\n'.join(lines))
             exception.transitions = transitions
             raise exception
         return transitions

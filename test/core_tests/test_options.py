@@ -1,10 +1,10 @@
-from amuse.support import options
+from amuse.support.options import OptionalAttributes, options, option, GlobalOptions
 from amuse.test import amusetest
-import io
+import StringIO
 import textwrap
 import os
 
-class OptionsTestsClass(options.OptionalAttributes):
+class OptionsTestsClass(OptionalAttributes):
     option_sections = ('amuse',)
     
     def string_option(self):
@@ -34,95 +34,95 @@ class OptionsTests(amusetest.TestCase):
     
     
     def test1(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
         instance = OptionsTestsClass()
         
-        option = options.option(OptionsTestsClass.string_option, global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), "a string")
+        testoption = option(OptionsTestsClass.string_option, global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), "a string")
         
     def test2(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
         instance = OptionsTestsClass()
         
-        option = options.option(OptionsTestsClass.int_option, type="int", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 1)
+        testoption = option(OptionsTestsClass.int_option, type="int", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 1)
         
-        option = options.option(OptionsTestsClass.boolean_option, type="boolean", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), True)
+        testoption = option(OptionsTestsClass.boolean_option, type="boolean", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), True)
         
-        option = options.option(OptionsTestsClass.float_option, type="float", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 1.5) 
+        testoption = option(OptionsTestsClass.float_option, type="float", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 1.5) 
         
     def test3(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
         instance = OptionsTestsClass()
         instance.option_sections =('unknown')
         
-        option = options.option(OptionsTestsClass.string_option, global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), "default string")
+        testoption = option(OptionsTestsClass.string_option, global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), "default string")
         
-        option = options.option(OptionsTestsClass.int_option, type="int", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 2)
+        testoption = option(OptionsTestsClass.int_option, type="int", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 2)
         
-        option = options.option(OptionsTestsClass.boolean_option, type="boolean", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), False)
+        testoption = option(OptionsTestsClass.boolean_option, type="boolean", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), False)
         
-        option = options.option(OptionsTestsClass.float_option, type="float", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 2.5)
+        testoption = option(OptionsTestsClass.float_option, type="float", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 2.5)
         
     
     def test4(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
         instance = OptionsTestsClass()
         
-        option = options.option(OptionsTestsClass.int_option, type="int", sections=("bhtree",), global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 1)
+        testoption = option(OptionsTestsClass.int_option, type="int", sections=("bhtree",), global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 1)
         
         instance.option_sections =('unknown')
-        self.assertEqual(option.__get__(instance, type(instance)), 3)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 3)
         
         
     
     def test5(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
         instance = OptionsTestsClass()
         instance.option_sections =('unknown')
         
-        option = options.option(type="int", global_options=global_options)
-        option = option(OptionsTestsClass.int_option)
+        testoption = option(type="int", global_options=global_options)
+        testoption = testoption(OptionsTestsClass.int_option)
         
-        self.assertEqual(option.__get__(instance, type(instance)), 2)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 2)
         
     def test6(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
-        class DecoratedMethods(options.OptionalAttributes):
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
+        class DecoratedMethods(OptionalAttributes):
             option_sections =('unknown')
             
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option(self):
                 return self.i
             
                 
         instance = DecoratedMethods()
         instance.i = 10
-        self.assertEqual(instance.int_option, 10)
+        self.assertEquals(instance.int_option, 10)
         
     def test7(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
-        class DecoratedMethods(options.OptionalAttributes):
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
+        class DecoratedMethods(OptionalAttributes):
             option_sections =('unknown')
             i = 8
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
                 
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option(self):
                 return self.i
             
@@ -130,32 +130,32 @@ class OptionsTests(amusetest.TestCase):
         instance = DecoratedMethods()
         instance.i = 10
         instance.int_option = 12
-        self.assertEqual(instance.int_option, 12)
+        self.assertEquals(instance.int_option, 12)
         
         instance = DecoratedMethods(int_option=14)
-        self.assertEqual(instance.int_option, 14)
+        self.assertEquals(instance.int_option, 14)
         
 
     def test8(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
-        class A(options.OptionalAttributes):
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
+        class A(OptionalAttributes):
             option_sections = ('amuse')
             
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
             
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option_a(self):
                 return self.i
                 
-        class B(options.OptionalAttributes):
+        class B(OptionalAttributes):
             option_sections =('amuse')
             
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
         
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option_b(self):
                 return 10
                 
@@ -167,29 +167,29 @@ class OptionsTests(amusetest.TestCase):
                 
         
         instance = C(int_option_a=14)
-        self.assertEqual(instance.int_option_a, 14)
-        self.assertEqual(instance.int_option_b, 10)
+        self.assertEquals(instance.int_option_a, 14)
+        self.assertEquals(instance.int_option_b, 10)
         
     def test9(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
-        class A(options.OptionalAttributes):
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
+        class A(OptionalAttributes):
             option_sections = ('amuse')
             
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
             
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option_a(self):
                 return self.i
                 
-        class B(options.OptionalAttributes):
+        class B(OptionalAttributes):
             option_sections =('amuse')
             
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
         
-            @options.option(type="int", global_options=global_options)
+            @option(type="int", global_options=global_options)
             def int_option_b(self):
                 return 10
                 
@@ -201,12 +201,12 @@ class OptionsTests(amusetest.TestCase):
                 
         
         instance = C(int_option_a=14)
-        self.assertEqual(instance.int_option_a, 14)
-        self.assertEqual(instance.int_option_b, 10)
+        self.assertEquals(instance.int_option_a, 14)
+        self.assertEquals(instance.int_option_b, 10)
         
     def test10(self):
-        global_options = options.GlobalOptions()
-        self.assertEqual(global_options.rcfilename, 'amuserc')
+        global_options = GlobalOptions()
+        self.assertEquals(global_options.rcfilename, 'amuserc')
         global_options.rcfilename = 'test_for_amuserc'
         with open(global_options.rcfilename, "w") as f:
             f.write(self.ini_contents)
@@ -215,36 +215,36 @@ class OptionsTests(amusetest.TestCase):
         global_options.load()
         
         instance = OptionsTestsClass()
-        option = options.option(OptionsTestsClass.int_option, type="int", global_options=global_options)
-        self.assertEqual(option.__get__(instance, type(instance)), 1)
+        testoption = option(OptionsTestsClass.int_option, type="int", global_options=global_options)
+        self.assertEquals(testoption.__get__(instance, type(instance)), 1)
         
         os.remove(global_options.rcfilepath)
         
     
     def test11(self):
-        global_options = options.GlobalOptions()
-        global_options.config.readfp(io.StringIO(self.ini_contents))
-        class DecoratedMethods(options.OptionalAttributes):
+        global_options = GlobalOptions()
+        global_options.config.readfp(StringIO.StringIO(self.ini_contents))
+        class DecoratedMethods(OptionalAttributes):
             option_sections =('amuse',)
            
             def __init__(self, **optional_arguments):
-                options.OptionalAttributes.__init__(self, **optional_arguments)
+                OptionalAttributes.__init__(self, **optional_arguments)
                 
-            @options.option(choices=("1","2"), global_options=global_options)
+            @option(choices=("1","2"), global_options=global_options)
             def int_option(self):
                 return 2
             
                 
         instance = DecoratedMethods()
-        self.assertEqual(instance.int_option, "1")
+        self.assertEquals(instance.int_option, "1")
         all_options = list(instance.iter_options())
-        self.assertEqual(len(all_options), 1)
-        self.assertEqual(all_options[0].name, "int_option")
+        self.assertEquals(len(all_options), 1)
+        self.assertEquals(all_options[0].name, "int_option")
 
     def test12(self):
-        global_options = options.GlobalOptions()
+        global_options = GlobalOptions()
         global_options.read_from_ini_string(self.ini_contents)
-        print(global_options.to_ini_string())
+        print global_options.to_ini_string()
         ini_string = global_options.to_ini_string()
         
         self.assertTrue(ini_string.find("= a string") > 0)

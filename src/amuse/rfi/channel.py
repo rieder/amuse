@@ -1,7 +1,7 @@
 import inspect
 import numpy
 import os.path
-import pickle as pickle
+import cPickle as pickle
 
 import sys
 import struct
@@ -34,13 +34,13 @@ except ImportError:
     
 from amuse.support.options import OptionalAttributes, option, GlobalOptions
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import CodeException
 from amuse.support import get_amuse_root_dir
 from amuse.rfi import run_command_redirected
 
 from amuse.rfi import slurm
 
-from . import async_request
+import async_request
 
 class AbstractMessage(object):
     
@@ -382,11 +382,11 @@ MAPPING = {}
 
 def pack_array(array, length, dtype):
     if dtype == 'string':
-        if length == 1 and len(array) > 0 and isinstance(array[0], str):
+        if length == 1 and len(array) > 0 and isinstance(array[0], basestring):
             return array
         result = []
         for x in array:
-            if isinstance(x, str):
+            if isinstance(x, basestring):
                 for _ in range(length):
                     result.append(x)
             elif len(x) == 1 and length > 1:
@@ -413,7 +413,7 @@ def pack_array(array, length, dtype):
 def unpack_array(array, length, dtype=None):
     result = []
     total = len(array) // length
-    for i in range(total):
+    for i in xrange(total):
         offset = i * length
         result.append(array[offset:offset + length])
     return result
@@ -638,7 +638,7 @@ class AbstractMessageChannel(OptionalAttributes):
             if hasattr(value, 'crc32'):
                 is_up_to_date = value.is_compiled_file_up_to_date(modificationtime_of_worker)
                 if not is_up_to_date:
-                    raise exceptions.CodeException("""The worker code of the '{0}' interface class is not up to date.
+                    raise CodeException("""The worker code of the '{0}' interface class is not up to date.
 Please do a 'make clean; make' in the root directory.
 """.format(type(object).__name__))
 
@@ -651,10 +651,10 @@ Please do a 'make clean; make' in the root directory.
                 return full_name_of_the_worker
             
             if not os.path.exists(full_name_of_the_worker):
-                raise exceptions.CodeException("The worker path has been specified, but it is not found: \n{0}".format(full_name_of_the_worker))
+                raise CodeException("The worker path has been specified, but it is not found: \n{0}".format(full_name_of_the_worker))
 
             if not os.access(full_name_of_the_worker, os.X_OK):
-                raise exceptions.CodeException("The worker application exists, but it is not executable.\n{0}".format(full_name_of_the_worker))
+                raise CodeException("The worker application exists, but it is not executable.\n{0}".format(full_name_of_the_worker))
        
             return full_name_of_the_worker
         
@@ -701,7 +701,7 @@ Please do a 'make clean; make' in the root directory.
             tried_workers.append(full_name_of_the_worker)
             current_type = current_type.__bases__[0]
 
-        raise exceptions.CodeException("The worker application does not exist, it should be at: \n{0}".format('\n'.join(tried_workers)))
+        raise CodeException("The worker application does not exist, it should be at: \n{0}".format('\n'.join(tried_workers)))
     
     def send_message(self, call_id=0, function_id=-1, dtype_to_arguments={}, encoded_units = None):
         pass
@@ -736,7 +736,7 @@ Please do a 'make clean; make' in the root directory.
                 result = 1
                 for argument_value in argument_values:
                     try:
-                        if not isinstance(argument_value, str):
+                        if not isinstance(argument_value, basestring):
                             result = max(result, len(argument_value))
                     except:
                         result = max(result, 1)
@@ -744,7 +744,7 @@ Please do a 'make clean; make' in the root directory.
                
                
         
-        lengths = [get_length(x) for x in dtype_to_arguments.items()]
+        lengths = map(get_length, dtype_to_arguments.items())
         if len(lengths) == 0:
             return 1
             
@@ -760,7 +760,7 @@ Please do a 'make clean; make' in the root directory.
         ndone=0
         while ndone<call_count:
             split_dtype_to_argument = {}
-            for key, value in dtype_to_arguments.items():
+            for key, value in dtype_to_arguments.iteritems():
                 split_dtype_to_argument[key] = \
                   [tmp[ndone:ndone+self.max_message_length] if hasattr(tmp, '__iter__') else tmp for tmp in value]
 
@@ -772,7 +772,7 @@ Please do a 'make clean; make' in the root directory.
             )
             
             partial_dtype_to_result = self.recv_message(call_id, function_id, True)
-            for datatype, value in partial_dtype_to_result.items():
+            for datatype, value in partial_dtype_to_result.iteritems():
                 if not datatype in dtype_to_result:
                     dtype_to_result[datatype] = [] 
                     for j, element in enumerate(value):
@@ -901,10 +901,10 @@ class MpiChannel(AbstractMessageChannel):
         
         if self.check_mpi:
             if not is_mpd_running():
-                raise exceptions.CodeException("The mpd daemon is not running, please make sure it is started before starting this code")
+                raise CodeException("The mpd daemon is not running, please make sure it is started before starting this code")
         
         if self._mpi_is_broken_after_possible_code_crash:
-            raise exceptions.CodeException("Another code has crashed, cannot spawn a new code, please stop the script and retry")
+            raise CodeException("Another code has crashed, cannot spawn a new code, please stop the script and retry")
         if not self.hostname is None:
             self.info = MPI.Info.Create()
             self.info['host'] = self.hostname
@@ -1077,7 +1077,7 @@ class MpiChannel(AbstractMessageChannel):
         def get_length(x):
             if x:
                 try:
-                    if not isinstance(x[0], str):
+                    if not isinstance(x[0], basestring):
                         return len(x[0])
                 except:
                     return 1
@@ -1085,7 +1085,7 @@ class MpiChannel(AbstractMessageChannel):
                
                
         
-        lengths = [get_length(x) for x in dtype_to_arguments.values()]
+        lengths = map(get_length, dtype_to_arguments.values())
         if len(lengths) == 0:
             return 1
             
@@ -1096,7 +1096,7 @@ class MpiChannel(AbstractMessageChannel):
 
         
         if self.intercomm is None:
-            raise exceptions.CodeException("You've tried to send a message to a code that is not running")
+            raise CodeException("You've tried to send a message to a code that is not running")
         
         call_count = self.determine_length_from_data(dtype_to_arguments)
         
@@ -1104,11 +1104,11 @@ class MpiChannel(AbstractMessageChannel):
             self.split_message(call_id, function_id, call_count, dtype_to_arguments, encoded_units)
         else:
             if self.is_inuse():
-                raise exceptions.CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
+                raise CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
             self.inuse_semaphore.acquire()
             try:
                 if self._is_inuse:
-                    raise exceptions.CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
+                    raise CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
                 self._is_inuse = True
             finally:
                 self.inuse_semaphore.release()
@@ -1141,25 +1141,26 @@ class MpiChannel(AbstractMessageChannel):
         self.inuse_semaphore.acquire()
         try:
             if not self._is_inuse:
-                raise exceptions.CodeException("You've tried to recv a message to a code that is not handling a message, this is not correct")
+                raise CodeException("You've tried to recv a message to a code that is not handling a message, this is not correct")
             self._is_inuse = False
         finally:
             self.inuse_semaphore.release()
 
-        if message.error:
-            error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-            if message.call_id != call_id or message.function_id != function_id:
-                self.stop() 
-                error_message+=" - code probably died, sorry."
-            raise exceptions.CodeException("Error in code: " + error_message)
-
         if message.call_id != call_id:
             self.stop()
-            raise exceptions.CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
+            raise CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
         if message.function_id != function_id:
             self.stop()
-            raise exceptions.CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
+            raise CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
         
+        if message.error:
+                logger.info("error message!")
+                raise CodeException("Error in code: " + message.strings[0])
+#        if message.tag == -1:
+#            raise CodeException("Not a valid message, message is not understood by legacy code")
+#        elif message.tag == -2:
+#            self.stop()
+#            raise CodeException("Fatal error in code, code has exited")
         if has_units:
             return message.to_result(handle_as_array), message.encoded_units
         else:
@@ -1172,22 +1173,18 @@ class MpiChannel(AbstractMessageChannel):
             self._is_inuse = False
         
             message = function()
-
-            if message.error:
-                error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-                if message.call_id != call_id or message.function_id != function_id:
-                    self.stop() 
-                    error_message+=" - code probably died, sorry."
-                raise exceptions.CodeException("Error in (asynchronous) communication with worker: " + error_message)
             
             if message.call_id != call_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
+                raise CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
         
             if message.function_id != function_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
-                            
+                raise CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
+            
+            if message.error:
+                raise CodeException("Error in (asynchronous) communication with worker: " + message.strings[0])
+                
             if has_units:
                 return message.to_result(handle_as_array), message.encoded_units
             else:
@@ -1248,7 +1245,7 @@ class MpiChannel(AbstractMessageChannel):
             cls._scheduler_nodes = all_nodes
             cls._scheduler_index = 1     # start at 1 assumes that the python script is running on the first node as the first task
             cls._scheduler_initialized = True
-            print("NODES:", cls._scheduler_nodes)
+            print "NODES:", cls._scheduler_nodes
         hostnames = []
         count = 0
         while count < number_of_workers:
@@ -1258,7 +1255,7 @@ class MpiChannel(AbstractMessageChannel):
                 if cls._scheduler_index >= len(cls._scheduler_nodes):
                     cls._scheduler_index  = 0
         host = ','.join(hostnames)
-        print("HOST:", host, cls._scheduler_index, os.environ['SLURM_TASKS_PER_NODE'])
+        print "HOST:", host, cls._scheduler_index, os.environ['SLURM_TASKS_PER_NODE']
         info = MPI.Info.Create()
         info['host'] = host                                                     #actually in mpich and openmpi, the host parameter is interpreted as a comma separated list of host names,
         return info
@@ -1470,7 +1467,7 @@ class SocketMessage(AbstractMessage):
             data_bytes = thesocket.recv(chunk)
             
             if len(data_bytes) == 0:
-                raise exceptions.CodeException("lost connection to code")
+                raise CodeException("lost connection to code")
             
             result.append(data_bytes)
             nbytes -= len(data_bytes)
@@ -1490,7 +1487,7 @@ class SocketMessage(AbstractMessage):
         flags = numpy.frombuffer(header_bytes, dtype="b", count=4, offset=0)
         
         if flags[0] != self.big_endian:
-            raise exceptions.CodeException("endianness in message does not match native endianness")
+            raise CodeException("endianness in message does not match native endianness")
         
         if flags[1]:
             self.error = True
@@ -1702,7 +1699,7 @@ class SocketChannel(AbstractMessageChannel):
         self.interpreter_executable = interpreter_executable
         
         if self.hostname != None and self.hostname not in ['localhost',socket.gethostname()]:
-            raise exceptions.CodeException("can only run codes on local machine using SocketChannel, not on %s", self.hostname)
+            raise CodeException("can only run codes on local machine using SocketChannel, not on %s", self.hostname)
             
         self.id = 0
         
@@ -1751,10 +1748,10 @@ class SocketChannel(AbstractMessageChannel):
             except socket.timeout:
                 #update and read returncode
                 if process.poll() is not None:
-                    raise exceptions.CodeException('could not connect to worker, worker process terminated')
+                    raise CodeException('could not connect to worker, worker process terminated')
                 #logger.error("worker not connecting, waiting...")
                 
-        raise exceptions.CodeException('worker still not started after 60 seconds')
+        raise CodeException('worker still not started after 60 seconds')
 
     
 
@@ -1885,7 +1882,7 @@ class SocketChannel(AbstractMessageChannel):
                 result = 1
                 for argument_value in argument_values:
                     try:
-                        if not isinstance(argument_value, str):
+                        if not isinstance(argument_value, basestring):
                             result = max(result, len(argument_value))
                     except:
                         result = max(result, 1)
@@ -1893,7 +1890,7 @@ class SocketChannel(AbstractMessageChannel):
                
                
         
-        lengths = [get_length(x) for x in dtype_to_arguments.items()]
+        lengths = map(get_length, dtype_to_arguments.items())
         if len(lengths) == 0:
             return 1
             
@@ -1906,9 +1903,9 @@ class SocketChannel(AbstractMessageChannel):
         # logger.info("sending message for call id %d, function %d, length %d", id, tag, length)
         
         if self.is_inuse():
-            raise exceptions.CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
+            raise CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
         if self.socket is None:
-            raise exceptions.CodeException("You've tried to send a message to a code that is not running")
+            raise CodeException("You've tried to send a message to a code that is not running")
         
         
         if call_count > self.max_message_length:
@@ -1936,20 +1933,17 @@ class SocketChannel(AbstractMessageChannel):
         
         message.receive(self.socket)
 
-        if message.error:
-            error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-            if message.call_id != call_id or message.function_id != function_id:
-                self.stop() 
-                error_message+=" - code probably died, sorry."
-            raise exceptions.CodeException("Error in code: " + error_message)
-
         if message.call_id != call_id:
             self.stop()
-            raise exceptions.CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
+            raise CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
         if message.function_id != function_id:
             self.stop()
-            raise exceptions.CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
+            raise CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
         
+        if message.error:
+            logger.info("error message!")
+            raise CodeException("Error in code: " + message.strings[0])
+
         if has_units:
             return message.to_result(handle_as_array), message.encoded_units
         else:
@@ -1964,22 +1958,18 @@ class SocketChannel(AbstractMessageChannel):
             self._is_inuse = False
     
             message = function()
-
-            if message.error:
-                error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-                if message.call_id != call_id or message.function_id != function_id:
-                    self.stop() 
-                    error_message+=" - code probably died, sorry."
-                raise exceptions.CodeException("Error in (asynchronous) communication with worker: " + error_message)
         
             if message.call_id != call_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
+                raise CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
     
             if message.function_id != function_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
-                
+                raise CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
+        
+            if message.error:
+                raise CodeException("Error in (asynchronous) communication with worker: " + message.strings[0])
+        
             if has_units:
                 return message.to_result(handle_as_array), message.encoded_units
             else:
@@ -2013,7 +2003,7 @@ class OutputHandler(threading.Thread):
         try:
             self.socket.connect(address)
         except:
-            raise exceptions.CodeException("Could not connect to Distributed Daemon at " + str(address))
+            raise CodeException("Could not connect to Distributed Daemon at " + str(address))
         
         self.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
         
@@ -2164,7 +2154,7 @@ class DistributedChannel(AbstractMessageChannel):
             self.socket.connect((self.daemon_host, self.daemon_port))
         except:
             self.socket = None
-            raise exceptions.CodeException("Could not connect to Ibis Daemon at " + str(self.daemon_port))
+            raise CodeException("Could not connect to Ibis Daemon at " + str(self.daemon_port))
         
         self.socket.setblocking(1)
         
@@ -2186,7 +2176,7 @@ class DistributedChannel(AbstractMessageChannel):
         if result.error:
             logger.error("Could not start worker: %s", result.strings[0])
             self.stop()
-            raise exceptions.CodeException("Could not start worker for " + self.name_of_the_worker + ": " + result.strings[0])
+            raise CodeException("Could not start worker for " + self.name_of_the_worker + ": " + result.strings[0])
         
         self.remote_amuse_dir = result.strings[0]
         
@@ -2232,7 +2222,7 @@ class DistributedChannel(AbstractMessageChannel):
                
                
         
-        lengths = [get_length(x) for x in dtype_to_arguments.values()]
+        lengths = map(get_length, dtype_to_arguments.values())
         if len(lengths) == 0:
             return 1
             
@@ -2245,9 +2235,9 @@ class DistributedChannel(AbstractMessageChannel):
         logger.debug("sending message for call id %d, function %d, length %d", call_id, function_id, call_count)
         
         if self.is_inuse():
-            raise exceptions.CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
+            raise CodeException("You've tried to send a message to a code that is already handling a message, this is not correct")
         if self.socket is None:
-            raise exceptions.CodeException("You've tried to send a message to a code that is not running")
+            raise CodeException("You've tried to send a message to a code that is not running")
         
         if call_count > self.max_message_length:
             self.split_message(call_id, function_id, call_count, dtype_to_arguments, encoded_units)
@@ -2271,14 +2261,10 @@ class DistributedChannel(AbstractMessageChannel):
         message = SocketMessage()
         
         message.receive(self.socket)
-
+        
         if message.error:
-            error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-            if message.call_id != call_id or message.function_id != function_id:
-                #~ self.stop() 
-                error_message+=" - code probably died, sorry."
-            raise exceptions.CodeException("Error in worker: " + error_message)
-
+            raise CodeException("Error in worker: " + message.strings[0])
+        
         if has_units:
             return message.to_result(handle_as_array), message.encoded_units
         else:
@@ -2287,29 +2273,25 @@ class DistributedChannel(AbstractMessageChannel):
     
 
     def nonblocking_recv_message(self, call_id, function_id, handle_as_array, has_units=False):
-        #       raise exceptions.CodeException("Nonblocking receive not supported by DistributedChannel")
+        #       raise CodeException("Nonblocking receive not supported by DistributedChannel")
         request = SocketMessage().nonblocking_receive(self.socket)
         
         def handle_result(function):
             self._is_inuse = False
         
             message = function()
-
-            if message.error:
-                error_message=message.strings[0] if len(message.strings)>0 else "no error message"
-                if message.call_id != call_id or message.function_id != function_id:
-                    self.stop() 
-                    error_message+=" - code probably died, sorry."
-                raise exceptions.CodeException("Error in (asynchronous) communication with worker: " + error_message)
             
             if message.call_id != call_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
+                raise CodeException('Received reply for call id {0} but expected {1}'.format(message.call_id, call_id))
     
             if message.function_id != function_id:
                 self.stop()
-                raise exceptions.CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
-                
+                raise CodeException('Received reply for function id {0} but expected {1}'.format(message.function_id, function_id))
+        
+            if message.error:
+                raise CodeException("Error in (asynchronous) communication with worker: " + message.strings[0])
+        
             if has_units:
                 return message.to_result(handle_as_array), message.encoded_units
             else:
@@ -2353,11 +2335,11 @@ class LocalChannel(AbstractMessageChannel):
         pass
    
     def start(self):
-        from . import import_module
-        from . import python_code
+        import import_module
+        import python_code
         
         module = import_module.import_unique(self.package + "." + self.so_module)
-        print(module, self.package + "." + self.so_module)
+        print module, self.package + "." + self.so_module
         module.set_comm_world(MPI.COMM_SELF)
         self.local_implementation = python_code.CythonImplementation(module, self.legacy_interface_type)
         self.module = module
@@ -2365,7 +2347,7 @@ class LocalChannel(AbstractMessageChannel):
 
 
     def stop(self):
-        from . import import_module
+        import import_module
         import_module.cleanup_module(self.module)
         self.module = None
         
@@ -2408,7 +2390,7 @@ class LocalChannel(AbstractMessageChannel):
         def get_length(x):
             if x:
                 try:
-                    if not isinstance(x[0], str):
+                    if not isinstance(x[0], basestring):
                         return len(x[0])
                 except:
                     return 1
@@ -2416,7 +2398,7 @@ class LocalChannel(AbstractMessageChannel):
                
                
         
-        lengths = [get_length(x) for x in dtype_to_arguments.values()]
+        lengths = map(get_length, dtype_to_arguments.values())
         if len(lengths) == 0:
             return 1
             

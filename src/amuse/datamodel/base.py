@@ -3,7 +3,7 @@ from amuse.support.core import OrderedDictionary
 from amuse.support.core import late
 from amuse.support.core import compare_version_strings
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.units import constants
 from amuse.units import units
 from amuse.units import quantities
@@ -55,7 +55,7 @@ class RandomNumberUniqueKeyGenerator(KeyGenerator):
         if number_of_bits is None:
             number_of_bits = self.DEFAULT_NUMBER_OF_BITS
         if number_of_bits > 64:
-            raise exceptions.AmuseException("number of bits is larger than 64, this is currently unsupported!")
+            raise AmuseException("number of bits is larger than 64, this is currently unsupported!")
         self.number_of_bits = number_of_bits
         
         if random is None:
@@ -182,13 +182,13 @@ class DerivedAttribute(object):
         return None
     
     def set_values_for_entities(self, particles, value):
-        raise exceptions.AmuseException("cannot set value of a DerivedAttribute")
+        raise AmuseException("cannot set value of a DerivedAttribute")
 
     def get_value_for_entity(self, particles, particle, index):
         return None
 
     def set_value_for_entity(self, particles, key, value):
-        raise exceptions.AmuseException("cannot set value of a DerivedAttribute")
+        raise AmuseException("cannot set value of a DerivedAttribute")
 
 class AbstractAttributeValue(object):
     def __str__(self):
@@ -1166,7 +1166,7 @@ class AbstractSet(object):
             if key in new_keys:
                 new_keys.remove(key)
             else:
-                raise exceptions.AmuseException("Unable to subtract a particle, because "
+                raise AmuseException("Unable to subtract a particle, because "
                     "it is not part of this set.")
         return self._subset(new_keys)
     
@@ -1594,7 +1594,7 @@ class LinkedArray(numpy.ndarray):
                     copy_of_container = x.copy(memento, keep_structure, filter_attributes)
                 result[index] = copy_of_container
             else:
-                raise exceptions.AmuseException("unkown type in link {0}, copy not implemented".format(type(x)))
+                raise AmuseException("unkown type in link {0}, copy not implemented".format(type(x)))
             index += 1
         
         return result.reshape(self.shape)
@@ -1636,7 +1636,7 @@ class LinkedArray(numpy.ndarray):
                     else:
                         result[index] = x
             else:
-                raise exceptions.AmuseException("unkown type in link {0}, transfer link not implemented".format(type(x)))
+                raise AmuseException("unkown type in link {0}, transfer link not implemented".format(type(x)))
                 
         return result
         
@@ -1660,13 +1660,13 @@ class LinkedArray(numpy.ndarray):
                 if linked_set is None:
                     linked_set = original_set
                 elif not linked_set is original_set:
-                    raise exceptions.AmuseException(
+                    raise AmuseException(
                         "could not convert the linked array to a subset as not all particles in the linked array are part of the same set"
                     )
                 keys.append(x.key)
                 mask.append(False)
             else:                        
-                raise exceptions.AmuseException(
+                raise AmuseException(
                     "could not convert the linked array to a subset as this array also contains sets of particles, grids or gridpoints"
                 )
             index += 1

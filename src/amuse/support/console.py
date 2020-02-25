@@ -1,6 +1,6 @@
 import numpy
 from amuse.support.exceptions import AmuseException
-from amuse.support import options
+from amuse.support.options import OptionalAttributes, option
 
 registered_printing_strategies = {}
 
@@ -317,9 +317,9 @@ def add_printing_strategy(class_of_the_printing_strategy):
         registered_printing_strategies[x] = class_of_the_printing_strategy
 
 
-class _Defaults(options.OptionalAttributes):
+class _Defaults(OptionalAttributes):
 
-    @options.option(sections=['output',])
+    @option(sections=['output',])
     def printing_strategy(self):
         return 'default'
 

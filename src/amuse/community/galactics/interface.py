@@ -7,6 +7,7 @@ from amuse.community import *
 from amuse.community.interface.common import CommonCode, CommonCodeInterface
 
 from amuse.support.options import option
+from amuse.support.exceptions import CodeException
 from subprocess import Popen, PIPE
 
 from amuse.rfi.core import PythonCodeInterface
@@ -386,7 +387,7 @@ class GalactICsInterface(PythonCodeInterface, CommonCodeInterface, LiteratureRef
     
     def _check_if_worker_is_up_to_date(self):
         if not os.path.exists(os.path.join(GalactICsImplementation()._bin_path, "dbh")):
-            raise exceptions.CodeException(
+            raise CodeException(
                 "The worker code of the '{0}' interface class is not up to date.\n"
                 "Please do a 'make clean; make' in the root directory.".format(type(self).__name__))
     

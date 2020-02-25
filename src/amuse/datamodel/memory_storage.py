@@ -7,7 +7,7 @@ from amuse.units import quantities
 from amuse.units.quantities import VectorQuantity
 from amuse.units.quantities import is_quantity
 from amuse.datamodel.base import *
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.async_request import FakeASyncRequest
 
 try:
@@ -40,13 +40,13 @@ class InMemoryAttributeStorage(AttributeStorage):
         
     def add_particles_to_store(self, keys, attributes = [], quantities = []):
         if len(quantities) != len(attributes):
-            raise exceptions.AmuseException(
+            raise AmuseException(
                 "you need to provide the same number of quantities as attributes, found {0} attributes and {1} list of values".format(
                     len(attributes), len(quantities)
                 )
             )
         if len(quantities) > 0 and len(keys) != len(quantities[0]):
-            raise exceptions.AmuseException(
+            raise AmuseException(
                 "you need to provide the same number of values as particles, found {0} values and {1} particles".format(
                     len(quantities[0]), len(keys)
                 )
@@ -235,10 +235,10 @@ class InMemoryGridAttributeStorage(object):
         return self.number_of_points_in_each_direction
         
     def add_particles_to_store(self, keys, attributes = [], quantities = []):
-        raise exceptions.AmuseException("adding points to the grid is not implemented")
+        raise AmuseException("adding points to the grid is not implemented")
             
     def remove_particles_from_store(self, keys):
-        raise exceptions.AmuseException("removing points from the grid is not implemented")
+        raise AmuseException("removing points from the grid is not implemented")
         
     def remove_attribute_from_store(self, name):
         del self.mapping_from_attribute_to_quantities[name]

@@ -1,5 +1,5 @@
 from amuse.support.core import late
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.units import nbody_system
 
 from amuse.rfi.async_request import DependentASyncRequest, AbstractASyncRequest, FakeASyncRequest
@@ -174,7 +174,7 @@ class CodeMethodWrapper(AbstractCodeMethodWrapper):
     
     def asynchronous(self, *list_arguments, **keyword_arguments):
         if not self.is_async_supported:
-            raise exceptions.AmuseException("asynchronous call is not supported for this method")
+            raise AmuseException("asynchronous call is not supported for this method")
         
         
         object = self.precall()
@@ -271,6 +271,6 @@ class ProxyingMethodWrapper(AbstractCodeMethodWrapper):
     def __str__(self):
         return 'wrapped<{0}>'.format(self.method)
 
-class IncorrectWrappedMethodException(exceptions.AmuseException):
+class IncorrectWrappedMethodException(AmuseException):
     formatstring = "{0}"
 

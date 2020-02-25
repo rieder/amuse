@@ -10,6 +10,7 @@ from amuse.units.core import *
 from amuse.community import *
 from amuse.community.interface.common import CommonCode, CommonCodeInterface
 from amuse.support.options import option
+from amuse.support.exceptions import CodeException
 from amuse.rfi.core import PythonCodeInterface
 
 # KD95 = 1995MNRAS.277.1341K
@@ -449,7 +450,7 @@ class GaslactICsInterface(PythonCodeInterface, CommonCodeInterface, LiteratureRe
     
     def _check_if_worker_is_up_to_date(self):
         if not os.path.exists(os.path.join(GaslactICsImplementation()._bin_path, "dbh")):
-            raise exceptions.CodeException(
+            raise CodeException(
                 "The worker code of the '{0}' interface class is not up to date.\n"
                 "Please do a 'make clean; make' in the root directory.".format(type(self).__name__))
     

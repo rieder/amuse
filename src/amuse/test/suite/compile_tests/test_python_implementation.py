@@ -19,7 +19,7 @@ from amuse.rfi.async_request import AsyncRequestsPool
 from amuse.rfi.async_request import ASyncRequestSequence
 from amuse.rfi.tools.create_python_worker import CreateAPythonWorker
 
-from amuse.support import exceptions
+from amuse.support.exceptions import CodeException
 
 class ForTestingInterface(PythonCodeInterface):
     
@@ -1098,7 +1098,7 @@ class TestInterface(TestWithMPI):
 
     def test36(self):
         x = self.ForTestingInterface()
-        self.assertRaises(exceptions.CodeException, x.echo_quantities_error, ([20, 30, 40] | units.m), expected_message = 
+        self.assertRaises(CodeException, x.echo_quantities_error, ([20, 30, 40] | units.m), expected_message = 
                 "Exception when calling function 'echo_quantities_error', of code 'ForTestingInterface', exception was 'Error in code: an unexpected event'")
         x.stop()
 

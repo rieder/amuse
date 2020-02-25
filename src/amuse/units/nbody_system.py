@@ -47,7 +47,6 @@ from amuse.units import constants
 from amuse.units import generic_unit_converter
 from amuse.units import generic_unit_system
 from amuse.units.quantities import new_quantity
-from amuse.support import exceptions
 
 import numpy
 

@@ -5,6 +5,7 @@ from amuse.datamodel import Particles
 from amuse import datamodel
 from amuse.units import nbody_system
 from amuse.community.interface.common import CommonCodeInterface, CommonCode
+from amuse.support.exceptions import AmuseException
 
 class FractalClusterInterface(CodeInterface,  LiteratureReferencesMixIn):
     """
@@ -215,7 +216,7 @@ class MakeFractalCluster(object):
             random_seed=None, fractal_dimension=1.6, virial_ratio=0.5, verbose=False, match_N=True):
         if masses is None:
             if N is None:
-                raise exceptions.AmuseException("Either keyword argument 'N' (number of particles) or "
+                raise AmuseException("Either keyword argument 'N' (number of particles) or "
                     "'masses' (vector quantity with mass of each particle) is required.")
             self.masses = numpy.ones(N) / N | nbody_system.mass
             self.N = N

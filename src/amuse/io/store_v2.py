@@ -14,7 +14,7 @@ from amuse.units import si
 from amuse.units import units
 from amuse.units import core
 from amuse.units.quantities import is_quantity
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 
 from amuse.datamodel import Particles
 from amuse.datamodel import Particle
@@ -525,10 +525,10 @@ class HDF5GridAttributeStorage(AttributeStorage):
         return self.shape
     
     def add_particles_to_store(self, keys, attributes = [], quantities = []):
-        raise exceptions.AmuseException("adding points to the grid is not implemented")
+        raise AmuseException("adding points to the grid is not implemented")
             
     def remove_particles_from_store(self, keys):
-        raise exceptions.AmuseException("removing points from the grid is not implemented")
+        raise AmuseException("removing points from the grid is not implemented")
         
     def __len__(self):
         return numpy.prod(self.shape)

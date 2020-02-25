@@ -3,7 +3,7 @@ import operator
 
 from math import sqrt
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.support import console
 
 from amuse.support.core import late
@@ -189,7 +189,7 @@ class Quantity(object):
         :returns: quantity converted to new unit
         """
         if isinstance(another_unit, Quantity):
-            raise exceptions.AmuseException("Cannot expres a unit in a quantity")
+            raise AmuseException("Cannot expres a unit in a quantity")
         factor = self.unit.conversion_factor_from(another_unit)
         return new_quantity(self.number * factor, another_unit)
 
@@ -291,13 +291,13 @@ class ScalarQuantity(Quantity):
         if shape == -1 or (len(shape) == 1 and shape[0] == 1):
             return VectorQuantity([self.number], self.unit)
         else:
-            raise exceptions.AmuseException("Cannot reshape a scalar to vector of shape '{0}'".format(shape))
+            raise AmuseException("Cannot reshape a scalar to vector of shape '{0}'".format(shape))
 
     def __getitem__(self, index):
         if index == 0:
             return self
         else:
-            raise exceptions.AmuseException("ScalarQuantity does not support indexing")
+            raise AmuseException("ScalarQuantity does not support indexing")
 
     def copy(self):
         return new_quantity(self.number, self.unit)
@@ -405,7 +405,7 @@ class VectorQuantity(Quantity):
         try:
             array=[value_in(x,unit) for x in values]
         except core.IncompatibleUnitsException:
-            raise exceptions.AmuseException("not all values have conforming units")
+            raise AmuseException("not all values have conforming units")
         return cls(array, unit)
 
     @classmethod
@@ -455,7 +455,7 @@ class VectorQuantity(Quantity):
             return self.copy()
         if len(self)==1:
             return self.new_from_scalar_quantities(*[self[0]]*length)
-        raise exceptions.AmuseException("as_vector_with_length only valid for same length or 1")
+        raise AmuseException("as_vector_with_length only valid for same length or 1")
 
     def as_vector_quantity(self):
         return self
@@ -1083,17 +1083,17 @@ class NonNumericQuantity(Quantity):
         Quantity.__init__(self, unit)
         self.value = value
         if not unit.is_valid_value(value):
-            raise exceptions.AmuseException("<{0}> is not a valid value for {1!r}".format(value, unit))
+            raise AmuseException("<{0}> is not a valid value for {1!r}".format(value, unit))
 
     def as_quantity_in(self, another_unit):
         if not another_unit == self.unit:
-            raise exceptions.AmuseException("Cannot convert non-numeric quantities in to another unit")
+            raise AmuseException("Cannot convert non-numeric quantities in to another unit")
 
         return new_quantity(self.value, another_unit)
 
     def value_in(self, unit):
         if not unit == self.unit:
-            raise exceptions.AmuseException("Cannot convert non-numeric quantities in to another unit")
+            raise AmuseException("Cannot convert non-numeric quantities in to another unit")
 
         return self.value
 

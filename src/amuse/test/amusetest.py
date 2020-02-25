@@ -7,9 +7,9 @@ import inspect
 import tempfile
 
 from amuse.support import _Defaults
-from amuse.support import exceptions
 from amuse.support import literature
-from amuse.support import options
+from amuse.support.options import option
+from amuse.support.exceptions import AmuseException
 from amuse.support.core  import late
 from amuse.support import get_amuse_root_dir
 from amuse.units.quantities import none
@@ -27,7 +27,7 @@ def safe_repr(obj, short=False):
         return result
     return result[:_MAX_LENGTH] + ' [truncated]...'
 
-class SkipTest(exceptions.AmuseException):
+class SkipTest(AmuseException):
     pass
 
 class TestCase(unittest.TestCase):
@@ -306,7 +306,7 @@ class TestDefaults(_Defaults):
         print(("generating temporary dir for test results: {0}". format(dirname)))
         return dirname
 
-    @options.option(sections=['test'])
+    @option(sections=['test'])
     def path_to_results(self):
         name_of_testresults_directory = self.name_of_testresults_directory
         if os.path.exists(os.path.abspath(name_of_testresults_directory)):
@@ -325,11 +325,11 @@ class TestDefaults(_Defaults):
         else:
             return self.temporarydir
 
-    @options.option(sections=['test'])
+    @option(sections=['test'])
     def name_of_testresults_directory(self):
         return 'test_results'
 
-    @options.option(type='boolean',sections=['test'])
+    @option(type='boolean',sections=['test'])
     def can_run_tests_to_compile_modules(self):
         return True
 

@@ -4,16 +4,16 @@ from amuse.units.quantities import is_unit
 from amuse.units.quantities import is_quantity
 from amuse.units.generic_unit_system import *
 
-from amuse.support import exceptions
+from amuse.support.exceptions import AmuseException
 from amuse.support.core import late
 
-class UnitsNotOrtogonalException(exceptions.AmuseException):
+class UnitsNotOrtogonalException(AmuseException):
     formatstring = 'The number of orthoganal units is incorrect, expected {0} but found {1}. To convert between S.I. units and another system of units a set of quantities with orthogonal units is needed. These can be quantities with a single unit (such as length or time) or quantities with a derived units (such as velocity or force)'
 
-class NotAQuantityException(exceptions.AmuseException):
+class NotAQuantityException(AmuseException):
     formatstring = 'Converters need to be initialized with a quantity argument[{0}] {1!r} is not a quantity'
 
-class NotAScalarException(exceptions.AmuseException):
+class NotAScalarException(AmuseException):
     formatstring = 'Converters need to be initialized with scalar quantities, argument[{0}] {1!r} is not a scalar'
     
 class GenericToSiConverter(object):

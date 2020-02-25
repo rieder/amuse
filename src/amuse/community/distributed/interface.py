@@ -4,7 +4,8 @@ import logging
 from amuse.community import *
 from amuse.community.interface.common import CommonCodeInterface
 from amuse.community.interface.common import CommonCode
-from amuse.support import options
+from amuse.support.options import GlobalOptions
+from amuse.support.exceptions import AmuseException
 from amuse.rfi.channel import DistributedChannel
 
 from distributed_datamodel import Resources, Resource
@@ -527,10 +528,10 @@ class DistributedAmuseInterface(CodeInterface, CommonCodeInterface, LiteratureRe
         return 0
     
     def new_worker(self):
-        raise exceptions.AmuseException("Can't add to 'workers' directly. Create community code instances in the usual way instead.")
+        raise AmuseException("Can't add to 'workers' directly. Create community code instances in the usual way instead.")
     
     def delete_worker(self):
-        raise exceptions.AmuseException("Can't remove from 'workers' directly. Stop community code instances in the usual way instead.")
+        raise AmuseException("Can't remove from 'workers' directly. Stop community code instances in the usual way instead.")
 
 class DistributedAmuse(CommonCode):
 
@@ -576,7 +577,7 @@ class DistributedAmuse(CommonCode):
         resource = Resource()
         resource.name = "local"
         resource.location = ""
-        resource.amuse_dir = options.GlobalOptions.instance().amuse_rootdirectory
+        resource.amuse_dir = GlobalOptions.instance().amuse_rootdirectory
         resource.scheduler_type = "local"
         self.resources.add_resource(resource)
                 
@@ -592,19 +593,19 @@ class DistributedAmuse(CommonCode):
     def use_for_all_workers(self, enable=True):
         if enable:
             DistributedChannel.default_distributed_instance=self
-            options.GlobalOptions.instance().override_value_for_option("channel_type", "distributed")
+            GlobalOptions.instance().override_value_for_option("channel_type", "distributed")
         else:
             if DistributedChannel.default_distributed_instance is self \
-                     and "channel_type" in options.GlobalOptions.instance().overriden_options:
+                     and GlobalOptions.instance().overriden_options.has_key("channel_type"):
                 DistributedChannel.default_distributed_instance=None
-                del options.GlobalOptions.instance().overriden_options["channel_type"]
+                del GlobalOptions.instance().overriden_options["channel_type"]
             
 
     def cleanup_code(self):
         if DistributedChannel.default_distributed_instance is self:
             DistributedChannel.default_distributed_instance=None
-            if "channel_type" in options.GlobalOptions.instance().overriden_options:
-                del options.GlobalOptions.instance().overriden_options["channel_type"]
+            if GlobalOptions.instance().overriden_options.has_key("channel_type"):
+                del GlobalOptions.instance().overriden_options["channel_type"]
                 
         self.overridden().cleanup_code()
         
@@ -750,7 +751,7 @@ class DistributedAmuse(CommonCode):
         old_ids = set(self._workers.get_all_indices_in_store())
         number_of_workers = self.get_number_of_workers()
         if not number_of_workers == 0:
-            new_ids = set(self.get_worker_ids(list(range(number_of_workers))))
+            new_ids = set(self.get_worker_ids(range(number_of_workers)))
         else:
             new_ids=set()
         

@@ -9,8 +9,9 @@ The Astrophysical Multipurpose Software Environment
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-   
+   :maxdepth: 1
+
+   includeme
    install/index
    tutorial/index
    interactive_tutorial/index

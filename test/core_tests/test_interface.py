@@ -1,11 +1,9 @@
 from amuse.support import interface
-from amuse.support.exceptions import AmuseException
-
+from amuse.support.exceptions import AmuseException, CodeException
 
 from amuse.datamodel.binding import *
 from amuse.datamodel.parameters import *
 from amuse.support.core import OrderedDictionary
-from amuse.support import exceptions
 
 from amuse.test import amusetest
 import numpy
@@ -1778,14 +1776,14 @@ class CodeInterfaceAndLegacyFunctionsTest(amusetest.TestCase):
         
         handler = instance.get_handler('METHOD')
         handler.add_method('echo_inputs', (units.m, units.s), (units.s, handler.ERROR_CODE))
-        self.assertRaises(exceptions.AmuseException, lambda: instance.echo_inputs, 
+        self.assertRaises(AmuseException, lambda: instance.echo_inputs, 
             expected_message = "Incorrect definition of method 'echo_inputs' of class 'InCodeComponentImplementation', "
             "the number of outputs do not match, expected 3, actual 2.")
             
         instance = interface.InCodeComponentImplementation(original)
         handler = instance.get_handler('METHOD')
         handler.add_method('echo_inputs', (units.m, units.s), (units.s, units.m, units.s, handler.ERROR_CODE))
-        self.assertRaises(exceptions.AmuseException, lambda: instance.echo_inputs, 
+        self.assertRaises(AmuseException, lambda: instance.echo_inputs, 
             expected_message = "Incorrect definition of method 'echo_inputs' of class 'InCodeComponentImplementation', "
             "the number of outputs do not match, expected 3, actual 4.")
 
@@ -1810,7 +1808,7 @@ class CodeInterfaceAndLegacyFunctionsTest(amusetest.TestCase):
         
         handler = instance.get_handler('METHOD')
         handler.add_method('echo_inputs', (units.m), (units.s, units.m, handler.ERROR_CODE), )
-        self.assertRaises(exceptions.AmuseException, lambda: instance.echo_inputs, 
+        self.assertRaises(AmuseException, lambda: instance.echo_inputs, 
             expected_message = "Incorrect definition of method 'echo_inputs' of class 'InCodeComponentImplementation', "
             "the number of inputs do not match, expected 2, actual 1.")
     
@@ -1830,5 +1828,5 @@ class CodeInterfaceAndLegacyFunctionsTest(amusetest.TestCase):
                 return function
             
         original = TestClass()
-        self.assertRaises(exceptions.CodeException, original.echo_inputs, 1, 2,
+        self.assertRaises(CodeException, original.echo_inputs, 1, 2,
             expected_message = "Exception when calling function 'echo_inputs', of code 'TestClass', exception was ''TestClass' object has no attribute 'channel''")
