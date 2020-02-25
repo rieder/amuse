@@ -1,6 +1,8 @@
 # standard amuse configuration include
 # config.mk will be made after ./configure has run
-AMUSE_DIR?=../../../..
+ifeq ($(origin AMUSE_DIR), undefined)
+  AMUSE_DIR := $(shell amusifier --get-amuse-dir)
+endif
 -include $(AMUSE_DIR)/config.mk
 
 MPIFC ?= mpif90
@@ -19,7 +21,7 @@ CODEDIR = src/phantom
 
 CODE_GENERATOR = $(AMUSE_DIR)/build.py
 
-SETUP = cluster
+SETUP = amuse
 SYSTEM = gfortran
 
 DOWNLOAD_FROM_WEB = $(PYTHON) ./download.py
@@ -183,7 +185,7 @@ clean:
 	make -C ${CODEDIR} clean
 
 $(CODELIB):$(CODEDIR)/Makefile
-	make -C ${CODEDIR} libphantom SETUP=amuse SYSTEM=gfortran OPENMP=yes
+	make -C ${CODEDIR} libphantom SETUP=$(SETUP) SYSTEM=$(SYSTEM) OPENMP=yes
 	ar crs ${CODELIB} ${OBJECTS}
 
 worker_code.f90: interface.py
