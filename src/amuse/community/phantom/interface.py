@@ -808,6 +808,30 @@ class PhantomInterface(
         return function
 
     @legacy_function
+    def get_icooling():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'icooling', dtype='int32', direction=function.OUT)
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def set_icooling():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'icooling', dtype='int32', direction=function.IN)
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
     def get_polyk():
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -1318,6 +1342,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "ieos",
             "eqn of state (1=isoth;2=adiab;3=locally iso;8=barotropic)",
             default_value=1
+        )
+
+        handler.add_method_parameter(
+            "get_icooling",
+            "set_icooling",
+            "icooling",
+            "Cooling (0=off 1=default 2/3 = other)",
+            default_value=0
         )
 
         handler.add_method_parameter(

@@ -617,6 +617,14 @@ function set_ieos(ieos)
     set_ieos=0
 end function
 
+function set_icooling(icooling)
+    implicit none
+    integer :: icooling
+    integer :: set_icooling
+    call amuse_set_icooling(icooling)
+    set_icooling=0
+end function
+
 function set_polyk(polyk)
     implicit none
     double precision :: polyk
@@ -824,6 +832,14 @@ function get_ieos(ieos)
     integer :: get_ieos
     call amuse_get_ieos(ieos)
     get_ieos=0
+end function
+
+function get_icooling(icooling)
+    implicit none
+    integer :: icooling
+    integer :: get_icooling
+    call amuse_get_icooling(icooling)
+    get_icooling=0
 end function
 
 function get_polyk(polyk)
