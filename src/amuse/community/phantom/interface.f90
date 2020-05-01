@@ -28,6 +28,7 @@ end function
 function commit_particles()
   implicit none
   integer :: commit_particles
+  call amuse_commit_particles()
   commit_particles=0
 end function
 
@@ -325,6 +326,7 @@ end function
 function recommit_particles()
   implicit none
   integer :: recommit_particles
+  call amuse_recommit_particles()
   recommit_particles=0
 end function
 
@@ -952,6 +954,54 @@ function get_gamma(gamma)
     integer :: get_gamma
     call amuse_get_gamma(gamma)
     get_gamma=0
+end function
+
+function get_unit_length(unit_length)
+    implicit none
+    double precision :: unit_length
+    integer :: get_unit_length
+    call amuse_get_unit_length(unit_length)
+    get_unit_length=0
+end function
+
+function get_unit_mass(unit_mass)
+    implicit none
+    double precision :: unit_mass
+    integer :: get_unit_mass
+    call amuse_get_unit_mass(unit_mass)
+    get_unit_mass=0
+end function
+
+function get_unit_time(unit_time)
+    implicit none
+    double precision :: unit_time
+    integer :: get_unit_time
+    call amuse_get_unit_time(unit_time)
+    get_unit_time=0
+end function
+
+function get_constant_solarm(solarm)
+    implicit none
+    double precision :: solarm
+    integer :: get_constant_solarm
+    call amuse_get_constant_solarm(solarm)
+    get_constant_solarm=0
+end function
+
+function get_constant_pc(pc)
+    implicit none
+    double precision :: pc
+    integer :: get_constant_pc
+    call amuse_get_constant_pc(pc)
+    get_constant_pc=0
+end function
+
+function get_constant_planckh(planckh)
+    implicit none
+    double precision :: planckh
+    integer :: get_constant_planckh
+    call amuse_get_constant_planckh(planckh)
+    get_constant_planckh=0
 end function
 
 !END MODULE

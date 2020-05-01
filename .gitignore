@@ -333,6 +333,7 @@ src/amuse/community/mpiamrvac/mpiamrvac_worker_2d
 src/amuse/community/mpiamrvac/mpiamrvac_worker_2dacc
 src/amuse/community/mpiamrvac/mpiamrvac_worker_acc
 src/amuse/community/mpiamrvac/src/
+src/amuse/community/phantom/src/
 src/amuse/community/rebound/.pc/
 src/amuse/community/rebound/src/
 src/amuse/community/tupan/install/
@@ -482,3 +483,4 @@ test_python_sockets_implementation
 .buildpath
 
 .idea
+.DS_Store

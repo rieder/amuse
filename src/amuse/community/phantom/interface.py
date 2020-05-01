@@ -17,7 +17,8 @@ from amuse.community.interface.stopping_conditions import (
     StoppingConditionInterface,
     StoppingConditions,
 )
-from amuse.units import nbody_system, units
+from amuse.units import units, generic_unit_system
+from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
 
 
 class PhantomInterface(
@@ -518,6 +519,34 @@ class PhantomInterface(
         return function
 
     @legacy_function
+    def get_time_step():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'time_step', dtype='float64', direction=function.OUT,
+            unit=generic_unit_system.time,
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def set_time_step():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'time_step', dtype='float64', direction=function.IN,
+            unit=generic_unit_system.time,
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
     def get_c_courant():
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -836,7 +865,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'polyk', dtype='float64', direction=function.OUT,
-            unit=(nbody_system.speed**2)
+            unit=(generic_unit_system.speed**2)
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -850,7 +879,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'polyk', dtype='float64', direction=function.IN,
-            unit=(nbody_system.speed**2)
+            unit=(generic_unit_system.speed**2)
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -916,7 +945,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'rhofinal', dtype='float64', direction=function.OUT,
-            unit=(nbody_system.density),
+            unit=(generic_unit_system.density),
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -930,7 +959,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'rhofinal', dtype='float64', direction=function.IN,
-            unit=(nbody_system.density),
+            unit=(generic_unit_system.density),
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -944,7 +973,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'rho_crit', dtype='float64', direction=function.OUT,
-            unit=(nbody_system.density),
+            unit=(generic_unit_system.density),
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -958,7 +987,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'rho_crit', dtype='float64', direction=function.IN,
-            unit=(nbody_system.density),
+            unit=(generic_unit_system.density),
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -972,7 +1001,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'r_crit', dtype='float64', direction=function.OUT,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -986,7 +1015,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'r_crit', dtype='float64', direction=function.IN,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1000,7 +1029,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_acc', dtype='float64', direction=function.OUT,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1014,7 +1043,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_acc', dtype='float64', direction=function.IN,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1028,7 +1057,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_soft_sinkgas', dtype='float64', direction=function.OUT,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1042,7 +1071,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_soft_sinkgas', dtype='float64', direction=function.IN,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1056,7 +1085,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_soft_sinksink', dtype='float64', direction=function.OUT,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1070,7 +1099,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'h_soft_sinksink', dtype='float64', direction=function.IN,
-            unit=nbody_system.length,
+            unit=generic_unit_system.length,
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1199,6 +1228,90 @@ class PhantomInterface(
         """
         return function
 
+    @legacy_function
+    def get_unit_length():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'code_unit_length', dtype='float64', direction=function.OUT,
+            unit = units.cm  # generic_unit_system.length
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_unit_mass():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'code_unit_mass', dtype='float64', direction=function.OUT,
+            unit = units.g  # generic_unit_system.mass
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_unit_time():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'code_unit_time', dtype='float64', direction=function.OUT,
+            unit = units.s  # generic_unit_system.time
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_constant_solarm():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'physcon_solarm', dtype='float64', direction=function.OUT,
+            unit = units.g
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_constant_pc():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'physcon_pc', dtype='float64', direction=function.OUT,
+            unit = units.cm
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
+    @legacy_function
+    def get_constant_planckh():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'physcon_planckh', dtype='float64', direction=function.OUT,
+            unit = units.erg * units.s
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+        -1 - ERROR
+        """
+        return function
+
     def reinitialize_particles(self):
         self.recommit_particles()
 
@@ -1210,6 +1323,24 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             self,
             convert_nbody=None,
             **options):
+        if convert_nbody is None:
+            phantom_solarm = 1.9891e33 | units.g
+            phantom_pc = 3.086e18 | units.cm
+            phantom_gg = 6.672041e-8 | units.cm**3 * units.g**-1 * units.s**-2
+            # phantom_speed = phantom_length/phantom_time
+            # phantom_density = phantom_mass / phantom_length**3
+            # phantom_specific_energy = phantom_length**2 / phantom_time**2
+            # phantom_pressure = phantom_mass / phantom_length / (phantom_time**2)
+            phantom_length = 0.1 * phantom_pc
+            phantom_mass = 1.0 * phantom_solarm
+            unit_converter = ConvertBetweenGenericAndSiUnits(
+                # Phantom uses CGS units internally, scaled with G=1
+                # So we need to make sure we use those same units here...
+                phantom_length,  # 0.1 pc
+                phantom_mass,  # 1.0 MSun
+                (phantom_length**3 / (phantom_gg*phantom_mass))**0.5,  # 1 "time" (G=1)
+            )
+
         self.stopping_conditions = StoppingConditions(self)
 
         GravitationalDynamics.__init__(
@@ -1218,6 +1349,13 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             convert_nbody,
             **options
         )
+
+    def initialize_code(self):
+        result = self.overridden().initialize_code()
+        # self.set_unit_mass(self.unit_converter.to_si(generic_unit_system.mass).value_in(units.g))
+        # self.set_unit_length(self.unit_converter.to_si(generic_unit_system.length).value_in(units.cm))
+        # self.set_unit_time(self.unit_converter.to_si(generic_unit_system.time).value_in(units.s))
+        return result
 
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
@@ -1240,6 +1378,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         self.stopping_conditions.define_state(handler)
 
     def define_parameters(self, handler):
+        handler.add_method_parameter(
+            "get_time_step",
+            "set_time_step",
+            "time_step",
+            "Maximum internal time step",
+            default_value=0.01 | generic_unit_system.time
+        )
+
         handler.add_method_parameter(
             "get_c_courant",
             "set_c_courant",
@@ -1373,7 +1519,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_rhofinal",
             "rhofinal",
             "maximum allowed density (<=0 to ignore)",
-            default_value=(0 | nbody_system.density)
+            default_value=(0 | generic_unit_system.density)
         )
 
         handler.add_method_parameter(
@@ -1390,7 +1536,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "r_crit",
             "critical radius for point mass creation"
             " (no new sinks < r_crit from existing sink)",
-            default_value=(0.001 | nbody_system.length)
+            default_value=(0.001 | generic_unit_system.length)
         )
 
         handler.add_method_parameter(
@@ -1398,7 +1544,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_acc",
             "h_acc",
             "accretion radius for new sink particles",
-            default_value=(0.001 | nbody_system.length)
+            default_value=(0.001 | generic_unit_system.length)
         )
 
         handler.add_method_parameter(
@@ -1406,7 +1552,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_soft_sinkgas",
             "h_soft_sinkgas",
             "softening length for new sink particles",
-            default_value=(0.001 | nbody_system.length)
+            default_value=(0.001 | generic_unit_system.length)
         )
 
         handler.add_method_parameter(
@@ -1414,7 +1560,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_h_soft_sinksink",
             "h_soft_sinksink",
             "softening length between sink particles",
-            default_value=(0.001 | nbody_system.length)
+            default_value=(0.001 | generic_unit_system.length)
         )
 
         handler.add_method_parameter(
@@ -1457,6 +1603,60 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "bulkvisc",
             "magnitude of bulk viscosity",
             default_value=0.0
+        )
+
+        handler.add_method_parameter(
+            "get_unit_length",
+            None,
+            "code_unit_length",
+            "code unit length",
+            default_value = 0.1 * 3.086e18 | units.cm
+        )
+
+        handler.add_method_parameter(
+            "get_unit_mass",
+            None,
+            "code_unit_mass",
+            "code unit mass",
+            default_value = 1.9891e33 | units.g
+        )
+
+        handler.add_method_parameter(
+            "get_unit_time",
+            None,
+            "code_unit_time",
+            "code unit time",
+            default_value = (
+                (0.1 * 3.086e18 | units.cm)**3
+                / (
+                    (6.672041e-8 | units.cm**3 * units.g**-1 * units.s**-2)
+                    * (1.9891e33 | units.g)
+                )
+            )**0.5
+        )
+
+        handler.add_method_parameter(
+            "get_constant_pc",
+            None,
+            "physcon_pc",
+            "parsec (cm)",
+            default_value = 3.086e18 | units.cm
+        )
+
+        handler.add_method_parameter(
+            "get_constant_solarm",
+            None,
+            "physcon_solarm",
+            "solar mass (g)",
+            default_value = 1.9891e33 | units.g
+        )
+
+        handler.add_method_parameter(
+            "get_constant_planckh",
+            None,
+            "physcon_planckh",
+            "Planck constant (cm)",
+            default_value = 6.6260755e-27 | units.erg * units.s
         )
 
         self.stopping_conditions.define_parameters(handler)
@@ -1525,14 +1725,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_method(
             "new_dm_particle",
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
             ),
             (
                 handler.INDEX,
@@ -1543,15 +1743,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_method(
             "new_sph_particle",
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.specific_energy,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.specific_energy,
+                generic_unit_system.length,
             ),
             (
                 handler.INDEX,
@@ -1562,15 +1762,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
         handler.add_method(
             "new_sink_particle",
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
+                generic_unit_system.length,
             ),
             (
                 handler.INDEX,
@@ -1584,14 +1784,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1600,14 +1800,14 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_state_dm",
             (
                 handler.INDEX,
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
             ),
             (
                 handler.ERROR_CODE,
@@ -1620,15 +1820,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.specific_energy,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.specific_energy,
+                generic_unit_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1637,15 +1837,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_state_sph",
             (
                 handler.INDEX,
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.specific_energy,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.specific_energy,
+                generic_unit_system.length,
             ),
             (
                 handler.ERROR_CODE,
@@ -1658,15 +1858,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
+                generic_unit_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1675,15 +1875,15 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_state_sink",
             (
                 handler.INDEX,
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length,
-                nbody_system.length,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
+                generic_unit_system.length,
             ),
             (
                 handler.ERROR_CODE,
@@ -1696,7 +1896,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.density,
+                generic_unit_system.density,
                 handler.ERROR_CODE,
             )
         )
@@ -1707,7 +1907,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.length,
+                generic_unit_system.length,
                 handler.ERROR_CODE,
             )
         )
@@ -1716,7 +1916,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_smoothing_length",
             (
                 handler.INDEX,
-                nbody_system.length,
+                generic_unit_system.length,
             ),
             (
                 handler.ERROR_CODE,
@@ -1729,7 +1929,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.pressure,
+                generic_unit_system.pressure,
                 handler.ERROR_CODE,
             )
         )
@@ -1740,7 +1940,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 handler.INDEX,
             ),
             (
-                nbody_system.specific_energy,
+                generic_unit_system.specific_energy,
                 handler.ERROR_CODE,
             )
         )
@@ -1749,7 +1949,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             "set_internal_energy",
             (
                 handler.INDEX,
-                nbody_system.specific_energy,
+                generic_unit_system.specific_energy,
             ),
             (
                 handler.ERROR_CODE,
