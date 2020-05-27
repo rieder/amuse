@@ -1,5 +1,5 @@
 from amuse.support.core import late
-from amuse.support.exceptions import AmuseException
+from amuse.support import exceptions
 import numpy
 
 
@@ -334,10 +334,10 @@ class unit(object):
         """
         from amuse.units import quantities
         if isinstance(unit, quantities.Quantity):
-            raise AmuseException("Cannot expres a unit in a quantity")
-        else:
-            factor = self.conversion_factor_from(unit)
-            return quantities.new_quantity(factor, unit)
+            raise exceptions.AmuseException("Cannot expres a unit in a quantity")
+
+        factor = self.conversion_factor_from(unit)
+        return quantities.new_quantity(factor, unit)
             
     def value_in(self, unit):
         """
@@ -377,7 +377,7 @@ class unit(object):
                     if sub1[1] == sub2[1]:
                         result.append((sub1[0], sub2[0], sub1[1]))
                     else:
-                        raise AmuseException("Cannot combine units from "
+                        raise exceptions.AmuseException("Cannot combine units from "
                             "different systems: {0} and {1}".format(sub1[1], sub2[1]))
                 else:
                     result.append((sub1[0], 0, sub1[1]))
@@ -609,7 +609,7 @@ class key_unit(none_unit):
     
     @property
     def dtype(self):
-        return 'uint64'
+        return numpy.dtype('uint64')
         
         
         
@@ -638,28 +638,28 @@ class nonnumeric_unit(unit):
     def __mul__(self, other):
         if other == 1:
             return self
-        raise AmuseException("Cannot derive other units from a non numeric unit")
+        raise exceptions.AmuseException("Cannot derive other units from a non numeric unit")
         
     def __truediv__(self, other):
-        raise AmuseException("Cannot derive other units from a non numeric unit")
+        raise exceptions.AmuseException("Cannot derive other units from a non numeric unit")
 
     def __rmul__(self, other):
         if other == 1:
             return self
             
-        raise AmuseException("Cannot derive other units from a non numeric unit")
+        raise exceptions.AmuseException("Cannot derive other units from a non numeric unit")
     
     def __rtruediv__(self, other):
         if other == 1:
             return self
             
-        raise AmuseException("Cannot derive other units from a non numeric unit")
+        raise exceptions.AmuseException("Cannot derive other units from a non numeric unit")
         
     def __pow__(self, other):
         if other == 1:
             return self
             
-        raise AmuseException("Cannot derive other units from a non numeric unit")
+        raise exceptions.AmuseException("Cannot derive other units from a non numeric unit")
         
     def __div__(self, other):
         return self.__truediv__(other)
@@ -709,7 +709,7 @@ class string_unit(nonnumeric_unit):
         
     @property
     def dtype(self):
-        return 'S256'
+        return numpy.dtype('S256')
 
 class enumeration_unit(nonnumeric_unit):
     DEFINED={}
@@ -754,16 +754,15 @@ class enumeration_unit(nonnumeric_unit):
         self.possible_values = self._initial_list_of_possible_values(possible_values, names_for_values)
         self.names_for_values = self._initial_names_for_values(possible_values, names_for_values)
         if not len(self.possible_values) == len(self.names_for_values):
-            raise AmuseException("Must provide equal lenght list for values({0}) and names({1})".format(len(self.possible_values), len(self.names_for_values)))
+            raise exceptions.AmuseException("Must provide equal lenght list for values({0}) and names({1})".format(len(self.possible_values), len(self.names_for_values)))
         self.mapping_from_values_to_names = self._initial_mapping_from_values_to_names()
         self.DEFINED[name] = self
         
     def _initial_list_of_possible_values(self, possible_values, names_for_values):
         if possible_values is None:
             if names_for_values is None:
-                raise AmuseException("Must provide a list of values and / or a list of names for each value")
-            else:
-                return list(range(len(names_for_values)))
+                raise exceptions.AmuseException("Must provide a list of values and / or a list of names for each value")
+            return list(range(len(names_for_values)))
         else:
             return list(possible_values)
             
@@ -778,9 +777,8 @@ class enumeration_unit(nonnumeric_unit):
     def _initial_names_for_values(self, possible_values, names_for_values):
         if names_for_values is None:
             if possible_values is None:
-                raise AmuseException("Must provide a list of values and / or a list of names for each value")
-            else:
-                return [str(x) for x in possible_values]
+                raise exceptions.AmuseException("Must provide a list of values and / or a list of names for each value")
+            return [str(x) for x in possible_values]
         else:
             return list(names_for_values)
             
@@ -802,11 +800,11 @@ class enumeration_unit(nonnumeric_unit):
         if index > 0:
             return self.possible_values[index] | self
         else:
-            raise AmuseException("{0} is not a valid name for {1} enumeration type".format(string, self.name))
+            raise exceptions.AmuseException("{0} is not a valid name for {1} enumeration type".format(string, self.name))
             
     @property
     def dtype(self):
-        return 'int32'
+        return numpy.dtype('int32')
         
     @classmethod
     def get(cls, name):
@@ -1148,11 +1146,11 @@ class div_unit(derived_unit):
         
         return result
     
-class UnitException(AmuseException):
+class UnitException(exceptions.AmuseException):
     formatstring = "Unit exception: {0}"
 
 
-class IncompatibleUnitsException(AmuseException):
+class IncompatibleUnitsException(exceptions.AmuseException):
     formatstring = "Cannot express {1} in {0}, the units do not have the same bases"
 
     def __init__(self, *arguments):

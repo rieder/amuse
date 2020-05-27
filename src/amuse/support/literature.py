@@ -9,8 +9,7 @@ except ValueError:
 
 import docutils.nodes as nodes
 from collections import namedtuple
-from amuse.support.exceptions import AmuseWarning
-import warnings
+from amuse.support import exceptions
 
 import atexit
 import sys
@@ -75,7 +74,7 @@ class TrackLiteratureReferences(object):
             string = self.all_literature_references_string()
             if string:
                 prefix = "\n\nYou have used the following codes, which contain literature references:\n"
-                warnings.warn(prefix + self.all_literature_references_string(), AmuseWarning)
+                print(prefix + self.all_literature_references_string())
         
     
     def get_literature_list_of_class(self, cls):

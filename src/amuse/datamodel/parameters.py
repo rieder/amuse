@@ -1,5 +1,6 @@
 import weakref
 import numpy
+
 from amuse.units import nbody_system
 from amuse.units import generic_unit_system
 from amuse.units import quantities
@@ -306,8 +307,8 @@ class ParametersWithUnitsConverted(object):
 
     def __setattr__(self, name, value):
         if not name in self._original._mapping_from_name_to_definition:
-            warnings.warn("tried to set unknown parameter '{0}' for a '{1}' object".format(name, type(self._instance()).__name__), exceptions.AmuseWarning)
-            return
+            raise exceptions.CoreException("Could not set unknown parameter '{0}' for a '{1}' object".format(name, type(self._original()).__name__))
+
         try:
             setattr(self._original, name, self._converter.from_source_to_target(value))
         except IncompatibleUnitsException as ex:

@@ -275,3 +275,6 @@ def new_fractal_cluster_model(*list_arguments, **keyword_arguments):
     """
     uc = MakeFractalCluster(*list_arguments, **keyword_arguments)
     return uc.result
+
+
+Fractalcluster = FractalCluster
