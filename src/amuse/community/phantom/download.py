@@ -11,7 +11,7 @@ from optparse import OptionParser
 
 
 class GetCodeFromHttp(object):
-    url_template = "https://bitbucket.org/danielprice/phantom/get/{version}.zip"
+    url_template = "https://github.com/rieder/phantom/archive/{version}.zip"
     filename_template = "{version}.zip"
     version = ""
 
@@ -32,7 +32,7 @@ class GetCodeFromHttp(object):
         subprocess.call(
             [
                 'mv',
-                'danielprice-phantom-{version}'.format(version=self.version),
+                'phantom-{version}'.format(version=self.version),
                 'phantom'
             ],
             cwd=os.path.join(self.src_directory())
@@ -70,7 +70,7 @@ def new_option_parser():
     result = OptionParser()
     result.add_option(
         "--version",
-        default="a169e4c3cf0d",
+        default="a169e4c3cf0dc19ac453a262cda650ad6d69217f",
         dest="version",
         help="version number to download",
         type="string"
