@@ -1,6 +1,6 @@
 "Interface to Phantom"
 
-from amuse.community import (
+from amuse.community.interface import (
     CodeInterface,
     LegacyFunctionSpecification,
     legacy_function,
@@ -1233,7 +1233,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'code_unit_length', dtype='float64', direction=function.OUT,
-            unit = units.cm  # generic_unit_system.length
+            unit=units.cm  # generic_unit_system.length
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1247,7 +1247,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'code_unit_mass', dtype='float64', direction=function.OUT,
-            unit = units.g  # generic_unit_system.mass
+            unit=units.g  # generic_unit_system.mass
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1261,7 +1261,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'code_unit_time', dtype='float64', direction=function.OUT,
-            unit = units.s  # generic_unit_system.time
+            unit=units.s  # generic_unit_system.time
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1275,7 +1275,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'physcon_solarm', dtype='float64', direction=function.OUT,
-            unit = units.g
+            unit=units.g
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1289,7 +1289,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'physcon_pc', dtype='float64', direction=function.OUT,
-            unit = units.cm
+            unit=units.cm
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1303,7 +1303,7 @@ class PhantomInterface(
         function = LegacyFunctionSpecification()
         function.addParameter(
             'physcon_planckh', dtype='float64', direction=function.OUT,
-            unit = units.erg * units.s
+            unit=units.erg * units.s
         )
         function.result_type = 'int32'
         function.result_doc = """
@@ -1327,10 +1327,6 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             phantom_solarm = 1.9891e33 | units.g
             phantom_pc = 3.086e18 | units.cm
             phantom_gg = 6.672041e-8 | units.cm**3 * units.g**-1 * units.s**-2
-            # phantom_speed = phantom_length/phantom_time
-            # phantom_density = phantom_mass / phantom_length**3
-            # phantom_specific_energy = phantom_length**2 / phantom_time**2
-            # phantom_pressure = phantom_mass / phantom_length / (phantom_time**2)
             phantom_length = 0.1 * phantom_pc
             phantom_mass = 1.0 * phantom_solarm
             unit_converter = ConvertBetweenGenericAndSiUnits(
@@ -1338,8 +1334,9 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
                 # So we need to make sure we use those same units here...
                 phantom_length,  # 0.1 pc
                 phantom_mass,  # 1.0 MSun
-                (phantom_length**3 / (phantom_gg*phantom_mass))**0.5,  # 1 "time" (G=1)
+                (phantom_length**3 / (phantom_gg*phantom_mass))**0.5,
             )
+            convert_nbody = unit_converter
 
         self.stopping_conditions = StoppingConditions(self)
 
@@ -1610,7 +1607,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "code_unit_length",
             "code unit length",
-            default_value = 0.1 * 3.086e18 | units.cm
+            default_value=0.1 * 3.086e18 | units.cm
         )
 
         handler.add_method_parameter(
@@ -1618,7 +1615,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "code_unit_mass",
             "code unit mass",
-            default_value = 1.9891e33 | units.g
+            default_value=1.9891e33 | units.g
         )
 
         handler.add_method_parameter(
@@ -1626,7 +1623,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "code_unit_time",
             "code unit time",
-            default_value = (
+            default_value=(
                 (0.1 * 3.086e18 | units.cm)**3
                 / (
                     (6.672041e-8 | units.cm**3 * units.g**-1 * units.s**-2)
@@ -1640,7 +1637,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "physcon_pc",
             "parsec (cm)",
-            default_value = 3.086e18 | units.cm
+            default_value=3.086e18 | units.cm
         )
 
         handler.add_method_parameter(
@@ -1648,7 +1645,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "physcon_solarm",
             "solar mass (g)",
-            default_value = 1.9891e33 | units.g
+            default_value=1.9891e33 | units.g
         )
 
         handler.add_method_parameter(
@@ -1656,7 +1653,7 @@ class Phantom(GravitationalDynamics, GravityFieldCode):
             None,
             "physcon_planckh",
             "Planck constant (cm)",
-            default_value = 6.6260755e-27 | units.erg * units.s
+            default_value=6.6260755e-27 | units.erg * units.s
         )
 
         self.stopping_conditions.define_parameters(handler)
