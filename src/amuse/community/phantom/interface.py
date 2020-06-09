@@ -1,6 +1,6 @@
 "Interface to Phantom"
 
-from amuse.community.interface import (
+from amuse.community import (
     CodeInterface,
     LegacyFunctionSpecification,
     legacy_function,
