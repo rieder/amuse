@@ -14,18 +14,13 @@ name = 'amuse-phantom'
 micro_version = 1
 patch_version = ""
 version = "%i.%i.%i%s" % (major_version, minor_version, micro_version,
-                           patch_version)
+                          patch_version)
 author = 'The AMUSE team'
 author_email = 'info@amusecode.org'
 license_ = "Apache License 2.0"
 url = 'http://www.amusecode.org/'
 install_requires = [
     'wheel>=0.32',
-    'docutils>=0.6',
-    'numpy>=1.2.2',
-    'nose>=0.11.1',
-    'mpi4py>=1.1.0',
-    'h5py>=1.1.0',
     'amuse-framework>=%s' % (main_version),
 ]
 description = 'The Astrophysical Multipurpose Software Environment - Phantom'
