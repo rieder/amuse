@@ -1,5 +1,3 @@
-import sys
-import os
 from support.version import version, main_version
 from support.classifiers import classifiers
 
@@ -25,10 +23,15 @@ extensions = []
 
 all_data_files = []
 
-packages=['amuse.test.suite.' + x for x in find_packages('test')]
+packages = ['amuse.test.suite',
+            'amuse.test.suite.ext_tests', 
+            'amuse.test.suite.core_tests',
+            'amuse.test.suite.compile_tests', 
+            'amuse.test.suite.codes_tests',
+            'amuse.test.suite.ticket_tests', 
+            'amuse.test.suite.reports']
 
 package_data = {
-    'amuse.rfi.tools': ['*.template'],
     'amuse.test.suite.core_tests': [
         '*.txt', '*.dyn', '*.ini',
         '*.nemo',
@@ -40,12 +43,9 @@ package_data = {
     'amuse.test.suite.ticket_tests': [
         '*.out'
     ],
-    'amuse': [
-        '*rc'
-    ]
 }
 
-mapping_from_command_name_to_command_class=setup_commands()
+mapping_from_command_name_to_command_class = setup_commands()
 
 setup(
     name=name,
@@ -62,7 +62,7 @@ setup(
     python_requires=">=3.5",
     cmdclass=mapping_from_command_name_to_command_class,
     ext_modules=extensions,
-    package_dir={'amuse.test.suite' :'test'},
+    package_dir={'amuse.test.suite': 'src/amuse/test/suite'},
     packages=packages,
     package_data=package_data,
     data_files=all_data_files,
