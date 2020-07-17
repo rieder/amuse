@@ -11,9 +11,10 @@ from optparse import OptionParser
 
 
 class GetCodeFromHttp(object):
-    url_template = "https://github.com/rieder/phantom/archive/{version}.tar.gz"
+    name = ["Phantom"]
+    url_template = ["https://github.com/rieder/phantom/archive/{version}.tar.gz"]
     filename_template = "{version}.tar.gz"
-    version = ""
+    version = [""]
 
     def directory(self):
         return os.path.abspath(os.path.dirname(__file__))
@@ -50,18 +51,24 @@ class GetCodeFromHttp(object):
 
         os.mkdir('src')
 
-        url = self.url_template.format(version=self.version)
-        filename = self.filename_template.format(version=self.version)
-        filepath = os.path.join(self.src_directory(), filename)
-        print("downloading version", self.version, "from", url, "to", filename)
-        urllib.request.urlretrieve(url, filepath)
-        print("downloading finished")
-        self.unpack_downloaded_file(filename)
+        for i, url_template in enumerate(self.url_template):
+            url = url_template.format(version=self.version[i])
+            filename = self.filename_template.format(version=self.version[i])
+            filepath = os.path.join(self.src_directory(), filename)
+            print(
+                "downloading version", self.version[i],
+                "from", url, "to", filename
+            )
+            urllib.request.urlretrieve(url, filepath)
+            print("downloading finished")
+            self.unpack_downloaded_file(
+                filename, self.name[i], self.version[i]
+            )
 
 
 def main(version=''):
     instance = GetCodeFromHttp()
-    instance.version = version
+    instance.version = [version]
     instance.start()
 
 
