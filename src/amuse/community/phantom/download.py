@@ -11,8 +11,8 @@ from optparse import OptionParser
 
 
 class GetCodeFromHttp(object):
-    url_template = "https://bitbucket.org/danielprice/phantom/get/{version}.zip"
-    filename_template = "{version}.zip"
+    url_template = "https://github.com/rieder/phantom/archive/{version}.tar.gz"
+    filename_template = "{version}.tar.gz"
     version = ""
 
     def directory(self):
@@ -21,9 +21,9 @@ class GetCodeFromHttp(object):
     def src_directory(self):
         return os.path.join(self.directory(), 'src')
 
-    def unpack_downloaded_file(self, filename):
+    def unpack_downloaded_file(self, filename, name, version):
         print("unpacking", filename)
-        arguments = ['unzip', '-x']
+        arguments = ['tar', '-xf']
         arguments.append(filename)
         subprocess.call(
             arguments,
@@ -31,9 +31,8 @@ class GetCodeFromHttp(object):
         )
         subprocess.call(
             [
-                'mv',
-                'danielprice-phantom-{version}'.format(version=self.version),
-                'phantom'
+                'mv', '{name}-{version}'.format(name=name, version=version),
+                name
             ],
             cwd=os.path.join(self.src_directory())
         )
