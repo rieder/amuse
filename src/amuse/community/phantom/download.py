@@ -33,7 +33,7 @@ class GetCodeFromHttp(object):
         subprocess.call(
             [
                 'mv', '{name}-{version}'.format(name=name, version=version),
-                name
+                name.lower(),
             ],
             cwd=os.path.join(self.src_directory())
         )
