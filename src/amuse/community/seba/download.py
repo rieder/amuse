@@ -10,15 +10,11 @@ from optparse import OptionParser
 
 class GetCodeFromHttp:
     filename_template = "{version}.tar.gz"
-    name = ["PeTar", "SDAR", "FDPS"]
+    name = ["SeBa"]
     url_template = [
-        "https://github.com/AICS-SC-GROUP/PeTar/archive/{version}.tar.gz",
-        "https://github.com/lwang-astro/SDAR/archive/{version}.tar.gz",
-        "https://github.com/FDPS/FDPS/archive/{version}.tar.gz",
+        "https://github.com/amusecode/SeBa/archive/{version}.tar.gz",
     ]
     version = [
-        "",
-        "",
         "",
     ]
 
@@ -38,7 +34,8 @@ class GetCodeFromHttp:
         )
         subprocess.call(
             [
-                'mv', '{name}-{version}'.format(name=name, version=version),
+                'mv',
+                '{name}-{version}'.format(name=name, version=version),
                 name
             ],
             cwd=os.path.join(self.src_directory())
@@ -72,11 +69,9 @@ class GetCodeFromHttp:
             )
 
 
-def main(petar_version='', sdar_version='', fdps_version=''):
+def main(seba_version=''):
     version = [
-        petar_version,
-        sdar_version,
-        fdps_version,
+        seba_version,
     ]
     instance = GetCodeFromHttp()
     instance.version = version
@@ -86,24 +81,10 @@ def main(petar_version='', sdar_version='', fdps_version=''):
 def new_option_parser():
     result = OptionParser()
     result.add_option(
-        "--petar-version",
-        default='26ad74251a9d788bbdab3f9bcc75f65be55b22fb',
-        dest="petar_version",
-        help="PeTar commit hash to download",
-        type="string"
-    )
-    result.add_option(
-        "--sdar-version",
-        default='1a0261bd0060b27055ceedfe95245507ea71ef77',
-        dest="sdar_version",
-        help="SDAR commit hash to download",
-        type="string"
-    )
-    result.add_option(
-        "--fdps-version",
-        default='3370a770cb444eab106c81a6ebbc4cb9ef5226d6',
-        dest="fdps_version",
-        help="FDPS commit hash to download",
+        "--seba-version",
+        default='6bd7aa00d497a3e02822e629435281a61bc1eee4',
+        dest="seba_version",
+        help="SeBa commit hash to download",
         type="string"
     )
     return result
