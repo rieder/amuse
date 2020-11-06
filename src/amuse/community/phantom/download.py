@@ -59,6 +59,14 @@ class GetCodeFromHttp(object):
                 "downloading version", self.version[i],
                 "from", url, "to", filename
             )
+            try:
+                arguments = ['wget', url]
+                subprocess.call(
+                    arguments,
+                    cwd=os.path.join(self.src_directory())
+                )
+            except:
+                urllib.request.urlretrieve(url, filepath)
             urllib.request.urlretrieve(url, filepath)
             print("downloading finished")
             self.unpack_downloaded_file(
