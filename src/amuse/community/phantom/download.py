@@ -67,7 +67,6 @@ class GetCodeFromHttp(object):
                 )
             except:
                 urllib.request.urlretrieve(url, filepath)
-            urllib.request.urlretrieve(url, filepath)
             print("downloading finished")
             self.unpack_downloaded_file(
                 filename, self.name[i], self.version[i]
