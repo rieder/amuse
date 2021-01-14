@@ -7,6 +7,7 @@ function initialize_code()
   implicit none
   integer :: initialize_code
   integer :: error
+  double precision :: polyk
   call amuse_initialize_code()
 
   !error = set_support_for_condition(TIMEOUT_DETECTION)
@@ -14,7 +15,8 @@ function initialize_code()
   !error = set_support_for_condition(OUT_OF_BOX_DETECTION)
   error = set_support_for_condition(DENSITY_LIMIT_DETECTION)
   !error = set_support_for_condition(INTERNAL_ENERGY_LIMIT_DETECTION)
-  call amuse_set_polyk(8.11716011329)
+  polyk = 8.11716011329
+  call amuse_set_polyk(polyk)
   initialize_code=0
 end function
 
