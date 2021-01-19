@@ -5,6 +5,7 @@ import os
 import urllib.request
 import urllib.parse
 import urllib.error
+from shutil import which
 from optparse import OptionParser
 
 
@@ -62,7 +63,20 @@ class GetCodeFromHttp:
                 "downloading version", self.version[i],
                 "from", url, "to", filename
             )
-            urllib.request.urlretrieve(url, filepath)
+            if which('wget') is not None:
+                arguments = ['wget', url]
+                subprocess.call(
+                    arguments,
+                    cwd=os.path.join(self.src_directory())
+                )
+            elif which('curl') is not None:
+                arguments = ['curl', '-L', '-O', url]
+                subprocess.call(
+                    arguments,
+                    cwd=os.path.join(self.src_directory())
+                )
+            else:
+                urllib.request.urlretrieve(url, filepath)
             print("downloading finished")
             self.unpack_downloaded_file(
                 filename, self.name[i], self.version[i]
@@ -82,7 +96,7 @@ def new_option_parser():
     result = OptionParser()
     result.add_option(
         "--seba-version",
-        default='6bd7aa00d497a3e02822e629435281a61bc1eee4',
+        default='4a75a751c143a5ce182c0a5e6629048a459bd40b',
         dest="seba_version",
         help="SeBa commit hash to download",
         type="string"
