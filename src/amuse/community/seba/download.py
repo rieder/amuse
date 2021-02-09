@@ -2,7 +2,6 @@
 
 import subprocess
 import os
-import ssl
 import urllib.request
 import urllib.parse
 import urllib.error

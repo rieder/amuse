@@ -2,7 +2,6 @@
 
 import subprocess
 import os
-import ssl
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -66,14 +65,7 @@ class GetCodeFromHttp:
                 "downloading version", self.version[i],
                 "from", url, "to", filename
             )
-            try:
-                arguments = ['wget', url]
-                subprocess.call(
-                    arguments,
-                    cwd=os.path.join(self.src_directory())
-                )
-            except ssl.SSLCertVerificationError:
-                urllib.request.urlretrieve(url, filepath)
+            urllib.request.urlretrieve(url, filepath)
             print("downloading finished")
             self.unpack_downloaded_file(
                 filename, self.name[i], self.version[i]
