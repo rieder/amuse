@@ -12,6 +12,12 @@ from amuse.units import core
 from amuse.units.si import none
 from amuse.units.core import zero_unit
 
+try:
+    import astropy.units
+    import amuse.units.si
+    HAS_ASTROPY = True
+except ImportError:
+    HAS_ASTROPY = False
 
 """
 """
@@ -265,6 +271,10 @@ class Quantity(object):
     def __ge__(self, other):
         return self.value_in(self.unit) >= to_quantity(other).value_in(self.unit)
 
+    if HAS_ASTROPY:
+        def as_astropy_quantity(self):
+            return to_astropy(self)
+
 
 class ScalarQuantity(Quantity):
     """
@@ -311,7 +321,6 @@ class ScalarQuantity(Quantity):
     def to_unit(self):
         in_base=self.in_base()
         return in_base.number * in_base.unit
-
 
     def __getstate__(self):
         return (self.unit, self.number)
@@ -1363,8 +1372,89 @@ def polyval(p, x):
 
     return value | y_unit
 
+
 def searchsorted(a, v, **kwargs):
     if is_quantity(a):
         return numpy.searchsorted(a.value_in(a.unit), v.value_in(a.unit), **kwargs)
     else:
         return numpy.searchsorted(a, v, **kwargs)
+
+
+if HAS_ASTROPY:
+    def to_astropy(quantity):
+        "Convert a quantity from AMUSE to Astropy"
+        # NOTE: we need to go through SI base here because AMUSE and Astropy
+        # don't necessarily agree on derived unit definitions...
+
+        # Find the SI bases of the unit
+        unit = quantity.unit
+        unit_bases = unit.base
+
+        # Find the quantity's value in base units
+        value = quantity.value_in(unit.base_unit())
+
+        # Reconstruct the quantity in Astropy units
+        ap_quantity = value
+        for base_unit in unit_bases:
+            if base_unit[1] == amuse.units.si.m:
+                ap_quantity = ap_quantity * astropy.units.m**base_unit[0]
+            elif base_unit[1] == amuse.units.si.kg:
+                ap_quantity = ap_quantity * astropy.units.kg**base_unit[0]
+            elif base_unit[1] == amuse.units.si.s:
+                ap_quantity = ap_quantity * astropy.units.s**base_unit[0]
+            elif base_unit[1] == amuse.units.si.A:
+                ap_quantity = ap_quantity * astropy.units.A**base_unit[0]
+            elif base_unit[1] == amuse.units.si.K:
+                ap_quantity = ap_quantity * astropy.units.K**base_unit[0]
+            elif base_unit[1] == amuse.units.si.mol:
+                ap_quantity = ap_quantity * astropy.units.mol**base_unit[0]
+            elif base_unit[1] == amuse.units.si.cd:
+                ap_quantity = ap_quantity * astropy.units.cd**base_unit[0]
+        return ap_quantity
+
+    def from_astropy(ap_quantity):
+        "Convert a quantity from Astropy to AMUSE"
+        # NOTE: we need to go through SI base here because AMUSE and Astropy
+        # don't necessarily agree on derived unit definitions...
+
+        # Find SI bases of the unit
+        si_bases = ap_quantity.si.unit.bases
+        si_powers = ap_quantity.si.unit.powers
+        si_units = list(zip(si_powers, si_bases))
+
+        # Find the quantity's value in base units
+        si_value = ap_quantity.si.value
+
+        # Reconstruct the quantity in AMUSE units
+        amuse_quantity = si_value
+        for base_unit in si_units:
+            if base_unit[1].name == "m":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.m**base_unit[0]
+                )
+            elif base_unit[1].name == "kg":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.kg**base_unit[0]
+                )
+            elif base_unit[1].name == "s":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.s**base_unit[0]
+                )
+            elif base_unit[1].name == "A":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.A**base_unit[0]
+                )
+            elif base_unit[1].name == "K":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.K**base_unit[0]
+                )
+            elif base_unit[1].name == "mol":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.mol**base_unit[0]
+                )
+            elif base_unit[1].name == "cd":
+                amuse_quantity = amuse_quantity * (
+                    1 | amuse.units.si.cd**base_unit[0]
+                )
+
+        return amuse_quantity
