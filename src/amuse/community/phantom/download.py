@@ -11,10 +11,9 @@ from optparse import OptionParser
 
 
 class GetCodeFromHttp(object):
-    name = ["Phantom"]
-    url_template = ["https://github.com/rieder/phantom/archive/{version}.tar.gz"]
-    filename_template = "{version}.tar.gz"
-    version = [""]
+    url_template = "https://github.com/rieder/phantom/archive/{version}.zip"
+    filename_template = "{version}.zip"
+    version = ""
 
     def directory(self):
         return os.path.abspath(os.path.dirname(__file__))
@@ -22,9 +21,9 @@ class GetCodeFromHttp(object):
     def src_directory(self):
         return os.path.join(self.directory(), 'src')
 
-    def unpack_downloaded_file(self, filename, name, version):
+    def unpack_downloaded_file(self, filename):
         print("unpacking", filename)
-        arguments = ['tar', '-xf']
+        arguments = ['unzip', '-x']
         arguments.append(filename)
         subprocess.call(
             arguments,
@@ -32,8 +31,9 @@ class GetCodeFromHttp(object):
         )
         subprocess.call(
             [
-                'mv', '{name}-{version}'.format(name=name, version=version),
-                name.lower(),
+                'mv',
+                'phantom-{version}'.format(version=self.version),
+                'phantom'
             ],
             cwd=os.path.join(self.src_directory())
         )
@@ -51,31 +51,18 @@ class GetCodeFromHttp(object):
 
         os.mkdir('src')
 
-        for i, url_template in enumerate(self.url_template):
-            url = url_template.format(version=self.version[i])
-            filename = self.filename_template.format(version=self.version[i])
-            filepath = os.path.join(self.src_directory(), filename)
-            print(
-                "downloading version", self.version[i],
-                "from", url, "to", filename
-            )
-            try:
-                arguments = ['wget', url]
-                subprocess.call(
-                    arguments,
-                    cwd=os.path.join(self.src_directory())
-                )
-            except:
-                urllib.request.urlretrieve(url, filepath)
-            print("downloading finished")
-            self.unpack_downloaded_file(
-                filename, self.name[i], self.version[i]
-            )
+        url = self.url_template.format(version=self.version)
+        filename = self.filename_template.format(version=self.version)
+        filepath = os.path.join(self.src_directory(), filename)
+        print("downloading version", self.version, "from", url, "to", filename)
+        urllib.request.urlretrieve(url, filepath)
+        print("downloading finished")
+        self.unpack_downloaded_file(filename)
 
 
 def main(version=''):
     instance = GetCodeFromHttp()
-    instance.version = [version]
+    instance.version = version
     instance.start()
 
 
@@ -83,7 +70,7 @@ def new_option_parser():
     result = OptionParser()
     result.add_option(
         "--version",
-        default="a169e4c3cf0dc19ac453a262cda650ad6d69217f",
+        default="4096aa16f6e038aabd8283f0203aa022481a4481",
         dest="version",
         help="version number to download",
         type="string"

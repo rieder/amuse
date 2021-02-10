@@ -7,6 +7,7 @@ function initialize_code()
   implicit none
   integer :: initialize_code
   integer :: error
+  double precision :: polyk
   call amuse_initialize_code()
 
   !error = set_support_for_condition(TIMEOUT_DETECTION)
@@ -14,7 +15,6 @@ function initialize_code()
   !error = set_support_for_condition(OUT_OF_BOX_DETECTION)
   error = set_support_for_condition(DENSITY_LIMIT_DETECTION)
   !error = set_support_for_condition(INTERNAL_ENERGY_LIMIT_DETECTION)
-  call amuse_set_polyk(8.11716011329)
   initialize_code=0
 end function
 
@@ -74,6 +74,96 @@ function set_internal_energy(index_of_the_particle, u)
   integer :: set_internal_energy
   call amuse_set_internal_energy(index_of_the_particle, u)
   set_internal_energy=0
+end function
+
+function set_h2ratio(index_of_the_particle, h2ratio)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: h2ratio
+  integer :: set_h2ratio
+  call amuse_set_h2ratio(index_of_the_particle, h2ratio)
+  set_h2ratio=0
+end function
+
+function set_hi_abundance(index_of_the_particle, hi_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: hi_abundance
+  integer :: set_hi_abundance
+  call amuse_set_hi_abundance(index_of_the_particle, hi_abundance)
+  set_hi_abundance=0
+end function
+
+function set_proton_abundance(index_of_the_particle, proton_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: proton_abundance
+  integer :: set_proton_abundance
+  call amuse_set_proton_abundance(index_of_the_particle, proton_abundance)
+  set_proton_abundance=0
+end function
+
+function set_electron_abundance(index_of_the_particle, electron_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: electron_abundance
+  integer :: set_electron_abundance
+  call amuse_set_electron_abundance(index_of_the_particle, electron_abundance)
+  set_electron_abundance=0
+end function
+
+function set_co_abundance(index_of_the_particle, co_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: co_abundance
+  integer :: set_co_abundance
+  call amuse_set_co_abundance(index_of_the_particle, co_abundance)
+  set_co_abundance=0
+end function
+
+function get_h2ratio(index_of_the_particle, h2ratio)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: h2ratio
+  integer :: get_h2ratio
+  call amuse_get_h2ratio(index_of_the_particle, h2ratio)
+  get_h2ratio=0
+end function
+
+function get_hi_abundance(index_of_the_particle, hi_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: hi_abundance
+  integer :: get_hi_abundance
+  call amuse_get_hi_abundance(index_of_the_particle, hi_abundance)
+  get_hi_abundance=0
+end function
+
+function get_proton_abundance(index_of_the_particle, proton_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: proton_abundance
+  integer :: get_proton_abundance
+  call amuse_get_proton_abundance(index_of_the_particle, proton_abundance)
+  get_proton_abundance=0
+end function
+
+function get_electron_abundance(index_of_the_particle, electron_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: electron_abundance
+  integer :: get_electron_abundance
+  call amuse_get_electron_abundance(index_of_the_particle, electron_abundance)
+  get_electron_abundance=0
+end function
+
+function get_co_abundance(index_of_the_particle, co_abundance)
+  implicit none
+  integer :: index_of_the_particle
+  double precision :: co_abundance
+  integer :: get_co_abundance
+  call amuse_get_co_abundance(index_of_the_particle, co_abundance)
+  get_co_abundance=0
 end function
 
 function get_pressure(index_of_the_particle, p)
@@ -401,8 +491,7 @@ function set_begin_time(time)
   set_begin_time=-1
 end function
 
-function new_dm_particle(index_of_the_particle, mass, x, y, z, vx, vy, vz,  &
-    radius)
+function new_dm_particle(index_of_the_particle, mass, x, y, z, vx, vy, vz)
   implicit none
   integer :: index_of_the_particle
   double precision :: mass, x, y, z, vx, vy, vz, radius
@@ -964,6 +1053,14 @@ function get_unit_length(unit_length)
     get_unit_length=0
 end function
 
+function set_unit_length(unit_length)
+    implicit none
+    double precision :: unit_length
+    integer :: set_unit_length
+    call amuse_set_unit_length(unit_length)
+    set_unit_length=0
+end function
+
 function get_unit_mass(unit_mass)
     implicit none
     double precision :: unit_mass
@@ -972,12 +1069,28 @@ function get_unit_mass(unit_mass)
     get_unit_mass=0
 end function
 
+function set_unit_mass(unit_mass)
+    implicit none
+    double precision :: unit_mass
+    integer :: set_unit_mass
+    call amuse_set_unit_mass(unit_mass)
+    set_unit_mass=0
+end function
+
 function get_unit_time(unit_time)
     implicit none
     double precision :: unit_time
     integer :: get_unit_time
     call amuse_get_unit_time(unit_time)
     get_unit_time=0
+end function
+
+function set_unit_time(unit_time)
+    implicit none
+    double precision :: unit_time
+    integer :: set_unit_time
+    call amuse_set_unit_time(unit_time)
+    set_unit_time=0
 end function
 
 function get_constant_solarm(solarm)
