@@ -43,8 +43,13 @@ apt-get install build-essential curl g++ gfortran gettext zlib1g-dev
 
 Other distributions have similar package or package groups available.
 
-In OS X you can use the homebrew or macports package manager (both
+In macOS you can use the homebrew or macports package manager (both
 require the Apple Developer Tools and Xcode to be installed).
+
+For a Windows 10 machine, AMUSE can be installed in the Windows Subsystem
+for linux (WSL), and installing e.g. Ubuntu from the Microsoft store. 
+Its recommended to use WSL 2. For further installation instructions, see the 
+Linux install instructions.
 
 Python
 ======
@@ -84,7 +89,7 @@ If necessary this will also install some required Python packages:
 * Numpy (version >= 1.3.0)
 * h5py (version >= 1.2.0)
 * mpi4py (version >= 1.0)
-* nose (version >= 0.11)
+* pytest (version >= 5.0)
 * docutils (version >= 0.6)
 
 If you are not using pip these must be installed by hand.
@@ -103,8 +108,7 @@ pip install [--user] amuse-<code name>
 AMUSE Development 
 =================
 
-If you are using Python 2, an AMUSE development install can also 
-be handled through pip by executing (in the root of a clone of the 
+An AMUSE development install can also be handled through pip by executing (in the root of a clone of the 
 repository)
 
 ```bash
@@ -120,7 +124,7 @@ python setup.py develop_build
 Running the tests
 =================
 AMUSE comes with a large set of tests, most can be run automatically.
-To run these tests start the nosetests command from the main
+To run these tests start the py.test command from the main
 amuse directory (directory this README file lives in).
 
 To run these tests do:
@@ -134,5 +138,5 @@ pip install [--user] amuse-tests
 2. Run the automatic tests
 
 ```bash
-nosetests -v amuse.tests.suite
+py.test -v amuse.tests.suite
 ```

@@ -27,6 +27,7 @@ from amuse.rfi.tools import create_python_worker
 from amuse.rfi.tools import create_cython
     
 from amuse.support import get_amuse_root_dir    
+from amuse.support.literature import TrackLiteratureReferences    
 
 def get_amuse_directory():
     filename_of_this_script = __file__
@@ -183,6 +184,13 @@ class ParseCommandLine(object):
             default=False,
             dest="get_amuse_dir",
             help="Only output amuse directory")
+        self.parser.add_option(
+            "--get-amuse-configmk",
+            action="store_true",
+            default=False,
+            dest="get_amuse_configmk",
+            help="dump amuse config.mk")
+
         
         self.options = None
         self.arguments = None
@@ -206,7 +214,7 @@ class ParseCommandLine(object):
         
         
     def parse_arguments(self):
-        if self.options.get_amuse_dir:
+        if self.options.get_amuse_dir or self.options.get_amuse_configmk:
             return
         if self.options.mode == 'dir':
             if len(self.arguments) != 1:
@@ -387,12 +395,18 @@ def make_directory(uc):
     builder.start()
     
 def amusifier():
+    TrackLiteratureReferences.suppress_output()
+    
     uc = ParseCommandLine()
     uc.start()
     
     if uc.options.get_amuse_dir:
-        print((get_amuse_root_dir()))
+        print(get_amuse_root_dir())
         exit(0)
+    elif uc.options.get_amuse_configmk:
+        with open(os.path.join(get_amuse_root_dir(), "config.mk")) as f:
+            print(f.read())
+            exit(0)
     elif uc.options.mode == 'dir':
         make_directory(uc)
     else:

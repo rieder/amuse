@@ -5,7 +5,9 @@
 
 # standard amuse configuration include
 # config.mk will be made after ./configure has run
-AMUSE_DIR?=../../../..
+ifeq ($(origin AMUSE_DIR), undefined)
+  AMUSE_DIR := $(shell amusifier --get-amuse-dir)
+endif
 -include ${AMUSE_DIR}/config.mk
 
 ALL	 = hacs64_worker
@@ -34,12 +36,14 @@ SRCDIR = src
 BUILDDIRCPU = build_cpu
 CXXFLAGS += -I../src -I../src/ON_neib
 
+NVCCFLAGS ?= $(NVCC_FLAGS)
+
 CODELIB = src/libhacs64gpu.a
 CODELIBCPU = $(BUILDDIRCPU)/libhacs64cpu.a
 
 AMUSE_DIR ?= ../../../..
 
-CODE_GENERATOR = $(AMUSE_DIR)/build.py
+CODE_GENERATOR ?= $(AMUSE_DIR)/build.py
 
 all: $(ALL)
 

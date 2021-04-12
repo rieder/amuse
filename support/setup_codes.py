@@ -15,12 +15,8 @@ try:
 except ImportError:
     warnings.warn( "numpy etc needed during build; operation may fail" )
 
-try:
-    import configparser
-    from io import StringIO
-except ImportError:
-    import ConfigParser as configparser
-    from StringIO import StringIO
+import configparser
+from io import StringIO
 
 from stat import ST_MODE
 from distutils import sysconfig
@@ -756,7 +752,7 @@ class CodeCommand(Command):
             
             if not buildlogfile is None:
                 buildlogfile.write(line)
-            self.announce(line[:-1], log.DEBUG)
+            self.announce(line[:-1].decode("utf-8"), log.DEBUG)
             stringio.write(str(line, 'utf-8'))
             
         result = process.wait()

@@ -1,6 +1,8 @@
 # standard amuse configuration include
 # config.mk will be made after ./configure has run
-AMUSE_DIR?=../../../..
+ifeq ($(origin AMUSE_DIR), undefined)
+  AMUSE_DIR := $(shell amusifier --get-amuse-dir)
+endif
 -include ${AMUSE_DIR}/config.mk
 
 GFORTRAN_VERSION?=$(shell $(FC) -v 2>&1 | grep gcc\ version | cut -d\  -f3)
@@ -11,7 +13,8 @@ MPIF90 ?= mpif90
 FORTRAN ?= gfortran
 PYTHON ?= python
 FC      ?= $(FORTRAN)
-MPIFC+= $(FCFLAGS)
+MPIFC += $(FCFLAGS)
+MPIFC += -fallow-invalid-boz -std=legacy
 export FC MPIFC
 
 MESA_MAKE_DIR=./mesa_reqs
@@ -34,7 +37,7 @@ STAR_WORK_OBJS = \
 ZAMS_DIR = $(AMUSE_DIR)/data/mesa/output/star_data/starting_models
 ZAMS_DATA = $(ZAMS_DIR)/zams_z20m3.data
 
-CODE_GENERATOR = $(AMUSE_DIR)/build.py
+CODE_GENERATOR ?= $(AMUSE_DIR)/build.py
 DOWNLOAD_FROM_WEB = $(PYTHON) ./download.py
 PATCH_FILES = $(PYTHON) ./patch_files.py
 
