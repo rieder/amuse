@@ -320,12 +320,11 @@ def imshow_color_plot(x, y, z, label=None, add_colorbar=False, **kwargs):
     native_plot.ylabel(UnitlessArgs.y_label())
 
     if add_colorbar:
-        bar = native_plot.colorbar(cax)
-        bar.set_label(UnitlessArgs.z_label(label))
+        colorbar = native_plot.colorbar(cax)
+        colorbar.set_label(UnitlessArgs.z_label(label))
 
-        return cax, bar
-    else:
-        return cax
+        return cax, colorbar
+    return cax
 
 def pcolor(*args, **kwargs):
     stripped_args = UnitlessArgs.strip(*args)
@@ -423,9 +422,9 @@ def sph_particles_plot(particles, u_range = None, min_size = 100, max_size = 100
 
     current_axes = native_plot.gca()
     try:
-      current_axes.set_facecolor('#101010')
+        current_axes.set_facecolor('#101010')
     except:
-      current_axes.set_axis_bgcolor('#101010')
+        current_axes.set_axis_bgcolor('#101010')
     if width is not None:
         view = width * [-0.5, 0.5, -0.5, 0.5]
 
