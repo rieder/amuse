@@ -69,6 +69,6 @@ jobs:
     #  run: pydocstyle `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
     - name: Analysing the code with pylint
       run: |
-        for file in `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`; do
+        for file in `git diff --name-only --diff-filter=ACMRTUXB HEAD | grep -E "(.py$)"`; do
         pylint $file;
         done
