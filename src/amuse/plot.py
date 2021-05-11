@@ -8,10 +8,10 @@ except ImportError:
     class FakePlotLibrary(object):
         def stub(self, *args, **kwargs):
             raise Exception("No plot library available")
-        
+
         def __getattr__(self, name):
             raise Exception("matplotlib not present")
-        
+
     native_plot = FakePlotLibrary()
 
 import numpy
@@ -248,10 +248,10 @@ def circle_with_radius(x, y, radius, **kwargs):
     circle = native_plot.Circle((x, y), radius, **kwargs)
     return native_plot.gca().add_artist(circle)
 
-def fix_xyz_axes(X, Y, Z):
-    if not (X.shape == Z.shape and Y.shape == Z.shape):
-        X, Y = numpy.meshgrid(X, Y)
-    return X, Y, Z
+def fix_xyz_axes(x, y, z):
+    if not (x.shape == z.shape and y.shape == z.shape):
+        x, y = numpy.meshgrid(x, y)
+    return x, y, z
 
 def log_norm(Z, vmin, vmax):
     # for log scale, 0 is considered a missing value
