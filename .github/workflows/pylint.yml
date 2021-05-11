@@ -59,10 +59,10 @@ jobs:
     #  run: |
     #    pip install -e .
     #- name: Analyse the code with flake8
-    #  run: flake8 `git diff --name-only --diff-filter=ACMRTUXB master | grep -E "(.py$)"`
+    #  run: flake8 `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
     #- name: Analyse the code with pycodestyle
     #  run: pycodestyle `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
     #- name: Analyse the code with pydocstyle
-    #  run: pydocstyle src/amuse
+    #  run: pydocstyle `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
     - name: Analysing the code with pylint
-      run: pylint `git diff --name-only --diff-filter=ACMRTUXB master | grep -E "(.py$)"`
+      run: pylint `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
