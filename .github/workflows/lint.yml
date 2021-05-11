@@ -35,8 +35,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with: 
-        fetch-depth: '0'
     - uses: jitterbit/get-changed-files@v1
       id: files
       with:
