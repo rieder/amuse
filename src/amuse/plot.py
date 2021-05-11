@@ -1,4 +1,6 @@
 #! /bin/env python3
+"""Plotting things
+"""
 try:
     import matplotlib.pyplot as native_plot
     from mpl_toolkits.mplot3d import Axes3D
