@@ -1,24 +1,72 @@
 name: Pylint
 
-on: [push]
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        py-version:
+          - 3.5
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+        py-arch:
+          - x64
+        mpi:
+          #- mpich
+          - openmpi
+        os:
+          - ubuntu-latest
+          #- ubuntu-18.04
+          #- ubuntu-20.04
+          #- macos-10.15
+          #- macos-latest
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install MPI (${{ matrix.mpi }})
+      run:  apt install -y openmpi-bin libopenmpi-dev
     - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.py-versionn }}
+        architecture: ${{ matrix.py-arch }}
+    - name: Install prerequisites
+      run: |
+        apt install -y 
+          build-essential gfortran libgsl-dev cmake
+          libfftw3-3 libfftw3-dev
+          libgmp3-dev libmpfr6 libmpfr-dev
+          libhdf5-serial-dev hdf5-tools
+          libblas-dev liblapack-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
-        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # pip install -e .
-    - name: Analysing the code with pylint
+        python -m pip install 
+          pylint
+          pycodestyle
+          pydocstyle
+          flake8
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Install AMUSE
       run: |
-        pylint `ls -R|grep .py$|xargs`
+        pip install -e .
+    - name: Analyse the code with flake8
+      run: flake8 src/amuse
+    - name: Analyse the code with pycodestyle
+      run: pycodestyle src/amuse
+    - name: Analyse the code with pydocstyle
+      run: pydocstyle src/amuse
+    - name: Analysing the code with pylint
+      run: pylint src/amuse
