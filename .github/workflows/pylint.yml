@@ -65,4 +65,7 @@ jobs:
     #- name: Analyse the code with pydocstyle
     #  run: pydocstyle `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
     - name: Analysing the code with pylint
-      run: pylint `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`
+      run: |
+        for file in `git diff --name-only --diff-filter=ACMRTUXB main | grep -E "(.py$)"`; do
+        pylint $file;
+        done
