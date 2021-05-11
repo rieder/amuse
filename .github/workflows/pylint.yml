@@ -58,11 +58,11 @@ jobs:
     #- name: Install AMUSE
     #  run: |
     #    pip install -e .
-    - name: Analyse the code with flake8
-      run: flake8 src/amuse
+    #- name: Analyse the code with flake8
+    #  run: flake8 src/amuse
     - name: Analyse the code with pycodestyle
       run: pycodestyle src/amuse
-    - name: Analyse the code with pydocstyle
-      run: pydocstyle src/amuse
-    - name: Analysing the code with pylint
-      run: pylint src/amuse
+    #- name: Analyse the code with pydocstyle
+    #  run: pydocstyle src/amuse
+    #- name: Analysing the code with pylint
+    #  run: pylint src/amuse
