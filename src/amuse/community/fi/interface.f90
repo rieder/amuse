@@ -18,7 +18,7 @@ function initialize_code() result(ret)
   error = set_support_for_condition(OUT_OF_BOX_DETECTION)
   error = set_support_for_condition(DENSITY_LIMIT_DETECTION)
   error = set_support_for_condition(INTERNAL_ENERGY_LIMIT_DETECTION)
-  ret=0
+  ret = 0
 end function
 
 function cleanup_code() result(ret)
@@ -26,7 +26,7 @@ function cleanup_code() result(ret)
   call muse_end
   call muse_start
   call muse_reset(0.0)
-  ret=0
+  ret = 0
 end function
 
 
