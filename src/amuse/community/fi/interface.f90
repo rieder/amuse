@@ -33,12 +33,12 @@ end function
 function commit_particles() result(ret)
   integer :: ret
   call muse_finalize_init 
-  ret=0
+  ret = 0
 end function
 
 function recommit_particles() result(ret)
   integer :: ret
-  ret=muse_reinitialize()
+  ret = muse_reinitialize()
 end function
 
 
