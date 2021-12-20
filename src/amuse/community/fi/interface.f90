@@ -8,7 +8,6 @@ CONTAINS
 
 function initialize_code() result(ret)
   use StoppingConditions
-  integer :: ret
   integer :: error
   call muse_start
   call muse_reset(0.0)
