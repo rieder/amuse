@@ -45,7 +45,7 @@ end function
 function commit_parameters() result(ret)
   integer :: ret
   call muse_init
-  ret=0
+  ret = 0
 end function
 
 function recommit_parameters() result(ret)
