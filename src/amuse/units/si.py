@@ -1,3 +1,6 @@
+"""
+SI system of units
+"""
 from amuse.units import core
 
 system = core.system('S.I.')
