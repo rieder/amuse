@@ -5,13 +5,13 @@ class ScalingConverter(object):
 
     def __init__(
         self,
-        length = 1,
-        time = 1,
-        mass = 1,
-        current = 1,
-        temperature = 1,
-        amount = 1,
-        luminous_intensity = 1
+        length=1,
+        time=1,
+        mass=1,
+        current=1,
+        temperature=1,
+        amount=1,
+        luminous_intensity=1
     ):
         self.factors = {}
         
@@ -24,13 +24,13 @@ class ScalingConverter(object):
         
     def reversed(self):
         return ScalingConverter(
-            length = 1 / self.factors[generic_unit_system.length],
-            time = 1 / self.factors[generic_unit_system.time],
-            mass =  1 / self.factors[generic_unit_system.mass],
-            current = 1 / self.factors[generic_unit_system.current],
-            temperature =  1 / self.factors[generic_unit_system.temperature],
-            amount = 1,
-            luminous_intensity = 1 / self.factors[generic_unit_system.luminous_intensity]
+            length=1 / self.factors[generic_unit_system.length],
+            time=1 / self.factors[generic_unit_system.time],
+            mass=1 / self.factors[generic_unit_system.mass],
+            current=1 / self.factors[generic_unit_system.current],
+            temperature=1 / self.factors[generic_unit_system.temperature],
+            amount=1,
+            luminous_intensity=1 / self.factors[generic_unit_system.luminous_intensity]
         )
         
     def convert(self, quantity):
