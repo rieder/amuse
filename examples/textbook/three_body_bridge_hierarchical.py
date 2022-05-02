@@ -24,19 +24,19 @@ def new_system_of_sun_and_earth():
     return stars
 
 def main():
-    filename = "SunAndEarthAndMoon.hdf"
+    filename = "SunAndEarthAndMoon.amuse"
     ss = new_system_of_sun_and_earth()
     star = ss[0]
     planet = ss[1]
     moon = ss[2]
     converter=nbody_system.nbody_to_si(star.mass,planet.position.length())
-    star_gravity = ph4(converter)
+    star_gravity = Ph4(converter)
     star_gravity.particles.add_particle(star)
 
-    planet_gravity = ph4(converter)
+    planet_gravity = Ph4(converter)
     planet_gravity.particles.add_particle(planet)
 
-    moon_gravity = ph4(converter)
+    moon_gravity = Ph4(converter)
     moon_gravity.particles.add_particle(moon)
 
     channel_from_star_to_framework = star_gravity.particles.new_channel_to(ss)
