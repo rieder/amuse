@@ -38,4 +38,4 @@ jobs:
 
       - name: Analysing the code with pylint
         run: |
-          python support/lint.py --path ./examples/textbook/*.py --threshold 3.0
+          python support/lint.py --path ./examples/textbook/\*.py --threshold 3.0
