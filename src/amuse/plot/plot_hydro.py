@@ -5,14 +5,15 @@ Plot hydro and/or stars
 """
 import os
 import logging
-import numpy
 import copy
 import argparse
+import numpy
 
 import matplotlib
 import matplotlib.pyplot as plt
 # import matplotlib.cm as cm
 
+from amuse.community.fi import Fi
 from amuse.datamodel import Particles
 from amuse.io import read_set_from_file
 from amuse.units import units, nbody_system
@@ -22,6 +23,7 @@ from amuse.plot.mapper import MapHydro
 
 
 logger = logging.getLogger(__name__)
+plt.style.use('/Users/rieder/.matplotlib/stylelib/mnras-singlecol.mplstyle')
 
 
 def velocity_divergence(vx_field, vy_field, dx, velocity_unit=units.kms):
@@ -50,6 +52,9 @@ def plot_column_density(
     cmap.set_bad('k', alpha=1.0)
 
     column_density = maps.column_density
+    # for line in column_density:
+    #     print(line)
+
     logscale = numpy.log10(column_density.value_in(unit_col_density))
     return ax.imshow(
         logscale,
@@ -281,9 +286,9 @@ def plot_hydro_and_stars(
             (maps.stars is not None)
             and not maps.stars.is_empty()
     ):
-        s = 1 * (
+        s = fig.dpi * 0.5 * (
             (maps.stars.mass / (7 | units.MSun))**(3.5 / 2)
-        )
+        ) / ax.bbox.width
         # s = 0.5
         x = getattr(maps.stars, 'x').value_in(length_unit)
         y = getattr(maps.stars, 'y').value_in(length_unit)
@@ -304,11 +309,11 @@ def plot_hydro_and_stars(
     if cax:
         cbar = plt.colorbar(gasplot, cax=cax)
         if gasplot_unit == units.MSun * units.pc**-2:
-            cbar.set_label("log10(M$_{\odot}$ / parsec$^2$)")
+            cbar.set_label("log$_{10}$(M$_{\odot}$ / parsec$^2$)")
         elif gasplot_unit == units.Myr**-1:
             cbar.set_label("Myr$^{-1}$")
         elif gasplot_unit == units.K:
-            cbar.set_label("log10(temp [K])")
+            cbar.set_label("log$_{10}$(K)")
         else:
             cbar.set_label("%s" % gasplot_unit)
 
@@ -415,25 +420,25 @@ def new_argument_parser():
 
 
 def main():
-    o = new_argument_parser()
-    length_unit = getattr(units, o.length_unit)
-    gasfilename = o.gasfilename
-    starsfilename = o.starsfilename
-    imagefilename = o.imagefilename
-    followfilename = o.followfilename
-    bins = o.bins
-    finish = [o.x, o.y, o.z] | units.pc
-    width_finish = o.w | units.pc
-    x_axis = o.x_axis
-    y_axis = o.y_axis
-    z_axis = o.z_axis
-    bins = o.bins
+    arg = new_argument_parser()
+    length_unit = getattr(units, arg.length_unit)
+    gasfilename = arg.gasfilename
+    starsfilename = arg.starsfilename
+    imagefilename = arg.imagefilename
+    followfilename = arg.followfilename
+    bins = arg.bins
+    finish = [arg.x, arg.y, arg.z] | units.pc
+    width_finish = arg.w | units.pc
+    x_axis = arg.x_axis
+    y_axis = arg.y_axis
+    z_axis = arg.z_axis
+    bins = arg.bins
 
     plots = []
     if followfilename is not None:
         use_com = True
     else:
-        use_com = o.use_com
+        use_com = arg.use_com
 
     if os.path.isfile(starsfilename):
         stars = read_set_from_file(
@@ -447,8 +452,21 @@ def main():
             gasfilename,
             "amuse",
         )
+        recalculate = True
         if hasattr(gas, "itype"):
             gas = gas[gas.itype == 1]
+        if recalculate:
+            converter = nbody_system.nbody_to_si(
+                gas.total_mass(),
+                1 | units.yr,
+            )
+            sph = Fi(
+                converter,
+                mode="openmp",
+            )
+            gas_sph = sph.gas_particles.add_particles(gas)
+            gas_sph.new_channel_to(gas).copy()
+            sph.stop()
         # gas.h_smooth = gas.h
     else:
         gas = Particles()
@@ -525,9 +543,14 @@ def main():
             plot.replace(" ", "_")
             + "-" + imagefilename + ".png"
         )
+        fig = plt.gcf()
+        fig.set_tight_layout(
+            {'pad': 0.8, 'h_pad': None, 'w_pad': None, 'rect': None}
+        )
         plt.savefig(
             plotname,
         )
+
 
 
 if __name__ == "__main__":

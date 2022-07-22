@@ -6,16 +6,19 @@ Make 2D maps from SPH particles using FiMap
 
 import logging
 import numpy
-from amuse.units import units, constants, nbody_system
+from amuse.units import units, nbody_system
 from amuse.datamodel.rotation import new_rotation_matrix, rotate
 from amuse.community.fi.interface import FiMap
+from amuse.ext.conversions import (
+    internal_energy_to_temperature,
+)
 
 
 def gas_mean_molecular_weight(
     h2ratio=0.5,
 ):
     "Return mean molecular weight of hydrogen gas"
-    meanmwt = (
+    mean_molecular_weight = (
         (
             2.0 * h2ratio
             + (1. - 2. * h2ratio)
@@ -25,39 +28,7 @@ def gas_mean_molecular_weight(
             0.1 + h2ratio + (1. - 2. * h2ratio)
         )
     ) | units.amu
-    return meanmwt
-
-
-def u_to_temperature(
-    internal_energy,
-    meanmwt=gas_mean_molecular_weight(),
-    gamma=5/3,
-):
-    """
-    Convert internal energy to temperature, by default assumes all gas is
-    molecular hydrogen and gamma = 5/3.
-    """
-    temperature = (
-        (gamma - 1) * meanmwt * internal_energy
-        / constants.kB
-    )
-    return temperature
-
-
-def temperature_to_u(
-    temperature,
-    meanmwt=gas_mean_molecular_weight(),
-    gamma=5/3,
-):
-    """
-    Convert temperature to internal energy, by default assumes all gas is
-    molecular hydrogen and gamma = 5/3.
-    """
-    internal_energy = (
-        constants.kB * temperature
-        / ((gamma - 1) * meanmwt)
-    )
-    return internal_energy
+    return mean_molecular_weight
 
 
 class MapHydro():
@@ -174,8 +145,10 @@ class MapHydro():
         # y_axis = self.__axis_y
 
         mapper = FiMap(converter, mode="openmp", redirection="none")
-        # if not hasattr(gas, "radius"):
-        # gas.radius = gas.h_smooth
+        if not hasattr(gas, "radius"):
+            gas.radius = gas.h_smooth
+        # gas.opacity_area = gas.radius**2
+        gas.radius = gas.radius
         mapper.particles.add_particles(gas)
 
         rotation_matrix = new_rotation_matrix(
@@ -359,6 +332,15 @@ class MapHydro():
         self.__maps.counts = self.__mapper.image.pixel_value.transpose()
         return self.__maps.counts
 
+    def get_mapper(self):
+        return self.__mapper
+
+    def get_state(self):
+        return self.__state
+
+    def get_maps(self):
+        return self.__maps
+
     @property
     def mass(self):
         "Return a mass map"
@@ -405,23 +387,32 @@ class MapHydro():
         gas = self.__gas
         if hasattr(gas, "mu"):
             print(f"h2ratio: {gas.mu.mean()}")
-            meanmwt = gas.mu
+            mean_molecular_weight = gas.mu
         elif hasattr(gas, "h2ratio"):
             print(f"h2ratio: {gas.h2ratio.mean()}")
-            meanmwt = gas_mean_molecular_weight(gas.h2ratio)
+            mean_molecular_weight = gas_mean_molecular_weight(gas.h2ratio)
         else:
-            meanmwt = gas_mean_molecular_weight()
-        temperature = u_to_temperature(gas.u, meanmwt=meanmwt)
-        print(f"temperature range: {min(temperature)} - {max(temperature)}")
+            mean_molecular_weight = gas_mean_molecular_weight()
+        temperature = internal_energy_to_temperature(
+            gas.u, mean_molecular_weight=mean_molecular_weight,
+        )
+        print(
+            "temperature range: "
+            f"{min(temperature).in_(self.__unit_temperature)} "
+            f"- {max(temperature).in_(self.__unit_temperature)}"
+        )
+        counts = self.counts  # don't call this later - will overwrite weights!
         self.__mapper.particles.weight = temperature.value_in(
             self.__unit_temperature)
-        counts = self.counts
         self.__maps.temperature = numpy.nan_to_num(
-            self.__mapper.image.pixel_value.transpose(),
-            # / counts,
+            self.__mapper.image.pixel_value.transpose()
+            / counts,
             nan=0,
         ) | self.__unit_temperature
-        print(f"min/max: {self.__maps.temperature.min()} - {self.__maps.temperature.max()}")
+        print(
+            "min/max: "
+            f"{self.__maps.temperature.min().in_(self.__unit_temperature)} "
+            f"- {self.__maps.temperature.max().in_(self.__unit_temperature)}")
         return self.__maps.temperature
 
     @property
