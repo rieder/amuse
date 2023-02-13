@@ -18,6 +18,8 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Generate coverage report
       run: |
+        pip install -e . --config-settings editable_mode=compat
+        make framework
         pip install pytest
         pip install pytest-cov
         pytest src/amuse/test/suite/core_tests --cov=./src/amuse/ --cov-report=xml
