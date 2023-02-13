@@ -6,10 +6,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python: ['3.7', '3.9']
+        python: ['3.7', '3.10']
     env:
       OS: ${{ matrix.os }}
-      PYTHON: ${{ matrix.python }}
+      PYTHONVER: ${{ matrix.python }}
     steps:
     - uses: actions/checkout@master
     - name: Setup Python
@@ -29,7 +29,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: ./coverage/reports/
-        env_vars: OS,PYTHON
+        env_vars: OS,PYTHONVER
         fail_ci_if_error: true
         files: ./coverage1.xml,./coverage2.xml
         flags: unittests
