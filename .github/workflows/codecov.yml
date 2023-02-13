@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python: ['3.7', '3.10']
+        python: ['3.7', '3.9']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python }}
