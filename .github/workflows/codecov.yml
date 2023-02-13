@@ -18,6 +18,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Generate coverage report
       run: |
+        export SETUPTOOLS_ENABLE_FEATURES="legacy-editable"
         pip install -e . --config-settings editable_mode=compat
         make framework
         pip install pytest
