@@ -17,6 +17,7 @@ from amuse.community.fi import Fi
 from amuse.datamodel import Particles
 from amuse.io import read_set_from_file
 from amuse.units import units, nbody_system
+from amuse.units.quantities import as_vector_quantity
 from amuse.datamodel.rotation import new_rotation_matrix
 
 from amuse.plot.mapper import MapHydro
@@ -32,8 +33,8 @@ def velocity_divergence(vx_field, vy_field, dx, velocity_unit=units.kms):
     div = (numpy.ufunc.reduce(
         numpy.add,
         [
-            -numpy.gradient(vx_field.value_in(velocity_unit), axis=1),
-            -numpy.gradient(vy_field.value_in(velocity_unit), axis=0),
+            -1 * numpy.gradient(vx_field.value_in(velocity_unit), axis=1),
+            -1 * numpy.gradient(vy_field.value_in(velocity_unit), axis=0),
         ]
     ) | velocity_unit) / dx
 
@@ -41,14 +42,14 @@ def velocity_divergence(vx_field, vy_field, dx, velocity_unit=units.kms):
 
 
 def plot_column_density(
-    ax,
+    plot_axes,
     maps,
     unit_col_density=units.MSun * units.pc**-2,
     vmin=-1,
     vmax=4,
     cmap='viridis',
 ):
-    cmap = copy.copy(matplotlib.cm.get_cmap(cmap))
+    cmap = copy.copy(matplotlib.colormaps[cmap])
     cmap.set_bad('k', alpha=1.0)
 
     column_density = maps.column_density
@@ -56,7 +57,7 @@ def plot_column_density(
     #     print(line)
 
     logscale = numpy.log10(column_density.value_in(unit_col_density))
-    return ax.imshow(
+    return plot_axes.imshow(
         logscale,
         extent=maps.extent,
         vmin=vmin,
@@ -67,20 +68,20 @@ def plot_column_density(
 
 
 def plot_temperature(
-    ax,
+    plot_axes,
     maps,
     vmin=0,
     vmax=5,
     cmap="inferno",
 ):
-    cmap = copy.copy(matplotlib.cm.get_cmap(cmap))
+    cmap = copy.copy(matplotlib.colormaps[cmap])
     cmap.set_bad('k', alpha=1.0)
     temperature_map = maps.temperature
     logscale_temperature_map = numpy.log10(
         temperature_map.value_in(units.K)
     )
 
-    return ax.imshow(
+    return plot_axes.imshow(
         logscale_temperature_map,
         extent=maps.extent,
         vmin=vmin,
@@ -91,7 +92,7 @@ def plot_temperature(
 
 
 def plot_divergence(
-    ax,
+    plot_axes,
     maps,
     x_axis="vx",
     y_axis="vy",
@@ -123,7 +124,7 @@ def plot_divergence(
 
     if contours:
         levels = 1 / ([-4, -10, -100, 100, 10, 4] | units.Myr)
-        return ax.contour(
+        return plot_axes.contour(
             x_grid, y_grid,
             div.value_in(div_unit),
             levels=levels.value_in(div_unit),
@@ -139,7 +140,7 @@ def plot_divergence(
     # minmax = 500
     # print(minmax)
     # print(vmin, vmax)
-    return ax.imshow(
+    return plot_axes.imshow(
         div.value_in(div_unit),
         extent=maps.extent,
         vmin=vmin.value_in(div_unit),
@@ -280,7 +281,7 @@ def plot_hydro_and_stars(
             origin="lower",
         )
 
-    cmap = copy.copy(matplotlib.cm.get_cmap("coolwarm"))
+    cmap = copy.copy(matplotlib.colormaps["coolwarm"])
 
     if (
             (maps.stars is not None)
@@ -299,7 +300,7 @@ def plot_hydro_and_stars(
             ]
             else "white"
         )
-        ax.scatter(x, y, s=s, c=c, cmap=cmap, lw=0)
+        ax.scatter(x, y, s=s, c=c, lw=0)
 
     ax.set_xlabel("%s (%s)" % (maps.axes[0], length_unit))
     ax.set_ylabel("%s (%s)" % (maps.axes[1], length_unit))
@@ -322,123 +323,126 @@ def plot_hydro_and_stars(
 
 def new_argument_parser():
     "Parse command line arguments"
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         '-s',
         dest='starsfilename',
         default='',
-        help='file containing stars (optional) []',
+        help='file containing stars (optional)',
     )
     parser.add_argument(
         '-g',
         dest='gasfilename',
         default='',
-        help='file containing gas (optional) []',
+        help='file containing gas (optional)',
     )
     parser.add_argument(
         '-o',
         dest='imagefilename',
         default='test',
-        help='write image to this file [test]',
+        help='write image to this file',
     )
     parser.add_argument(
         '-n',
         dest='bins',
         default=800,
         type=int,
-        help='number of bins (800)',
+        help='number of bins',
     )
     parser.add_argument(
         '-x',
         dest='x',
-        default=0,
-        type=float,
-        help='Central X coordinate (0 [pc])',
+        default=0 | units.pc,
+        type=units.pc,
+        help='Central X coordinate',
     )
     parser.add_argument(
         '-y',
         dest='y',
-        default=0,
-        type=float,
-        help='Central Y coordinate (0 [pc])',
+        default=0 | units.pc,
+        type=units.pc,
+        help='Central Y coordinate',
     )
     parser.add_argument(
         '-z',
         dest='z',
-        default=0,
-        type=float,
-        help='Central Z coordinate (0 [pc])',
+        default=0 | units.pc,
+        type=units.pc,
+        help='Central Z coordinate',
     )
     parser.add_argument(
         '-w',
         dest='w',
-        default=10,
-        type=float,
-        help='Width in pc (10)',
+        default=10 | units.pc,
+        type=units.pc,
+        help='Width',
     )
     parser.add_argument(
         '--com',
         dest='use_com',
         action='store_true',
         default=False,
-        help='Center on center of mass [False]',
+        help='Center on center of mass',
     )
     parser.add_argument(
         '-X',
         dest='x_axis',
         default='x',
-        help='Horizontal axis ["x"]',
+        help='Horizontal axis',
     )
     parser.add_argument(
         '-Y',
         dest='y_axis',
         default='y',
-        help='Vertical axis ["y"]',
+        help='Vertical axis',
     )
     parser.add_argument(
         '-Z',
         dest='z_axis',
         default='z',
-        help='Line-of-sight axis ["z"]',
+        help='Line-of-sight axis',
     )
     parser.add_argument(
         '-f',
         dest='followfilename',
         default=None,
         help=(
-            'file containing star keys to center on (optional) []\n'
+            'file containing star keys to center on (optional)\n'
             '  implies --com'
         ),
     )
-    parser.add_argument(
-        '--length',
-        dest='length_unit',
-        default='parsec',
-        help='Length unit (default: parsec)',
-    )
+    # parser.add_argument(
+    #     '--length',
+    #     dest='length_unit',
+    #     default='parsec',
+    #     help='Length unit (default: parsec)',
+    # )
     return parser.parse_args()
 
 
 def main():
-    arg = new_argument_parser()
-    length_unit = getattr(units, arg.length_unit)
-    gasfilename = arg.gasfilename
-    starsfilename = arg.starsfilename
-    imagefilename = arg.imagefilename
-    followfilename = arg.followfilename
-    bins = arg.bins
-    finish = [arg.x, arg.y, arg.z] | units.pc
-    width_finish = arg.w | units.pc
-    x_axis = arg.x_axis
-    y_axis = arg.y_axis
-    z_axis = arg.z_axis
-    bins = arg.bins
+    args = new_argument_parser()
+    # length_unit = getattr(units, args.length_unit)
+    length_unit = units.pc
+    gasfilename = args.gasfilename
+    starsfilename = args.starsfilename
+    imagefilename = args.imagefilename
+    followfilename = args.followfilename
+    bins = args.bins
+    finish = as_vector_quantity([args.x, args.y, args.z])
+    width_finish = args.w
+    x_axis = args.x_axis
+    y_axis = args.y_axis
+    z_axis = args.z_axis
+    bins = args.bins
 
     plots = []
     if followfilename is not None:
         use_com = True
     else:
-        use_com = arg.use_com
+        use_com = args.use_com
 
     if os.path.isfile(starsfilename):
         stars = read_set_from_file(
@@ -500,7 +504,7 @@ def main():
             )
             if center_on_these_stars.is_empty():
                 print("Stars not found")
-                exit()
+                sys.exit()
             com = center_on_these_stars.center_of_mass()
         finish = com
 
