@@ -1,5 +1,8 @@
-from amuse.lab import *
-from amuse.io import store
+import numpy
+from amuse.io import read_set_from_file, write_set_to_file
+from amuse.units import nbody_system, units, constants
+from amuse.datamodel import Particles
+from amuse.community.fi import Fi
 from amuse.ext.orbital_elements import new_binary_from_orbital_elements
 
 def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
@@ -8,9 +11,9 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
         pstar = read_set_from_file(filename, format='hdf5')
     except:
         from star_to_sph import evolve_star_and_convert_to_sph, evolve_star
-        mass = 0.6|units.MSun
+        mass = 0.6 | units.MSun
         age = 8 | units.Gyr
-        omega = 0|units.s**-1
+        omega = 0 | units.s**-1
         Nsph = 1000
         stellar = evolve_star(mass, age)
         pstar, pcore = evolve_star_and_convert_to_sph(stellar, omega, Nsph)
@@ -24,9 +27,9 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
         sstar = read_set_from_file(filename, format='hdf5')
     except:
         from star_to_sph import evolve_star_and_convert_to_sph, evolve_star
-        mass = 0.6|units.MSun
+        mass = 0.6 | units.MSun
         age = 8 | units.Gyr
-        omega = 0|units.s**-1
+        omega = 0 | units.s**-1
         Nsph = 1000
         stellar = evolve_star(mass, age)
         sstar, score = evolve_star_and_convert_to_sph(stellar, omega, Nsph)
@@ -34,7 +37,6 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
     smass = sstar.mass.sum()
     print(smass.in_(units.MSun))
 
-    import numpy
     v_esc = numpy.sqrt(2*constants.G*pmass/distance)
     velocity = v_vesc*v_esc
     
@@ -46,7 +48,7 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
     sph_particles.add_particles(pstar)
     sph_particles.add_particles(sstar)
     sph_particles.move_to_center()
-    converter=nbody_system.nbody_to_si(pmass, distance)
+    converter = nbody_system.nbody_to_si(pmass, distance)
 
     hydro = Fi(converter)
 
@@ -58,7 +60,10 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
     to_framework = hydro.gas_particles.new_channel_to(sph_particles)
 
     output_file = "1987ApJ...323..614B.h5"
-    write_set_to_file(sph_particles.savepoint(0.0 | t_end.unit), output_file, "hdf5", append_to_file=False)
+    write_set_to_file(
+        sph_particles.savepoint(0.0 | t_end.unit),
+        output_file, "hdf5", append_to_file=False,
+    )
 
     time = 0.0 | t_end.unit
     while time < t_end:
@@ -92,28 +97,28 @@ def collide_two_stars(t_end, distance, offset, v_vesc, nsteps):
 
     hydro.stop()
 
-    
+
 def new_option_parser():
     from amuse.units.optparse import OptionParser
     result = OptionParser()
     result.add_option("-t", unit=units.hour,
-                      dest="t_end", type="float", default = 10|units.hour,
+                      dest="t_end", type="float", default=10 | units.hour,
                       help="end time of the simulation [%default]")
     result.add_option("-r", unit=units.MSun,
-                      dest="distance", type="float", default = 1.4|units.RSun,
+                      dest="distance", type="float", default=1.4 | units.RSun,
                       help="initial sepration [%default]")
     result.add_option("-o", unit=units.RSun,
-                      dest="offset", type="float", default = 0|units.RSun,
+                      dest="offset", type="float", default=0 | units.RSun,
                       help="offset sepration [%default]")
     result.add_option("-v", 
-                      dest="v_vesc", type="float", default = 1.7,
+                      dest="v_vesc", type="float", default=1.7,
                       help="impact velocity wrt escape speed [%default]")
     result.add_option("-n", 
-                      dest="nsteps", type="int", default = 10,
+                      dest="nsteps", type="int", default=10,
                       help="number of steps [%default]")
     return result
 
-if __name__ in ('__main__', '__plot__'):
-    o, arguments  = new_option_parser().parse_args()
-    collide_two_stars(o.t_end, o.distance, o.offset, o.v_vesc, o.nsteps)
 
+if __name__ in ('__main__', '__plot__'):
+    o, arguments = new_option_parser().parse_args()
+    collide_two_stars(o.t_end, o.distance, o.offset, o.v_vesc, o.nsteps)

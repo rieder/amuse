@@ -27,7 +27,7 @@ def new_system_of_sun_and_earth():
     return stars
 
 def main():
-    filename = "SunAndEarthAndMoon_TBB.h5"
+    filename = "SunAndEarthAndMoon_TBB.amuse"
     ss = new_system_of_sun_and_earth()
     star = ss[0]
     planet = ss[1]
@@ -35,20 +35,22 @@ def main():
 
     print(moon)
     converter=nbody_system.nbody_to_si(star.mass, 1|units.AU)
-    star_gravity = ph4(converter)
+    star_gravity = Ph4(converter)
     star_gravity.particles.add_particle(star)
 
-    planet_gravity = ph4(converter)
+    planet_gravity = Ph4(converter)
     planet_gravity.particles.add_particle(planet)
 
-    moon_gravity = ph4(converter)
+    moon_gravity = Ph4(converter)
     moon_gravity.particles.add_particle(moon)
 
     channel_from_star_to_framework = star_gravity.particles.new_channel_to(ss)
     channel_from_planet_to_framework = planet_gravity.particles.new_channel_to(ss)
     channel_from_moon_to_framework = moon_gravity.particles.new_channel_to(ss)
 
-    write_set_to_file(ss.savepoint(0.0|units.Myr), filename, 'hdf5', append_to_file=False, version='2')
+    write_set_to_file(
+        ss.savepoint(0.0|units.Myr), filename, 'hdf5', overwrite_file=True,
+    )
     
     gravity = bridge.Bridge(use_threading=False, method=SPLIT_4TH_S_M4)
 ####gravity = bridge.Bridge(use_threading=False, method=SPLIT_6TH_SS_M13)
@@ -73,7 +75,9 @@ def main():
         channel_from_star_to_framework.copy()
         channel_from_planet_to_framework.copy()
         channel_from_moon_to_framework.copy()
-        write_set_to_file(ss.savepoint(time), filename, 'hdf5', version='2')
+        write_set_to_file(
+            ss.savepoint(time), filename, 'hdf5', append_to_file=True,
+        )
 
         Ekin = gravity.kinetic_energy 
         Epot = gravity.potential_energy
