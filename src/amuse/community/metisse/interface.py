@@ -34,10 +34,6 @@ class MetisseInterface(
             )
 
     @remote_function
-    def initialize():
-        returns (result="i")
-
-    @remote_function
     def teststar(mass_in="d", time_in="d"):
         returns (mass_out="d", result="i")
 
