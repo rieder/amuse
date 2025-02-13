@@ -10,7 +10,8 @@ from amuse.community import (
     remote_function,
 )
 from amuse.community.interface.se import StellarEvolutionInterface
-from amuse.datamodel import Particles
+from amuse.datamodel import Particles, ParticlesSubset
+from amuse.units import units, constants
 
 
 # low level interface class
@@ -72,33 +73,134 @@ class Metisse(InCodeComponentImplementation):
         #     "name_of_the_getter",
         #     "name_of_the_setter",
         #     "parameter_name",
-        #     "description", 
+        #     "description",
         #     default_value = <default value>
         # )
         pass
 
-# the definition of the code data stores, either particle sets:
     def define_particle_sets(self, handler):
-        # handler.define_set("particles", "index_of_the_particle")
-        # handler.set_new("particles", "new_particle")
-        # handler.set_delete("particles", "delete_particle")
-        # handler.add_setter("particles", "set_state")
-        # handler.add_getter("particles", "get_state")
-        # handler.add_setter("particles", "set_mass")
-        # handler.add_getter("particles", "get_mass", names=("mass",))
-        pass
+        handler.define_inmemory_set("particles", MetisseParticles)
 
-# and/or grids:
-    def define_grids(self, handler):
-        # handler.define_grid("grid",axes_names = ["x", "y"], grid_class=StructuredGrid)
-        # handler.set_grid_range("grid", "_grid_range")
-        # handler.add_getter("grid", "get_grid_position", names=["x", "y"])
-        # handler.add_getter("grid", "get_rho", names=["density"])
-        # handler.add_setter("grid", "set_rho", names=["density"])
-        pass
+        handler.add_attribute(
+            "particles",
+            "time_step",
+            "get_time_step",
+            (
+                "stellar_type",
+                "initial_mass",
+                "age",
+                "mass",
+                "main_sequence_lifetime",
+                "epoch",
+            ),
+        )
+
+        handler.add_attribute(
+            "particles",
+            "mass_loss_wind",
+            "get_mass_loss_wind",
+            ("stellar_type", "luminosity", "radius", "mass", "CO_core_mass"),
+        )
+
+        handler.add_attribute(
+            "particles",
+            "gyration_radius",
+            "get_gyration_radius",
+            (
+                "stellar_type",
+                "initial_mass",
+                "mass",
+                "radius",
+                "luminosity",
+                "epoch",
+                "main_sequence_lifetime",
+                "age",
+            ),
+        )
 
 
 class MetisseParticles(Particles):
+
     def __init__(self, code_interface, storage=None):
         Particles.__init__(self, storage=storage)
         self._private.code_interface = code_interface
+        self.add_calculated_attribute(
+            "temperature",
+            self.calculate_effective_temperature,
+            ["luminosity", "radius"],
+        )
+        self.add_function_attribute(
+            "evolve_one_step", self.particleset_evolve_one_step, self.evolve_one_step
+        )
+        self.add_function_attribute(
+            "evolve_for",
+            self.particleset_evolve_for,
+            self.evolve_for
+        )
+
+    def calculate_effective_temperature(self, luminosity, radius):
+        return (
+            (luminosity / (constants.four_pi_stefan_boltzmann * radius**2)) ** 0.25
+        ).in_(
+            units.K
+        )
+
+    def add_particles_to_store(self, keys, attributes=[], values=[]):
+        if len(keys) == 0:
+            return
+
+        all_attributes = []
+        all_attributes.extend(attributes)
+        all_values = []
+        all_values.extend(values)
+
+        mapping_from_attribute_to_default_value = {
+            "stellar_type": 1 | units.stellar_type,
+            "radius": 0 | units.RSun,
+            "luminosity": 0 | units.LSun,
+            "core_mass": 0 | units.MSun,
+            "CO_core_mass": 0 | units.MSun,
+            "core_radius": 0 | units.RSun,
+            "convective_envelope_mass": 0 | units.MSun,
+            "convective_envelope_radius": 0 | units.RSun,
+            "epoch": 0 | units.Myr,
+            "spin": 0 | units.yr**-1,
+            "main_sequence_lifetime": 0 | units.Myr,
+            "age": 0 | units.Myr,
+        }
+
+        given_attributes = set(attributes)
+
+        if "initial_mass" not in given_attributes:
+            index_of_mass_attibute = attributes.index("mass")
+            all_attributes.append("initial_mass")
+            all_values.append(values[index_of_mass_attibute] * 1.0)
+
+        for attribute, default_value in mapping_from_attribute_to_default_value.items():
+            if attribute not in given_attributes:
+                all_attributes.append(attribute)
+                all_values.append(default_value.as_vector_with_length(len(keys)))
+
+        super().add_particles_to_store(keys, all_attributes, all_values)
+
+        added_particles = ParticlesSubset(self, keys)
+        self._private.code_interface._evolve_particles(added_particles, 0 | units.yr)
+
+    def evolve_one_step(self, particles, subset):
+        self._private.code_interface._evolve_particles(
+            subset.as_set(), subset.age + subset.time_step
+        )
+
+    def particleset_evolve_one_step(self, particles):
+        self._private.code_interface._evolve_particles(
+            particles, particles.age + particles.time_step
+        )
+
+    def evolve_for(self, particles, subset, delta_time):
+        self._private.code_interface._evolve_particles(subset.as_set(), subset.age + delta_time)
+
+    def particleset_evolve_for(self, particles, delta_time):
+        self._private.code_interface._evolve_particles(particles, particles.age + delta_time)
+
+    def get_defined_attribute_names(self):
+        return ["mass", "radius"]
