@@ -9,13 +9,15 @@ from amuse.community import (
     legacy_function,
     remote_function,
 )
+from amuse.community.interface.se import StellarEvolutionInterface
 from amuse.datamodel import Particles
 
 
 # low level interface class
 class MetisseInterface(
     CodeInterface,
-    LiteratureReferencesMixIn
+    StellarEvolutionInterface,
+    LiteratureReferencesMixIn,
 ):
     """
     Low level interface for metisse
