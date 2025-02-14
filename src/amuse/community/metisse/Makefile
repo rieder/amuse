@@ -51,10 +51,13 @@ src/METISSE/$(CODELIB): | src/METISSE/make
 metisse_worker.f90: interface.py
 	amusifier --type=f90 interface.py MetisseInterface -o $@
 
-metisse_worker.o: metisse_worker.f90
+storage.o: storage.f90
 	$(MPIFC) -c -o $@ $(FCFLAGS) $<
 
-metisse_worker: interface.o metisse_worker.o src/METISSE/$(CODELIB)
+metisse_worker.o: metisse_worker.f90 storage.o
+	$(MPIFC) -c -o $@ $(FCFLAGS) $<
+
+metisse_worker: interface.o metisse_worker.o storage.o src/METISSE/$(CODELIB)
 	$(MPIFC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 %.o: %.f90

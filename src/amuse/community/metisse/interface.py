@@ -9,7 +9,7 @@ from amuse.community import (
     legacy_function,
     remote_function,
 )
-from amuse.community.interface.se import StellarEvolutionInterface
+from amuse.community.interface import se
 from amuse.datamodel import Particles, ParticlesSubset
 from amuse.units import units, constants
 
@@ -17,7 +17,7 @@ from amuse.units import units, constants
 # low level interface class
 class MetisseInterface(
     CodeInterface,
-    StellarEvolutionInterface,
+    se.StellarEvolutionInterface,
     LiteratureReferencesMixIn,
 ):
     """
@@ -42,14 +42,13 @@ class MetisseInterface(
 
 
 # high level interface class
-class Metisse(InCodeComponentImplementation):
+class Metisse(se.StellarEvolution):
+    __interface__ = MetisseInterface
 
     def __init__(self, **options):
-        InCodeComponentImplementation.__init__(
-            self,
-            MetisseInterface(**options),
-            **options
-        )
+        # self.stopping_conditions = StoppingConditions(self)
+        # self.stopping_conditions.supernova_detection = code.StoppingCondition('supernova_detection')
+        se.StellarEvolution.__init__(self, MetisseInterface(**options), **options)
 
 # the definition of the state model of the code
     def define_state(self, handler):
@@ -79,44 +78,18 @@ class Metisse(InCodeComponentImplementation):
         pass
 
     def define_particle_sets(self, handler):
-        handler.define_inmemory_set("particles", MetisseParticles)
+        handler.define_set("particles", "index_of_the_star")
+        handler.set_new("particles", "new_particle")
+        handler.set_delete("particles", "delete_star")
 
-        handler.add_attribute(
-            "particles",
-            "time_step",
-            "get_time_step",
-            (
-                "stellar_type",
-                "initial_mass",
-                "age",
-                "mass",
-                "main_sequence_lifetime",
-                "epoch",
-            ),
-        )
+        handler.add_getter("particles", "mass", "get_mass", names=("mass",))
+        handler.add_getter("particles", "radius", "get_radius", names=("radius",))
+        handler.add_getter("particles", "luminosity", "get_luminosity", names=("luminosity",))
+        handler.add_getter("particles", "age", "get_age", names=("age",))
+        handler.add_getter("particles", "stellar_type", "get_stellar_type", names=("stellar_type",))
+        handler.add_getter("particles", "temperature", "get_temperature", names=("temperature",))
+        handler.add_getter("particles", "time_step", "get_time_step", names=("time_step",))
 
-        handler.add_attribute(
-            "particles",
-            "mass_loss_wind",
-            "get_mass_loss_wind",
-            ("stellar_type", "luminosity", "radius", "mass", "CO_core_mass"),
-        )
-
-        handler.add_attribute(
-            "particles",
-            "gyration_radius",
-            "get_gyration_radius",
-            (
-                "stellar_type",
-                "initial_mass",
-                "mass",
-                "radius",
-                "luminosity",
-                "epoch",
-                "main_sequence_lifetime",
-                "age",
-            ),
-        )
 
 
 class MetisseParticles(Particles):
