@@ -35,6 +35,11 @@ class MetisseInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
 
+    @remote_function
+    def get_initial_mass(index_of_the_star="i"):
+        returns (mass="d" | units.julianyr)
+
+
 # high level interface class
 class Metisse(se.StellarEvolution):
     """

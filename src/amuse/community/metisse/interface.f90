@@ -144,6 +144,14 @@ module metisseInterface
     integer :: get_time_step
     call star_system%get_time_step(index_of_the_star, time_step, get_time_step)
   end function
+
+  function get_initial_mass(index_of_the_star, mass)
+    implicit none
+    integer :: index_of_the_star
+    double precision :: mass
+    integer :: get_initial_mass
+    call star_system%get_initial_mass(index_of_the_star, mass, get_initial_mass)
+  end function
   
   function initialize_code()
     implicit none
