@@ -13,6 +13,14 @@ module store_stars
     real(c_double) :: temperature
     real(c_double) :: metallicity
     real(c_double) :: radius
+    real(c_double) :: core_mass
+    real(c_double) :: CO_core_mass
+    real(c_double) :: core_radius
+    real(c_double) :: convective_envelope_mass
+    real(c_double) :: convective_envelope_radius
+    real(c_double) :: epoch
+    real(c_double) :: spin
+    real(c_double) :: main_sequence_lifetime
     integer :: stellar_type
   end type star
 
@@ -36,6 +44,15 @@ module store_stars
     procedure, public :: get_luminosity
     procedure, public :: get_stellar_type
     procedure, public :: get_metallicity
+    procedure, public :: get_spin
+    procedure, public :: get_epoch
+    procedure, public :: get_main_sequence_lifetime
+    procedure, public :: get_core_mass
+    procedure, public :: get_core_radius
+    procedure, public :: get_CO_core_mass
+    procedure, public :: get_convective_envelope_mass
+    procedure, public :: get_convective_envelope_radius
+    procedure, public :: get_initial_mass
     procedure, public :: get_number_of_stars
     
   end type stars
@@ -68,6 +85,15 @@ contains
     self%star_array(i)%temperature = 0.0_c_double
     self%star_array(i)%metallicity = 0.0_c_double
     self%star_array(i)%radius = 0.0_c_double
+    self%star_array(i)%core_mass = 0.0_c_double
+    self%star_array(i)%CO_core_mass = 0.0_c_double
+    self%star_array(i)%core_radius = 0.0_c_double
+    self%star_array(i)%convective_envelope_mass = 0.0_c_double
+    self%star_array(i)%convective_envelope_radius = 0.0_c_double
+    self%star_array(i)%epoch = 0.0_c_double
+    self%star_array(i)%spin = 0.0_c_double
+    self%star_array(i)%main_sequence_lifetime = 0.0_c_double
+
     self%star_array(i)%stellar_type = 0
 
     self%next_star_id = new_id + 1
@@ -176,6 +202,22 @@ contains
         value = self%star_array(i)%metallicity
       case ('radius')
         value = self%star_array(i)%radius
+      case ('core_mass')
+        value = self%star_array(i)%core_mass
+      case ('CO_core_mass')
+        value = self%star_array(i)%CO_core_mass
+      case ('core_radius')
+        value = self%star_array(i)%core_radius
+      case ('convective_envelope_mass')
+        value = self%star_array(i)%convective_envelope_mass
+      case ('convective_envelope_radius')
+        value = self%star_array(i)%convective_envelope_radius
+      case ('epoch')
+        value = self%star_array(i)%epoch
+      case ('spin')
+        value = self%star_array(i)%spin
+      case ('main_sequence_lifetime')
+        value = self%star_array(i)%main_sequence_lifetime
       case default
         value = 0.0_c_double
         error = -2  ! property not found
@@ -339,12 +381,84 @@ contains
     call get_property_double(self, id, 'metallicity', metallicity, error)
   end subroutine
 
+  subroutine get_spin(self, id, spin, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: spin
+    integer :: error
+    call get_property_double(self, id, 'spin', spin, error)
+  end subroutine
+
+  subroutine get_epoch(self, id, epoch, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: epoch
+    integer :: error
+    call get_property_double(self, id, 'epoch', epoch, error)
+  end subroutine
+
+  subroutine get_core_mass(self, id, core_mass, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: core_mass
+    integer :: error
+    call get_property_double(self, id, 'core_mass', core_mass, error)
+  end subroutine
+
+  subroutine get_core_radius(self, id, core_radius, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: core_radius
+    integer :: error
+    call get_property_double(self, id, 'core_radius', core_radius, error)
+  end subroutine
+
+  subroutine get_CO_core_mass(self, id, CO_core_mass, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: CO_core_mass
+    integer :: error
+    call get_property_double(self, id, 'CO_core_mass', CO_core_mass, error)
+  end subroutine
+
+  subroutine get_convective_envelope_mass(self, id, convective_envelope_mass, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: convective_envelope_mass
+    integer :: error
+    call get_property_double(self, id, 'convective_envelope_mass', convective_envelope_mass, error)
+  end subroutine
+
+  subroutine get_convective_envelope_radius(self, id, convective_envelope_radius, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: convective_envelope_radius
+    integer :: error
+    call get_property_double(self, id, 'convective_envelope_radius', convective_envelope_radius, error)
+  end subroutine
+
   subroutine get_stellar_type(self, id, stellar_type, error)
     class(stars), intent(in) :: self
     integer, intent(in) :: id
     integer, intent(out) :: stellar_type
     integer :: error
     call get_property_int(self, id, 'stellar_type', stellar_type, error)
+  end subroutine
+
+  subroutine get_initial_mass(self, id, initial_mass, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: initial_mass
+    integer :: error
+    call get_property_double(self, id, 'initial_mass', initial_mass, error)
+  end subroutine
+
+  subroutine get_main_sequence_lifetime(self, id, main_sequence_lifetime, error)
+    class(stars), intent(in) :: self
+    integer, intent(in) :: id
+    real(c_double), intent(out) :: main_sequence_lifetime
+    integer :: error
+    call get_property_double(self, id, 'main_sequence_lifetime', main_sequence_lifetime, error)
   end subroutine
 
   ! setters for all the stellar properties that are settable

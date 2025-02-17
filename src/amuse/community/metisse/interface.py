@@ -1,12 +1,12 @@
 """
 Interface for metisse
 """
+
 from amuse.community import (
     CodeInterface,
-    InCodeComponentImplementation,
-    LegacyFunctionSpecification,
     LiteratureReferencesMixIn,
-    legacy_function,
+    # LegacyFunctionSpecification,
+    # legacy_function,
     remote_function,
 )
 from amuse.community.interface import se
@@ -21,7 +21,7 @@ class MetisseInterface(
     LiteratureReferencesMixIn,
 ):
     """
-    Low level interface for metisse
+    Low level interface for METISSE
 
     Details in publication:
         .. [#] Agrawal, P. et al. 202x
@@ -31,18 +31,15 @@ class MetisseInterface(
 
     def __init__(self, **keyword_arguments):
         CodeInterface.__init__(
-            self,
-            name_of_the_worker="metisse_worker",
-            **keyword_arguments
-            )
-
-    @remote_function
-    def teststar(mass_in="d", time_in="d"):
-        returns (mass_out="d", result="i")
-
+            self, name_of_the_worker="metisse_worker", **keyword_arguments
+        )
+        LiteratureReferencesMixIn.__init__(self)
 
 # high level interface class
 class Metisse(se.StellarEvolution):
+    """
+    High level interface for METISSE
+    """
     __interface__ = MetisseInterface
 
     def __init__(self, **options):
@@ -50,7 +47,7 @@ class Metisse(se.StellarEvolution):
         # self.stopping_conditions.supernova_detection = code.StoppingCondition('supernova_detection')
         se.StellarEvolution.__init__(self, MetisseInterface(**options), **options)
 
-# the definition of the state model of the code
+    # the definition of the state model of the code
     def define_state(self, handler):
         # for example:
         # handler.set_initial_state("UNINITIALIZED")
@@ -61,12 +58,12 @@ class Metisse(se.StellarEvolution):
         # handler.add_method("STOPPED", "stop")
         pass
 
-# the definition of any properties
+    # the definition of any properties
     def define_properties(self, handler):
         # handler.add_property("name_of_the_getter", public_name="name_of_the_property")
         pass
 
-# the definition of the parameters
+    # the definition of the parameters
     def define_parameters(self, handler):
         # handler.add_method_parameter(
         #     "name_of_the_getter",
@@ -84,12 +81,51 @@ class Metisse(se.StellarEvolution):
 
         handler.add_getter("particles", "mass", "get_mass", names=("mass",))
         handler.add_getter("particles", "radius", "get_radius", names=("radius",))
-        handler.add_getter("particles", "luminosity", "get_luminosity", names=("luminosity",))
         handler.add_getter("particles", "age", "get_age", names=("age",))
-        handler.add_getter("particles", "stellar_type", "get_stellar_type", names=("stellar_type",))
-        handler.add_getter("particles", "temperature", "get_temperature", names=("temperature",))
-        handler.add_getter("particles", "time_step", "get_time_step", names=("time_step",))
-
+        handler.add_getter(
+            "particles", "time_step", "get_time_step", names=("time_step",)
+        )
+        handler.add_getter(
+            "particles", "temperature", "get_temperature", names=("temperature",)
+        )
+        handler.add_getter(
+            "particles", "luminosity", "get_luminosity", names=("luminosity",)
+        )
+        handler.add_getter(
+            "particles", "stellar_type", "get_stellar_type", names=("stellar_type",)
+        )
+        handler.add_getter("particles", "spin", "get_spin", names=("spin",))
+        handler.add_getter("particles", "epoch", "get_epoch", names=("epoch",))
+        handler.add_getter(
+            "particles",
+            "main_sequence_lifetime",
+            "get_main_sequence_lifetime",
+            names=("main_sequence_lifetime",),
+        )
+        handler.add_getter(
+            "particles", "core_mass", "get_core_mass", names=("core_mass",)
+        )
+        handler.add_getter(
+            "particles", "CO_core_mass", "get_CO_core_mass", names=("CO_core_mass",)
+        )
+        handler.add_getter(
+            "particles", "core_radius", "get_core_radius", names=("core_radius",)
+        )
+        handler.add_getter(
+            "particles",
+            "convective_envelope_mass",
+            "get_convective_envelope_mass",
+            names=("convective_envelope_mass",),
+        )
+        handler.add_getter(
+            "particles",
+            "convective_envelope_radius",
+            "get_convective_envelope_radius",
+            names=("convective_envelope_radius",),
+        )
+        handler.add_getter(
+            "particles", "initial_mass", "get_initial_mass", names=("initial_mass",)
+        )
 
 
 class MetisseParticles(Particles):
@@ -106,17 +142,13 @@ class MetisseParticles(Particles):
             "evolve_one_step", self.particleset_evolve_one_step, self.evolve_one_step
         )
         self.add_function_attribute(
-            "evolve_for",
-            self.particleset_evolve_for,
-            self.evolve_for
+            "evolve_for", self.particleset_evolve_for, self.evolve_for
         )
 
     def calculate_effective_temperature(self, luminosity, radius):
         return (
             (luminosity / (constants.four_pi_stefan_boltzmann * radius**2)) ** 0.25
-        ).in_(
-            units.K
-        )
+        ).in_(units.K)
 
     def add_particles_to_store(self, keys, attributes=[], values=[]):
         if len(keys) == 0:
@@ -170,10 +202,14 @@ class MetisseParticles(Particles):
         )
 
     def evolve_for(self, particles, subset, delta_time):
-        self._private.code_interface._evolve_particles(subset.as_set(), subset.age + delta_time)
+        self._private.code_interface._evolve_particles(
+            subset.as_set(), subset.age + delta_time
+        )
 
     def particleset_evolve_for(self, particles, delta_time):
-        self._private.code_interface._evolve_particles(particles, particles.age + delta_time)
+        self._private.code_interface._evolve_particles(
+            particles, particles.age + delta_time
+        )
 
     def get_defined_attribute_names(self):
         return ["mass", "radius"]
