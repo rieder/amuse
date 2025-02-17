@@ -24,7 +24,8 @@ class MetisseInterface(
     Low level interface for METISSE
 
     Details in publication:
-        .. [#] Agrawal, P. et al. 202x
+        .. [#] Agrawal, P. et al., 2020, https://doi.org/10.1093/mnras/staa2264
+        .. [#] Agrawal, P. et al., 2023, https://doi.org/10.1093/mnras/stad2334
     """
 
     use_modules = ["metisseInterface"]
