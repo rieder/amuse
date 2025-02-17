@@ -1,38 +1,32 @@
 module metisseInterface
     use iso_c_binding
     use store_stars, only: stars
+    use track_support
+    use z_support
     implicit none
     type(stars) :: star_system
 
     contains
 
     function initialize(error)
-        use track_support
-        use z_support
         implicit none
         integer :: error
         integer :: initialize
 
-        real(dp) :: zpars(20)
+        real(c_double) :: zpars(20)
 
-        call initialize_front_end('main')
+        initialize = -1
+
+        ! Need to define this front end for METISSE
+        call initialize_front_end("amuse")
+        initial_Z = -1.0_c_double
+
+        call METISSE_zcnsts(initial_Z,zpars,'','', error)
+        if (error/=0) return
+
+        write(*,*) "Number of tracks: ", number_of_tracks
 
         initialize = 0
-    end function
-
-    function teststar(mass_in, time, mass_out, error)
-        use track_support
-        use z_support
-        implicit none
-        real(dp) :: mass_in, mass_out, time
-        integer :: error
-        integer :: teststar
-
-        real(dp) :: zpars(20)
-
-        call initialize_front_end('main')
-        !call METISSE_zcnsts(initial_Z,zpars,'','',error)
-        teststar = 0
     end function
 
   function cleanup_code()
