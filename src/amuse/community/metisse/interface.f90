@@ -5,6 +5,7 @@ module metisseInterface
     use z_support
     implicit none
     type(stars) :: star_system
+    real(c_double), allocatable :: mass_array(:)
 
     contains
 
@@ -44,6 +45,13 @@ module metisseInterface
   function commit_particles()
     implicit none
     integer :: commit_particles
+    integer :: number_of_particles
+    integer :: error
+
+    error = get_number_of_particles(number_of_particles)
+    allocate(mass_array(number_of_particles))
+    mass_array = 0.0
+
     commit_particles=0
   end function
   
@@ -99,7 +107,63 @@ module metisseInterface
     integer :: get_metallicity
     get_metallicity=0
   end function
-  
+
+  function get_epoch(index_of_the_star, epoch)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: epoch
+    integer :: get_epoch
+    call star_system%get_epoch(index_of_the_star, epoch, get_epoch)
+  end function
+
+  function get_core_mass(index_of_the_star, core_mass)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: core_mass
+    integer :: get_core_mass
+    call star_system%get_core_mass(index_of_the_star, core_mass, get_core_mass)
+  end function
+
+  function get_core_radius(index_of_the_star, core_radius)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: core_radius
+    integer :: get_core_radius
+    call star_system%get_core_radius(index_of_the_star, core_radius, get_core_radius)
+  end function
+
+  function get_convective_envelope_mass(index_of_the_star, convective_envelope_mass)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: convective_envelope_mass
+    integer :: get_convective_envelope_mass
+    call star_system%get_convective_envelope_mass(index_of_the_star, convective_envelope_mass, get_convective_envelope_mass)
+  end function
+
+  function get_convective_envelope_radius(index_of_the_star, convective_envelope_radius)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: convective_envelope_radius
+    integer :: get_convective_envelope_radius
+    call star_system%get_convective_envelope_radius(index_of_the_star, convective_envelope_radius, get_convective_envelope_radius)
+  end function
+
+  function get_CO_core_mass(index_of_the_star, CO_core_mass)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: CO_core_mass
+    integer :: get_CO_core_mass
+    call star_system%get_CO_core_mass(index_of_the_star, CO_core_mass, get_CO_core_mass)
+  end function
+
+  function get_main_sequence_lifetime(index_of_the_star, main_sequence_lifetime)
+    implicit none
+    integer :: index_of_the_star
+    real(c_double) :: main_sequence_lifetime
+    integer :: get_main_sequence_lifetime
+    call star_system%get_main_sequence_lifetime(index_of_the_star, main_sequence_lifetime, get_main_sequence_lifetime)
+  end function
+
   function get_number_of_particles(number_of_particles)
     implicit none
     integer :: number_of_particles

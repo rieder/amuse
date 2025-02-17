@@ -36,9 +36,41 @@ class MetisseInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
 
-    @remote_function
+    # Remote functions - getters and setters
+    # Note that we should maybe use SI units rather than derived (MSun etc), at
+    # least while these are not certain to be the same in the code and in
+    # AMUSE...
+    @remote_function(can_handle_array=True)
     def get_initial_mass(index_of_the_star="i"):
-        returns (mass="d" | units.julianyr)
+        returns (mass="d" | units.MSun)
+
+    @remote_function(can_handle_array=True)
+    def get_epoch(index_of_the_star="i"):
+        returns (epoch="d" | units.julianyr)
+
+    @remote_function(can_handle_array=True)
+    def get_core_mass(index_of_the_star="i"):
+        returns (core_mass="d" | units.MSun)
+
+    @remote_function(can_handle_array=True)
+    def get_core_radius(index_of_the_star="i"):
+        returns (core_radius="d" | units.RSun)
+
+    @remote_function(can_handle_array=True)
+    def get_convective_envelope_mass(index_of_the_star="i"):
+        returns (convective_envelope_mass="d" | units.MSun)
+
+    @remote_function(can_handle_array=True)
+    def get_convective_envelope_radius(index_of_the_star="i"):
+        returns (convective_envelope_radius="d" | units.RSun)
+
+    @remote_function(can_handle_array=True)
+    def get_CO_core_mass(index_of_the_star="i"):
+        returns (CO_core_mass="d" | units.MSun)
+
+    @remote_function(can_handle_array=True)
+    def get_main_sequence_lifetime(index_of_the_star="i"):
+        returns (main_sequence_lifetime="d" | units.Myr)
 
 
 # high level interface class
@@ -85,52 +117,49 @@ class Metisse(se.StellarEvolution):
         handler.set_new("particles", "new_particle")
         handler.set_delete("particles", "delete_star")
 
-        handler.add_getter("particles", "mass", "get_mass", names=("mass",))
-        handler.add_getter("particles", "radius", "get_radius", names=("radius",))
-        handler.add_getter("particles", "age", "get_age", names=("age",))
+        handler.add_getter("particles", "get_mass", names=("mass",))
+        handler.add_getter("particles", "get_radius", names=("radius",))
+        handler.add_getter("particles", "get_age", names=("age",))
         handler.add_getter(
-            "particles", "time_step", "get_time_step", names=("time_step",)
+            "particles", "get_time_step", names=("time_step",)
         )
         handler.add_getter(
-            "particles", "temperature", "get_temperature", names=("temperature",)
+            "particles", "get_temperature", names=("temperature",)
         )
         handler.add_getter(
-            "particles", "luminosity", "get_luminosity", names=("luminosity",)
+            "particles", "get_luminosity", names=("luminosity",)
         )
         handler.add_getter(
-            "particles", "stellar_type", "get_stellar_type", names=("stellar_type",)
+            "particles", "get_stellar_type", names=("stellar_type",)
         )
-        handler.add_getter("particles", "spin", "get_spin", names=("spin",))
-        handler.add_getter("particles", "epoch", "get_epoch", names=("epoch",))
+        # handler.add_getter("particles", "get_spin", names=("spin",))
+        handler.add_getter("particles", "get_epoch", names=("epoch",))
         handler.add_getter(
             "particles",
-            "main_sequence_lifetime",
             "get_main_sequence_lifetime",
             names=("main_sequence_lifetime",),
         )
         handler.add_getter(
-            "particles", "core_mass", "get_core_mass", names=("core_mass",)
+            "particles", "get_core_mass", names=("core_mass",)
         )
         handler.add_getter(
-            "particles", "CO_core_mass", "get_CO_core_mass", names=("CO_core_mass",)
+            "particles", "get_CO_core_mass", names=("CO_core_mass",)
         )
         handler.add_getter(
-            "particles", "core_radius", "get_core_radius", names=("core_radius",)
+            "particles", "get_core_radius", names=("core_radius",)
         )
         handler.add_getter(
             "particles",
-            "convective_envelope_mass",
             "get_convective_envelope_mass",
             names=("convective_envelope_mass",),
         )
         handler.add_getter(
             "particles",
-            "convective_envelope_radius",
             "get_convective_envelope_radius",
             names=("convective_envelope_radius",),
         )
         handler.add_getter(
-            "particles", "initial_mass", "get_initial_mass", names=("initial_mass",)
+            "particles", "get_initial_mass", names=("initial_mass",)
         )
 
 
