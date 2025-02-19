@@ -35,6 +35,7 @@ class MetisseInterface(
             self, name_of_the_worker="metisse_worker", **keyword_arguments
         )
         LiteratureReferencesMixIn.__init__(self)
+        self.model_time = 0.0 | units.julianyr
 
     # Remote functions - getters and setters
     # Note that we should maybe use SI units rather than derived (MSun etc), at
@@ -71,6 +72,124 @@ class MetisseInterface(
     @remote_function(can_handle_array=True)
     def get_main_sequence_lifetime(index_of_the_star="i"):
         returns (main_sequence_lifetime="d" | units.Myr)
+
+    @remote_function(must_handle_array=True)
+    def evolve_stars(index_of_the_star="i", time_delta="d" | units.Myr):
+        returns (error="i")
+
+    # getters and setters for tracks
+    # metallicity_dir (string)
+    # metallicity_dir_he (string)
+    # z_accuracy_limit (float)
+    # mass_accuracy_limit (float)
+
+    @remote_function
+    def get_metallicity_dir():
+        returns (metallicity_dir="s")
+
+    @remote_function
+    def set_metallicity_dir(metallicity_dir="s"):
+        returns ()
+
+    @remote_function
+    def get_metallicity_dir_he():
+        returns (metallicity_dir_he="s")
+
+    @remote_function
+    def set_metallicity_dir_he(metallicity_dir_he="s"):
+        returns ()
+
+    @remote_function
+    def get_z_accuracy_limit():
+        returns (z_accuracy_limit="d")
+
+    @remote_function
+    def set_z_accuracy_limit(z_accuracy_limit="d"):
+        returns ()
+
+    @remote_function
+    def get_mass_accuracy_limit():
+        returns (mass_accuracy_limit="d")
+
+    @remote_function
+    def set_mass_accuracy_limit(mass_accuracy_limit="d"):
+        returns ()
+
+    # getters and setters for miscellaneous controls
+    # verbose (bool)
+    # construct_postagb_track (bool)
+
+    @remote_function
+    def get_verbose():
+        returns (verbose="b")
+
+    @remote_function
+    def set_verbose(verbose="b"):
+        returns ()
+
+    @remote_function
+    def get_construct_postagb_track():
+        returns (construct_postagb_track="b")
+
+    @remote_function
+    def set_construct_postagb_track(construct_postagb_track="b"):
+        returns ()
+
+    # getters and setters for parameters
+    # initial_metallicity(real)
+    # wd_mass_scheme (string, 256)
+    # use_initial_final_mass_relation(bool)
+    # bhns_mass_scheme (string, 256)
+    # max_ns_mass (real)
+    # allow_electron_capture (bool)
+
+    @remote_function
+    def get_initial_metallicity():
+        returns (initial_metallicity="d")
+
+    @remote_function
+    def set_initial_metallicity(initial_metallicity="d"):
+        returns ()
+
+    @remote_function
+    def get_wd_mass_scheme():
+        returns (wd_mass_scheme="s")
+
+    @remote_function
+    def set_wd_mass_scheme(wd_mass_scheme="s"):
+        returns ()
+
+    @remote_function
+    def get_use_initial_final_mass_relation():
+        returns (use_initial_final_mass_relation="b")
+
+    @remote_function
+    def set_use_initial_final_mass_relation(use_initial_final_mass_relation="b"):
+        returns ()
+
+    @remote_function
+    def get_bhns_mass_scheme():
+        returns (bhns_mass_scheme="s")
+
+    @remote_function
+    def set_bhns_mass_scheme(bhns_mass_scheme="s"):
+        returns ()
+
+    @remote_function
+    def get_max_ns_mass():
+        returns (max_ns_mass="d")
+
+    @remote_function
+    def set_max_ns_mass(max_ns_mass="d"):
+        returns ()
+
+    @remote_function
+    def get_allow_electron_capture():
+        returns (allow_electron_capture="b")
+
+    @remote_function
+    def set_allow_electron_capture(allow_electron_capture="b"):
+        returns ()
 
 
 # high level interface class
@@ -110,7 +229,94 @@ class Metisse(se.StellarEvolution):
         #     "description",
         #     default_value = <default value>
         # )
-        pass
+
+        
+
+        # Track parameters
+        handler.add_method_parameter(
+            "get_metallicity_dir",
+            "set_metallicity_dir",
+            "metallicity_dir",
+            "Location of the tracks",
+            default_value="./",
+        )
+
+        handler.add_method_parameter(
+            "get_metallicity_dir_he",
+            "set_metallicity_dir_he",
+            "metallicity_dir_he",
+            "Location of the He tracks",
+            default_value="./",
+        )
+
+        handler.add_method_parameter(
+            "get_z_accuracy_limit",
+            "set_z_accuracy_limit",
+            "z_accuracy_limit",
+            "Metallicity accuracy limit",
+            default_value=1.0e-2,
+        )
+
+        handler.add_method_parameter(
+            "get_mass_accuracy_limit",
+            "set_mass_accuracy_limit",
+            "mass_accuracy_limit",
+            "Mass accuracy limit",
+            default_value=1.0e-4,
+        )
+
+        # handlers for parameters:
+        # initial_metallicity
+        # wd_mass_scheme
+        # use_initial_final_mass_relation
+        # bhns_mass_scheme
+        # max_ns_mass
+        # allow_electron_capture
+
+        handler.add_method_parameter(
+            "get_initial_metallicity",
+            "set_initial_metallicity",
+            "initial_metallicity",
+            "Initial metallicity",
+            default_value=-1.0,
+        )
+
+        handler.add_method_parameter(
+            "get_wd_mass_scheme",
+            "set_wd_mass_scheme",
+            "wd_mass_scheme",
+            (
+                "White Dwarf (WD) luminosity calculation method:\n"
+                "(1) \"Mestel\" - Shapiro S. L., Teukolsky S. A., 1983\n"
+                "(2) \"Modified_mestel\" - Hurley J. R., Shara M. M., 2003"
+            ),
+            default_value="Modified_mestel",
+        )
+
+        handler.add_method_parameter(
+            "get_use_initial_final_mass_relation",
+            "set_use_initial_final_mass_relation",
+            "use_initial_final_mass_relation",
+            (
+                "If True use the initial final mass relation for white dwarfs "
+                "from Han, Z., Posialowski, P., Eggleton, P. P., 1995."
+            ),
+            default_value=False,
+        )
+
+        handler.add_method_parameter(
+            "get_bhns_mass_scheme",
+            "set_bhns_mass_scheme",
+            "bhns_mass_scheme",
+            (
+                "Neutron Star/Black Hole (NS/BH) type and mass calculation method:\n"
+                "(1) \"original_SSE\" - Hurley et al. 2000\n"
+                "(2) \"Belczynski2002\" - Belczynski et al. 2002\n"
+                "(3) \"Belczynski2008\" - Belczynski et al. 2008\n"
+                "(4) \"Eldridge_Tout2004\" - Eldridge J. J., Tout C. A., 2004"
+            ),
+            default_value="Belczynski2008",
+        )
 
     def define_particle_sets(self, handler):
         handler.define_set("particles", "index_of_the_star")
@@ -161,6 +367,16 @@ class Metisse(se.StellarEvolution):
         handler.add_getter(
             "particles", "get_initial_mass", names=("initial_mass",)
         )
+
+    def evolve_model(self, end_time=None, keep_synchronous=True):
+        if not keep_synchronous:
+            self._evolve_particles(self.particles, self.particles.time_step + self.particles.age)
+            return
+
+        if end_time is None:
+            end_time = self.model_time + min(self.particles.time_step)
+        self.evolve_stars(self.particles, end_time - self.model_time + self.particles.age)
+        self.model_time = end_time
 
 
 class MetisseParticles(Particles):
