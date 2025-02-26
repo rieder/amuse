@@ -123,14 +123,11 @@ contains
     self%star_array(i)%metallicity = 0.0_c_double
     self%star_array(i)%radius = 0.0_c_double
     self%star_array(i)%spin = 0.0_c_double
-    self%star_array(i)%stellar_type = 0
+    self%star_array(i)%stellar_type = 0_c_int
     self%star_array(i)%time_step = 0.0_c_double
     self%star_array(i)%temperature = 0.0_c_double
 
     self%next_star_id = new_id + 1
-
-    write(*,*) "new star with id: ", new_id
-    write(*,*) "mass: ", initial_mass
 
   end function new_star
 
@@ -140,16 +137,12 @@ contains
 
     integer :: i
 
-    write(*,*) "removing star with id: ", id
     do i = 1, self%num_stars
-      write(*,*) "i: ", i, " id: ", self%star_array(i)%id
       if (self%star_array(i)%id == id) then
-        write(*,*) "removing star with id: ", id
         if (i /= self%num_stars) then
           self%star_array(i:self%num_stars-1) = self%star_array(i+1:self%num_stars)
         end if
         self%num_stars = self%num_stars - 1
-        write(*,*) "num_stars: ", self%num_stars
         call self%resize(self%num_stars)
         exit
       end if
@@ -157,21 +150,26 @@ contains
 
   end subroutine remove_star
 
-  subroutine resize(self, new_size)
+  subroutine resize(self, required_size)
     class(stars), intent(inout) :: self
-    integer, intent(in) :: new_size
+    integer, intent(in) :: required_size
     type(star), allocatable :: temp(:)
     integer :: current_size, new_capacity
-  
-    if (new_size <= 0) then
+ 
+    if (required_size <= 0) then
       self%num_stars = 0
       if (allocated(self%star_array)) deallocate(self%star_array)
       return
     end if
+ 
+    current_size = size(self%star_array)
+    if (required_size .lt. current_size) return
   
-    current_size = self%num_stars
-    new_capacity = max(100, int((1.1 ** ceiling(log10(real(new_size)))) * 10))
-  
+    new_capacity = current_size
+    do while (required_size .gt. new_capacity)
+      new_capacity = max(100, int(new_capacity * 1.1))
+    end do
+ 
     if (.not. allocated(self%star_array) .or. new_capacity > size(self%star_array)) then
       if (allocated(self%star_array)) then
         allocate(temp(current_size))
@@ -256,7 +254,6 @@ contains
         error = -2  ! property not found
     end select
     error = 0
-    write(*,*) "get_property_double: ", id, property_name, value
   end subroutine get_property_double
 
   subroutine get_property_int(self, id, property_name, value, error)
@@ -282,7 +279,6 @@ contains
         return
     end select
     error = 0
-    write(*,*) "get_property_int: ", id, property_name, value
   end subroutine get_property_int
 
   ! Setters for all the stellar properties
