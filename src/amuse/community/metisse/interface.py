@@ -73,9 +73,9 @@ class MetisseInterface(
     def get_main_sequence_lifetime(index_of_the_star="i"):
         returns (main_sequence_lifetime="d" | units.Myr)
 
-    @remote_function(must_handle_array=True)
-    def evolve_stars(index_of_the_star="i", time_delta="d" | units.Myr):
-        returns (error="i")
+    @remote_function(can_handle_array=True)
+    def evolve_for(index_of_the_star="i", time_delta="d" | units.Myr):
+        returns ()
 
     # getters and setters for tracks
     # metallicity_dir (string)
@@ -191,6 +191,30 @@ class MetisseInterface(
     def set_allow_electron_capture(allow_electron_capture="b"):
         returns ()
 
+    @remote_function
+    def get_time_step_pts_1():
+        returns (fractional_time_step_1="d")
+
+    @remote_function
+    def set_time_step_pts_1(fractional_time_step_1="d"):
+        returns ()
+
+    @remote_function
+    def get_time_step_pts_2():
+        returns (fractional_time_step_2="d")
+
+    @remote_function
+    def set_time_step_pts_2(fractional_time_step_2="d"):
+        returns ()
+
+    @remote_function
+    def get_time_step_pts_3():
+        returns (fractional_time_step_3="d")
+
+    @remote_function
+    def set_time_step_pts_3(fractional_time_step_3="d"):
+        returns ()
+
 
 # high level interface class
 class Metisse(se.StellarEvolution):
@@ -239,6 +263,7 @@ class Metisse(se.StellarEvolution):
             "metallicity_dir",
             "Location of the tracks",
             default_value="./",
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -247,6 +272,7 @@ class Metisse(se.StellarEvolution):
             "metallicity_dir_he",
             "Location of the He tracks",
             default_value="./",
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -255,6 +281,7 @@ class Metisse(se.StellarEvolution):
             "z_accuracy_limit",
             "Metallicity accuracy limit",
             default_value=1.0e-2,
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -263,6 +290,7 @@ class Metisse(se.StellarEvolution):
             "mass_accuracy_limit",
             "Mass accuracy limit",
             default_value=1.0e-4,
+            must_set_before_get=True,
         )
 
         # handlers for parameters:
@@ -279,6 +307,7 @@ class Metisse(se.StellarEvolution):
             "initial_metallicity",
             "Initial metallicity",
             default_value=-1.0,
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -291,6 +320,7 @@ class Metisse(se.StellarEvolution):
                 "(2) \"Modified_mestel\" - Hurley J. R., Shara M. M., 2003"
             ),
             default_value="Modified_mestel",
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -302,6 +332,7 @@ class Metisse(se.StellarEvolution):
                 "from Han, Z., Posialowski, P., Eggleton, P. P., 1995."
             ),
             default_value=False,
+            must_set_before_get=True,
         )
 
         handler.add_method_parameter(
@@ -316,6 +347,34 @@ class Metisse(se.StellarEvolution):
                 "(4) \"Eldridge_Tout2004\" - Eldridge J. J., Tout C. A., 2004"
             ),
             default_value="Belczynski2008",
+            must_set_before_get=True,
+        )
+
+        handler.add_method_parameter(
+            "get_time_step_pts_1",
+            "set_time_step_pts_1",
+            "fractional_time_step_1",
+            "Determine timestep for 95% of MS, and HeMS",
+            default_value=0.05,
+            must_set_before_get=True,
+        )
+
+        handler.add_method_parameter(
+            "get_time_step_pts_2",
+            "set_time_step_pts_2",
+            "fractional_time_step_2",
+            "Determine timestep for last 5% of MS, cHeBurn, HeHG, and HeGB",
+            default_value=0.01,
+            must_set_before_get=True,
+        )
+
+        handler.add_method_parameter(
+            "get_time_step_pts_3",
+            "set_time_step_pts_3",
+            "fractional_time_step_3",
+            "Determine timestep for HG, RGB, EAGB, and TPAGB",
+            default_value=0.02,
+            must_set_before_get=True,
         )
 
     def define_particle_sets(self, handler):
@@ -368,15 +427,25 @@ class Metisse(se.StellarEvolution):
             "particles", "get_initial_mass", names=("initial_mass",)
         )
 
+        handler.add_method("particles", "evolve_one_step")
+        handler.add_method("particles", "evolve_for")
+
     def evolve_model(self, end_time=None, keep_synchronous=True):
+        print("evolve_model", end_time, keep_synchronous)        
         if not keep_synchronous:
-            self._evolve_particles(self.particles, self.particles.time_step + self.particles.age)
+            for particle in self.particles:
+                particle.evolve_one_step()
             return
 
-        if end_time is None:
-            end_time = self.model_time + min(self.particles.time_step)
-        self.evolve_stars(self.particles, end_time - self.model_time + self.particles.age)
-        self.model_time = end_time
+        delta_time = (
+            end_time-self.model_time
+            if end_time
+            else 0.99*min(self.particles.time_step)
+        )
+        print(f"{delta_time=}")
+        for particle in self.particles:
+            particle.evolve_for(particle.age + delta_time)
+        self.model_time += delta_time
 
 
 class MetisseParticles(Particles):

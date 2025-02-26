@@ -15,27 +15,39 @@ module metisseInterface
     ! commit_particles
     ! cleanup_code
 
-    function initialize(error)
+    subroutine assign_commons_amuse()
+
+    end subroutine
+
+    function initialize_code()
         implicit none
-        integer :: error
-        integer :: initialize
-
-        real(c_double) :: zpars(20)
-
-        initialize = -1
+        integer :: initialize_code
 
         ! Need to define this front end for METISSE
-        call initialize_front_end("COSMIC")
+        call initialize_front_end("AMUSE")
         initial_Z = -1.0_c_double
+        write_output_to_file = .false.
 
-        call METISSE_zcnsts(initial_Z,zpars,'','', error)
-        if (error/=0) return
-
-        write(*,*) "Number of tracks: ", number_of_tracks
-
-        initialize = 0
+        initialize_code=0
     end function
-
+    
+    function recommit_parameters()
+        implicit none
+        integer :: recommit_parameters
+        recommit_parameters=0
+    end function
+    
+    function recommit_particles()
+        implicit none
+        integer :: number_of_particles
+        integer :: error
+        integer :: recommit_particles
+        deallocate(mass_array)
+        error = get_number_of_particles(number_of_particles)
+        allocate(mass_array(number_of_particles))
+        recommit_particles=0
+    end function
+  
     function cleanup_code()
         implicit none
         integer :: cleanup_code
@@ -45,18 +57,32 @@ module metisseInterface
     function commit_parameters()
         implicit none
         integer :: commit_parameters
+        integer :: error
+        real(c_double) :: zpars(20)
+
         commit_parameters=0
+        write(*,*) "committing parameters"
+
+        ! This will read the tracks - so need to have set the paths before
+        call METISSE_zcnsts(initial_Z,zpars,'','', error)
+        if (error/=0) return
+
+        call assign_commons_main()
+
+        write(*,*) "Number of tracks: ", number_of_tracks
     end function
     
     function commit_particles()
         implicit none
         integer :: commit_particles
         integer :: number_of_particles
+        integer :: i
         integer :: error
+        real(c_double) :: mass
     
         error = get_number_of_particles(number_of_particles)
+
         allocate(mass_array(number_of_particles))
-        mass_array = 0.0
     
         commit_particles=0
     end function
@@ -348,9 +374,23 @@ module metisseInterface
     function evolve_for(index_of_the_star, delta_t)
         implicit none
         integer :: index_of_the_star
-        real(c_double) :: delta_t
+        integer :: error
+        real(c_double) :: delta_t, time_step
         integer :: evolve_for
         evolve_for = 0
+
+        write(*,*) 'evolving star ', index_of_the_star, ' for ', delta_t
+        do while (delta_t > 0)
+            call star_system%get_time_step(index_of_the_star, time_step, error)
+            if (delta_t < time_step) then
+                write(*,*) 'setting time step of star ', index_of_the_star, ' to ', delta_t
+                call star_system%set_time_step(index_of_the_star, delta_t, error)
+                time_step = delta_t
+            end if
+            evolve_for = evolve_one_step(index_of_the_star)
+            if (evolve_for /= 0) return
+            delta_t = delta_t - time_step
+        end do
     end function
     
     function evolve_one_step(index_of_the_star)
@@ -361,23 +401,29 @@ module metisseInterface
         real(c_double) :: time_step
         real(c_double) :: mass
         real(c_double) :: age
+        type(track), pointer :: t
    
-        write(*,*) 'evolve_one_step', index_of_the_star
         call star_system%get_time_step(index_of_the_star, time_step, error)
         call star_system%get_initial_mass(index_of_the_star, mass, error)
         call star_system%get_age(index_of_the_star, age, error)
-        write(*,*) 'age, mass, time_step', age, mass, time_step
         call allocate_track(1, mass)
-        write(*,*) 'allocate_track done'
         call evolv_metisse(mass, age + time_step, error, 1)
-        write(*,*) 'evolv_metisse done'
-        call dealloc_track()
-        write(*,*) 'dealloc_track done'
-        if (error /= 0) then
-            call star_system%set_mass(index_of_the_star, mass, error)
-            call star_system%set_age(index_of_the_star, age + time_step, error)
+        t => tarr(1)
+        if (error == 0) then
+            call star_system%set_mass(index_of_the_star, t % pars % mass, error)
+            call star_system%set_age(index_of_the_star, t % pars % age, error)
+            call star_system%set_time_step(index_of_the_star, t % pars % dt, error)
+            call star_system%set_luminosity(index_of_the_star, t % pars % luminosity, error)
+            call star_system%set_temperature(index_of_the_star, t % pars % Teff, error)
+            call star_system%set_radius(index_of_the_star, t % pars % radius, error)
+            call star_system%set_epoch(index_of_the_star, t % pars % epoch, error)
+            call star_system%set_core_mass(index_of_the_star, t % pars % core_mass, error)
+            call star_system%set_core_radius(index_of_the_star, t % pars % core_radius, error)
+            call star_system%set_stellar_type(index_of_the_star, t % pars % phase, error)
+            call star_system%set_co_core_mass(index_of_the_star, t % pars % McCO, error)
+            call star_system%set_spin(index_of_the_star, t % pars % bhspin, error)
         end if
-        write(*,*) 'evolve_one_step done'
+        call dealloc_track()
         evolve_one_step = 0
     end function
 
@@ -385,23 +431,23 @@ module metisseInterface
         implicit none
         real(c_double) :: t_end
         integer :: evolve_model
-        integer :: number_of_stars
-        integer :: ierr
+        integer :: number_of_particles
+        integer :: error
         integer :: i
         real(c_double) :: mass
 
-        call star_system%get_number_of_stars(number_of_stars)
-
-        do i = 1, number_of_stars
-            call star_system%get_initial_mass(i, mass, ierr)
-            call allocate_track(1, mass)
-            call evolv_metisse(mass, t_end, ierr, 1)
-            call dealloc_track()
-            if (ierr /= 0) then
-                call star_system%set_mass(i, mass, ierr)
-                call star_system%set_age(i, t_end, ierr)
+        call star_system%get_number_of_stars(number_of_particles)
+        do i = 1, number_of_particles
+            call star_system%get_initial_mass(i, mass, error)
+            call allocate_track(1,mass)
+            call evolv_metisse(mass, t_end, error, 1)
+            if (error /= 0) then
+                call star_system%set_age(i, t_end, error)
+                call star_system%set_mass(i, mass, error)
             end if
+            call dealloc_track()
         end do
+
         evolve_model = 0
     end function
 
@@ -434,6 +480,7 @@ module metisseInterface
     real(c_double) :: age
     integer :: get_age
     call star_system%get_age(index_of_the_star, age, get_age)
+    age = age * 1.0d+06
   end function
   
   function get_luminosity(index_of_the_star, luminosity)
@@ -553,6 +600,7 @@ module metisseInterface
     real(c_double) :: time_step
     integer :: get_time_step
     call star_system%get_time_step(index_of_the_star, time_step, get_time_step)
+    time_step = time_step * 1.0d+06
   end function
 
   function get_initial_mass(index_of_the_star, mass)
@@ -561,25 +609,6 @@ module metisseInterface
     double precision :: mass
     integer :: get_initial_mass
     call star_system%get_initial_mass(index_of_the_star, mass, get_initial_mass)
-  end function
-  
-  function initialize_code()
-    implicit none
-    integer :: initialize_code
-    initialize_code=0
-  end function
-
-  
-  function recommit_parameters()
-    implicit none
-    integer :: recommit_parameters
-    recommit_parameters=0
-  end function
-  
-  function recommit_particles()
-    implicit none
-    integer :: recommit_particles
-    recommit_particles=0
   end function
   
   function set_metallicity(metallicity)
