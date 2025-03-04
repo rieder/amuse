@@ -1,7 +1,11 @@
 ! Storage module for stars in a stellar evolution code.
 ! Only used for storing and retrieving, has no checks/calculations.
-!
-!
+! Units used:
+! - time: julian years
+! - mass: solar masses
+! - radius: solar radii
+! - luminosity: solar luminosities
+! - temperature: Kelvin
 !
 ! - Steven Rieder
 
@@ -124,7 +128,7 @@ contains
     self%star_array(i)%radius = 0.0_c_double
     self%star_array(i)%spin = 0.0_c_double
     self%star_array(i)%stellar_type = 0_c_int
-    self%star_array(i)%time_step = 0.0_c_double
+    self%star_array(i)%time_step = 1.0_c_double
     self%star_array(i)%temperature = 0.0_c_double
 
     self%next_star_id = new_id + 1
