@@ -61,15 +61,12 @@ module metisseInterface
         real(c_double) :: zpars(20)
 
         commit_parameters=0
-        write(*,*) "committing parameters"
 
         ! This will read the tracks - so need to have set the paths before
         call METISSE_zcnsts(initial_Z,zpars,'','', error)
         if (error/=0) return
 
         call assign_commons_main()
-
-        write(*,*) "Number of tracks: ", number_of_tracks
     end function
     
     function commit_particles()
@@ -375,21 +372,27 @@ module metisseInterface
         implicit none
         integer :: index_of_the_star
         integer :: error
-        real(c_double) :: delta_t, time_step
+        real(c_double) :: delta_t, time_step, age, previous_time_step
         integer :: evolve_for
         evolve_for = 0
 
-        write(*,*) 'evolving star ', index_of_the_star, ' for ', delta_t
-        do while (delta_t > 0)
+        !write(*,*) 'evolving star ', index_of_the_star, ' for ', delta_t
+        call star_system%get_time_step(index_of_the_star, previous_time_step, error)
+        ! When the previous time step is 0, the star can not be evolved forward anymore, so we stop.
+        ! Possibly, the tracks don't advance further than the current age of the star.
+        do while (delta_t > 0.0_c_double .and. previous_time_step > 0.0_c_double)
             call star_system%get_time_step(index_of_the_star, time_step, error)
             if (delta_t < time_step) then
-                write(*,*) 'setting time step of star ', index_of_the_star, ' to ', delta_t
+                !write(*,*) 'setting time step of star ', index_of_the_star, ' to ', delta_t
                 call star_system%set_time_step(index_of_the_star, delta_t, error)
                 time_step = delta_t
             end if
             evolve_for = evolve_one_step(index_of_the_star)
             if (evolve_for /= 0) return
             delta_t = delta_t - time_step
+            call star_system%get_age(index_of_the_star, age, error)
+            !write(*,*) "age, step: ", age, time_step
+            previous_time_step = time_step
         end do
     end function
     
@@ -398,21 +401,39 @@ module metisseInterface
         integer :: index_of_the_star
         integer :: evolve_one_step
         integer :: error
-        real(c_double) :: time_step
+        real(c_double) :: time_step, nuclear_time_scale
         real(c_double) :: mass
         real(c_double) :: age
         type(track), pointer :: t
+        evolve_one_step = 0
    
         call star_system%get_time_step(index_of_the_star, time_step, error)
+        if (time_step <= 0.0_c_double) then
+            evolve_one_step = 1  ! 1: cannot evolve forward anymore
+            return
+        end if
         call star_system%get_initial_mass(index_of_the_star, mass, error)
         call star_system%get_age(index_of_the_star, age, error)
-        call allocate_track(1, mass)
-        call evolv_metisse(mass, age + time_step, error, 1)
+        call allocate_track(1, mass) ! allocates tarr. mass is ignored...
         t => tarr(1)
+        nuclear_time_scale = t % nuc_time
+        if (age + time_step > nuclear_time_scale) then
+            time_step = nuclear_time_scale - age
+            call star_system%set_time_step(index_of_the_star, time_step, error)
+            write(*,*) "reaching end of the nuclear time scale, setting time step to: ", time_step
+            evolve_one_step = 1
+        end if
+        call evolv_metisse(mass, age + time_step, error, 1)
         if (error == 0) then
             call star_system%set_mass(index_of_the_star, t % pars % mass, error)
-            call star_system%set_age(index_of_the_star, t % pars % age, error)
-            call star_system%set_time_step(index_of_the_star, t % pars % dt, error)
+            call star_system%set_age(&
+                index_of_the_star,&
+                t % pars % age,&  ! METISSE uses Myr internally, we store years
+                error)
+            call star_system%set_time_step(&
+                index_of_the_star,&
+                t % pars % dt,&
+                error)
             call star_system%set_luminosity(index_of_the_star, t % pars % luminosity, error)
             call star_system%set_temperature(index_of_the_star, t % pars % Teff, error)
             call star_system%set_radius(index_of_the_star, t % pars % radius, error)
@@ -424,7 +445,6 @@ module metisseInterface
             call star_system%set_spin(index_of_the_star, t % pars % bhspin, error)
         end if
         call dealloc_track()
-        evolve_one_step = 0
     end function
 
     function evolve_model(t_end)
