@@ -165,8 +165,12 @@ contains
       if (allocated(self%star_array)) deallocate(self%star_array)
       return
     end if
- 
-    current_size = size(self%star_array)
+
+    if (allocated(self%star_array)) then
+      current_size = size(self%star_array)
+    else
+      current_size = 0
+    end if
     if (required_size .lt. current_size) return
   
     new_capacity = current_size
@@ -174,7 +178,7 @@ contains
       new_capacity = max(100, int(new_capacity * 1.1))
     end do
  
-    if (.not. allocated(self%star_array) .or. new_capacity > size(self%star_array)) then
+    if (.not. allocated(self%star_array) .or. new_capacity > current_size) then
       if (allocated(self%star_array)) then
         allocate(temp(current_size))
         temp = self%star_array
