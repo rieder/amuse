@@ -3,13 +3,17 @@
 . support/setup/dependencies.sh
 
 
-print_help() {
+print_invalid_command() {
     cmd="$1"
 
-    if [ "a${cmd}" != "a" ] ; then
-        printf '\n%s\n' "${cmd} was not recognised as a valid command."
-    fi
+    printf '\n%b\n' "${COLOR_RED}\"${cmd}\" was not recognised as a valid command.${COLOR_END}"
+    printf '\n%s\n' 'Try'
+    printf '\n%s\n' '    ./setup help'
+    printf '\n%s\n' 'to see all available commands.'
+}
 
+
+print_help() {
     printf '\n%b\n' "${BOLD}${COLOR_CYAN}*** AMUSE setup help ***${COLOR_END}${END_BOLD}"
 
     printf '%b\n' "
@@ -43,9 +47,10 @@ Builds and installs only the framework into the active environment.
 
 Builds and installs the Sapporo light GPU nbody library into the active environment.
 
-    ./setup install ${ITALIC}package${END_ITALIC}
+    ./setup install ${ITALIC}package1 package2...${END_ITALIC}
 
-Builds and installs a specific package into the active environment.
+Builds and installs specific package(s) into the active environment. Any number of
+packages can be specified.
 
 ${BOLD}Developing AMUSE${END_BOLD}
 
@@ -54,7 +59,7 @@ ${BOLD}Developing AMUSE${END_BOLD}
 Builds and installs the AMUSE framework in develop mode, as an editable install, into
 the active environment.
 
-    ./setup develop ${ITALIC}package${END_ITALIC}
+    ./setup develop ${ITALIC}package1 package2...${END_ITALIC}
 
 Builds and installs a specific package in develop mode, as an editable install, into
 the active environment.
@@ -76,10 +81,10 @@ framework to be installed as well as (currently) bhtree, evtwin, fi, fractalclus
 gadget2, galactics, halogen, hermite, hop, kepler, mesa_r14150, ph4, phigrape, seba, and
 sse.
 
-    ./setup test ${ITALIC}package${END_ITALIC}
+    ./setup test ${ITALIC}package1 package2...${END_ITALIC}
 
-Runs tests for the specified package. This requires the framework to be installed in the
-active environment.
+Runs tests for the specified package(s). This requires each package to be installed in
+the active environment.
 
     ./setup clean
 
@@ -256,5 +261,15 @@ print_test_failure() {
 
     printf '\n%b\n\n' "${COLOR_RED}${package} failed its tests.${COLOR_END}"
     print_getting_help
+}
+
+
+print_uninstall_failure() {
+    package="$1"
+    log_file="$2"
+
+    printf '\n%b\n\n' "${COLOR_RED}${package} failed to uninstall correctly.${COLOR_END}"
+    print_getting_help
+    printf '\n%s\n' "The output of the uninstallation process was logged to $2"
 }
 

@@ -138,11 +138,13 @@ check_build_sapporo_light() {
 #
 # This sets the following variables:
 #
+# EXTANT_PACKAGES - adds all packages that exist
 # ENABLED_PACKAGES - adds packages for which all requirements are met
 # ENABLED_PACKAGES_TEXT - adds packages for which all requirements are met
 # DISABLED_PACKAGES - adds packages for which features are missing
 # DISABLED_PACKAGES_TEXT - adds packages for which features are missing
 # BROKEN_PACKAGES - adds packages that are broken (issue_x dependency)
+# NEEDS_SAPPORO_LIGHT - adds packages that need sapporo_light
 #
 find_packages() {
     for code in src/amuse/community/* ; do
@@ -153,8 +155,15 @@ find_packages() {
             fi
             package=$(basename "${dep_file}" .amuse_deps)
             deps=$(cat "${dep_file}")
-            deps="gmake ${deps}"
+            deps="amuse-framework gmake ${deps}"
             missing_features=$(filter_out "${FEATURES}" "${deps}")
+            missing_features=$(filter_out "${ENABLED_PACKAGES}" "${missing_features}")
+
+            if is_subset "sapporo_light" "${deps}" ; then
+                NEEDS_SAPPORO_LIGHT="${NEEDS_SAPPORO_LIGHT} ${package}"
+            fi
+
+            EXTANT_PACKAGES="${EXTANT_PACKAGES} ${package}"
 
             if [ "a${missing_features}" = "a" ] ; then
                 installed="$(is_installed ${package})"

@@ -35,7 +35,7 @@ check_framework() {
 # Check Sapporo Light
 #
 check_sapporo_light() {
-    if ! is_subset sapporo_light "${ENABLED_PACKAGES}" ; then
+    if ! is_subset "sapporo_light" "${ENABLED_PACKAGES}" ; then
         printf '%s\n' 'Sapporo light cannot be installed because tools or dependencies are missing.'
         printf '%s\n' 'Please run ./setup and follow the instructions to enable it.'
         exit 1
@@ -72,7 +72,7 @@ install_framework() {
 
     announce_activity install amuse-framework
 
-    # if we're in a conda env, install the dependecies using conda first rather than
+    # if we're in a conda env, install the dependencies using conda first rather than
     # leaving it to pip.
     if [ "a${ENV_TYPE}" = "aconda" ] ; then
         to_install=''
@@ -121,7 +121,12 @@ install_sapporo_light() {
 
     (${GMAKE} -C lib install-sapporo_light ; echo $? >"${ec_file}") 2>&1 | tee "${log_file}"
 
-    handle_result $(cat "$ec_file") install sapporo_light "${log_file}"
+    result=$(cat "${ec_file}")
+    if [ "a${result}" = "a0" ] ; then
+        INSTALLED_PACKAGES="${INSTALLED_PACKAGES} sapporo-light"
+    fi
+
+    handle_result "${result}" install sapporo_light "${log_file}"
 }
 
 
@@ -187,29 +192,62 @@ install_package() {
         package="${save_package}"
     fi
 
+    if is_subset "${package}" "${NEEDS_SAPPORO_LIGHT}" ; then
+        if ! is_subset "sapporo-light" "${INSTALLED_PACKAGES}" ; then
+            save_package="${package}"
+            install_sapporo_light
+            package="${save_package}"
+        fi
+    fi
+
+    if [ "a${package%-*-*}" != "a${package}" ] ; then
+        # We are installing an amuse-code-package extension package, so we need the
+        # base package as well, if it exists.
+        base_package="${package%-*}"
+        # If the code is e.g. CUDA-only, then there may not be a base package.
+        if is_subset "${base_package}" "${EXTANT_PACKAGES}" ; then
+            if ! is_subset "${base_package}" "${INSTALLED_PACKAGES}" ; then
+                save_package="${package}"
+                install_package "${cmd}" "${base_package}" "${brief}"
+                package="${save_package}"
+            fi
+        fi
+    fi
+
     save_cmd="${cmd}"
     forward_to_package "distclean" "${package}" "${brief}"
     cmd="${save_cmd}"
 
     forward_to_package "${cmd}" "${package}" "${brief}"
-    return $?
+
+    result="$?"
+    if [ "a${result}" = "a0" ] ; then
+        INSTALLED_PACKAGES="${INSTALLED_PACKAGES} ${package}"
+    fi
+
+    return "${result}"
 }
 
 
 # Install the framework and all enabled packages
 #
 install_all() {
-    install_framework || exit 1
+    if ! is_subset "amuse-framework" "${INSTALLED_PACKAGES}" ; then
+        install_framework || exit 1
+    fi
 
     FAILED_BUILDS=''
-    if is_subset sapporo_light "${ENABLED_PACKAGES}" ; then
-        if ! install_sapporo_light ; then
-            FAILED_BUILDS="${FAILED_BUILDS}\nsapporo_light"
+    if ! is_subset "sapporo-light" "${INSTALLED_PACKAGES}" ; then
+        if is_subset "sapporo_light" "${ENABLED_PACKAGES}" ; then
+            if ! install_sapporo_light ; then
+                FAILED_BUILDS="${FAILED_BUILDS}\nsapporo_light"
+            fi
         fi
     fi
 
     for package in ${ENABLED_PACKAGES} ; do
-        if ! is_subset "${package}" "amuse-framework sapporo_light" ; then
+        installed_name=$(installed_package_name "${package}")
+        if ! is_subset "${installed_name}" "${INSTALLED_PACKAGES}" ; then
             install_package install "${package}" brief
             if [ $? != '0' ] ; then
                 FAILED_BUILDS="${FAILED_BUILDS}\n${package}"
@@ -224,7 +262,125 @@ install_all() {
         print_getting_help
         printf '\n%s\n' 'Output was saved to support/logs/.'
     else
-        printf '\n%b\n\n' "${COLOR_GREEN}All packages were installed successfully${COLOR_END}"
+        printf '\n%b\n\n' "${COLOR_GREEN}All enabled packages were installed successfully${COLOR_END}"
     fi
+}
+
+
+# Check whether the basic conditions for uninstalling things are met
+#
+# This checks for an environment, and quits with an error if they're not available.
+#
+# Args:
+#   target: Target the user wants to install
+#
+check_uninstall() {
+    target="$1"
+
+    if [ "a${ENV_TYPE}" = "a" ] ; then
+        printf '\n%s\n\n' "Cannot uninstall ${target}, because there is no active environment."
+        print_environment_step
+        exit 1
+    fi
+}
+
+
+# Uninstall the AMUSE framework
+#
+uninstall_framework() {
+    for pkg in ${INSTALLED_PACKAGES} ; do
+        if [ "a${pkg#amuse-}" != "a${pkg}" ] ; then
+            if [ "a${pkg}" != "aamuse-framework" ] ; then
+                # We may have already uninstalled this as a dependency of another
+                # package that got uninstalled, in which case we skip.
+                # INSTALLED_PACKAGES is kept up-to-date as we go.
+                if is_subset "${pkg}" "${INSTALLED_PACKAGES}" ; then
+                    save_package="${package}"
+                    uninstall_package "${pkg}" brief
+                    package="${save_package}"
+                fi
+            fi
+        fi
+    done
+
+    announce_activity uninstall amuse-framework
+
+    ec_file="$(exit_code_file uninstall amuse-framework)"
+    log_file="$(log_file uninstall amuse-framework)"
+
+    (
+        printf '%s\n\n' "Removing stray libraries, if any..." && \
+        ${GMAKE} -C lib uninstall && \
+        printf '\n' && \
+        support/shared/uninstall.sh amuse-framework
+
+        echo $? >"${ec_file}"
+    ) 2>&1 | tee "${log_file}"
+
+    handle_result $(cat "${ec_file}") uninstall amuse-framework "${log_file}"
+}
+
+
+# Uninstall Sapporo Light
+#
+uninstall_sapporo_light() {
+    for pkg in ${INSTALLED_PACKAGES} ; do
+        if [ "a${pkg#amuse-}" != "a${pkg}" ] ; then
+            if is_subset "${pkg}" "${NEEDS_SAPPORO_LIGHT}" ; then
+                save_package="${package}"
+                uninstall_package "${pkg}" brief
+                package="${save_package}"
+            fi
+        fi
+    done
+
+    announce_activity uninstall sapporo_light
+
+    ec_file="$(exit_code_file uninstall sapporo_light)"
+    log_file="$(log_file uninstall sapporo_light)"
+
+    (${GMAKE} -C lib uninstall-sapporo_light ; echo $? >"${ec_file}") 2>&1 | tee "${log_file}"
+
+    handle_result $(cat "$ec_file") uninstall sapporo_light "${log_file}"
+}
+
+
+# Uninstall a package
+#
+# This calls the shared uninstall script to uninstall the package. That script will use
+# pip or conda to uninstall, as appropriate.
+#
+# Args:
+#    package: The name of the package to uninstall
+#    brief: If set to "brief", print only a brief result, otherwise, print a full error.
+#
+uninstall_package() {
+    package="$1"
+    brief="$2"
+
+    dependents=$(extra_packages "${package}" "${INSTALLED_PACKAGES}")
+
+    for pkg in $dependents ; do
+        save_package="${package}"
+        uninstall_package "${pkg}" brief
+        package="${save_package}"
+    done
+
+    announce_activity uninstall "${package}"
+
+    ec_file="$(exit_code_file uninstall ${package})"
+    log_file="$(log_file uninstall ${package})"
+
+    pkg_name=$(installed_package_name "${package}")
+
+    (support/shared/uninstall.sh "${pkg_name}" ; echo $? >"${ec_file}") 2>&1 | tee "${log_file}"
+
+    result=$(cat "$ec_file")
+
+    if [ "a${result}" = "a0" ] ; then
+        INSTALLED_PACKAGES=$(filter_out "${package}" "${INSTALLED_PACKAGES}")
+    fi
+
+    handle_result ${result} uninstall "${package}" "${log_file}" "${brief}"
 }
 
