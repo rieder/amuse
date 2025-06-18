@@ -44,9 +44,14 @@ test_framework() {
     log_file="$(log_file test amuse-framework)"
 
     (
-        ${GMAKE} -C src/tests all && \
+        ${GMAKE} -C src/tests all
         # Tests for amuse.distributed won't be fixed as it is to be removed, disabled.
-        cd src/tests && pytest --pyargs core_tests compile_tests ${PYTEST_OPTS} --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed'
+        if [ "x${CI}" = "x" ] ; then
+            cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed' ${PYTEST_OPTS}
+        else
+            cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed and not noci' ${PYTEST_OPTS}
+
+        fi
 
         echo $? >"../../${ec_file}"
     ) 2>&1 | tee "${log_file}"
@@ -72,20 +77,20 @@ test_amuse_ext() {
         sep=' and'
     done
 
-    ec_file="$(exit_code_file test amuse-framework)"
-    log_file="$(log_file test amuse-framework)"
+    ec_file="$(exit_code_file test amuse-ext)"
+    log_file="$(log_file test amuse-ext)"
 
     (
-        cd src/tests && pytest --pyargs ext_tests ticket_tests ${PYTEST_OPTS}  -k "${bad_ext_tests}"
+        cd src/tests && pytest ext_tests --import-mode=append ticket_tests ${PYTEST_OPTS}  -k "${bad_ext_tests}"
 
-        echo $? >"${ec_file}"
+        echo $? >"../../${ec_file}"
     ) 2>&1 | tee "${log_file}"
-
-    handle_result $(cat "$ec_file") test amuse-ext "${log_file}"
 
     printf "\n%s\n" "The following tests were disabled because they currently fail:"
     printf "\n%b\n\n" "${COLOR_RED}${BAD_EXT_TESTS}${COLOR_END}"
     printf "%s\n\n" "This issue is tracked at https://github.com/amusecode/amuse/issues/1103"
+
+    handle_result $(cat "$ec_file") test amuse-ext "${log_file}"
 }
 
 

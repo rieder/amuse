@@ -78,7 +78,7 @@ environment.
 
 Runs tests for the amuse.ext scripts, and regression ('ticket') tests. This requires the
 framework to be installed as well as (currently) bhtree, evtwin, fi, fractalcluster,
-gadget2, galactics, halogen, hermite, hop, kepler, mesa_r14150, ph4, phigrape, seba, and
+gadget2, galactics, halogen, hermite, hop, kepler, mesa-r14150, ph4, phigrape, seba, and
 sse.
 
     ./setup test ${ITALIC}package1 package2...${END_ITALIC}
@@ -89,7 +89,7 @@ the active environment.
     ./setup clean
 
 Cleans up all the compiled code for both the framework and the community codes, so that
-you can (and have to!) rebuild everything from scratch. 
+you can (and have to!) rebuild everything from scratch.
 
     ./setup distclean
 
@@ -144,13 +144,13 @@ To do that, use
 "
 
     if [ "a${ENV_TYPE}" = "avirtualenv" ] ; then
-        printf '    %s\n' 'python -m pip install pip wheel'
+        printf '    %s\n' 'python3 -m pip install pip wheel'
     elif [ "a${ENV_TYPE}" = "aconda" ] ; then
         if [ "a${HAVE_PYPI_WHEEL}" != "a" ] ; then
-            printf '    %s\n' 'python -m pip uninstall wheel'
+            printf '    %s\n' 'python3 -m pip uninstall wheel'
         fi
         if [ "a${HAVE_PYPI_PIP}" != "a" ] ; then
-            printf '    %s\n' 'python -m pip uninstall pip'
+            printf '    %s\n' 'python3 -m pip uninstall pip'
         fi
         printf '    %s\n' 'conda install -c conda-forge pip wheel'
     fi
@@ -168,7 +168,9 @@ print_enable_packages_step() {
 
 Some packages are disabled due to missing features. You can enable more packages by
 installing additional software. Some software does require specific hardware, for
-example CUDA requires an nVidia GPU to work."
+example CUDA requires an nVidia GPU to work. If you have one, see
+https://amuse.readthedocs.io/en/latest/install/cuda.html for help installing CUDA to
+enable those packages."
 
     if [ "a${ENV_TYPE}" = "aconda" ] ; then
         printf '%b\n' "
@@ -240,8 +242,9 @@ to show a complete overview.
 print_getting_help() {
     printf '%s\n\n' 'This is not supposed to happen!'
     printf '%s\n' 'Please contact the developers on Slack or make an issue on GitHub,'
-    printf '%s\n' 'so that we can fix this together.'
-    printf '%s\n' 'TODO: add links'
+    printf '%s\n\n' 'so that we can fix this together.'
+    printf '%s\n' 'https://amusecode.slack.com'
+    printf '%s\n' 'https://github.com/amusecode/amuse/issues/new/choose'
 }
 
 

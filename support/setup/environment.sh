@@ -147,7 +147,7 @@ check_build_sapporo_light() {
 # NEEDS_SAPPORO_LIGHT - adds packages that need sapporo_light
 #
 find_packages() {
-    for code in src/amuse/community/* ; do
+    for code in src/amuse_* ; do
         for dep_file in "${code}"/packages/*.amuse_deps ; do
             # If no file matches, the loop will still run with the pattern as dep_file
             if [ ! -f "$dep_file" ] ; then
@@ -155,7 +155,7 @@ find_packages() {
             fi
             package=$(basename "${dep_file}" .amuse_deps)
             deps=$(cat "${dep_file}")
-            deps="amuse-framework gmake ${deps}"
+            deps="amuse-framework gmake mpi ${deps}"
             missing_features=$(filter_out "${FEATURES}" "${deps}")
             missing_features=$(filter_out "${ENABLED_PACKAGES}" "${missing_features}")
 
@@ -222,8 +222,10 @@ analyse_environment() {
 check_shell_environment() {
     if [ "a${ENV_TYPE}" = "aconda" ] ; then
         # There's a whole lot of OMPI_ variables and we don't want to check them all one
-        # by one. So we do it like this.
-        ompi_vars="$(env | grep '^OMPI_' 2>/dev/null)"
+        # by one. So we do it like this. Note that OMPI_MCA_ variables are often needed
+        # to get MPI to work correctly, and setting them doesn't affect the compiler, so
+        # we allow those.
+        ompi_vars="$(env | grep '^OMPI_' | grep -v '^OMPI_MCA_' 2>/dev/null)"
         ompi_var_names="$(printf '%s' "${ompi_vars}" | cut -d '=' -f 1 | tr '\n' ' ')"
         if [ "a${ompi_vars}" != "a" ] ; then
             printf '%b\n' "${COLOR_RED}Warning:${COLOR_END} The following shell variables are set, and may"

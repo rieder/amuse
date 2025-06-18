@@ -35,17 +35,16 @@ distance-dirty = "{next_version}.dev{distance}+{vcs}{rev}.d{build_date:%Y%m%d}"
 [tool.versioningit.write]
 file = "amuse/_version.py"
 
+[tool.versioningit.vcs]
+method = { module = "version_helper", value = "get_amuse_version", module-dir = "../support/shared" }
+
 [tool.hatch.build]
 skip-excluded-dirs = true
 
 [tool.hatch.build.targets.wheel]
 include = [
-        "amuse/*.py", "amuse/community/*.py", "amuse/community/interface/**/*.py",
-        "amuse/couple/**/*.py", "amuse/data/**/*.py", "amuse/datamodel/**/*.py",
-        "amuse/ext/**/*.py", "amuse/ic/**/*.py", "amuse/io/**/*.py",
-        "amuse/plot/**/*.py", "amuse/rfi/**/*.py", "amuse/rfi/tools/*.template",
-        "amuse/rfi/tools/dir_templates/*", "amuse/support/**/*.py",
-        "amuse/units/**/*.py"]
+        "amuse/**/*.py", "amuse/rfi/tools/*.template",
+        "amuse/rfi/tools/dir_templates/*", "amuse/ext/bbr_color.txt"]
 
 artifacts = ["amuse/_version.py"]
 
@@ -54,4 +53,5 @@ artifacts = ["amuse/_version.py"]
 
 [tool.pytest.ini_options]
 pythonpath = ["tests/"]
+testpaths = ["tests/"]
 

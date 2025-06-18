@@ -24,24 +24,24 @@ distance = "{{next_version}}.dev{{distance}}+{{vcs}}{{rev}}"
 dirty = "{{base_version}}+d{{build_date:%Y%m%d}}"
 distance-dirty = "{{next_version}}.dev{{distance}}+{{vcs}}{{rev}}.d{{build_date:%Y%m%d}}"
 
+[tool.versioningit.vcs]
+method = { module = "version_helper", value = "get_amuse_version", module-dir = "amuse_{code}/support/shared" }
+
 [tool.hatch.build]
 skip-excluded-dirs = true
 
 [tool.hatch.build.targets.wheel]
-include = ["{code}/**/*.py"]
+include = ["amuse_{code}/**/*.py"]
 exclude = [
-    "{code}/packages",
-    "{code}/support",
-    "{code}/src",
-    "{code}/tests"
+    "amuse_{code}/packages",
+    "amuse_{code}/support",
+    "amuse_{code}/src",
+    "amuse_{code}/tests"
     ]
-artifacts = ["{code}/{code}_worker"]
-
-[tool.hatch.build.targets.wheel.sources]
-"{code}" = "amuse/community/{code}"
+artifacts = ["amuse_{code}/{code}_worker"]
 
 [tool.pytest.ini_options]
-pythonpath = ["{code}/tests/", "../../../../../tests"]
+pythonpath = ["amuse_{code}/tests/"]
 
-testpaths = ["{code}/tests"]
+testpaths = ["amuse_{code}/tests"]
 

@@ -238,7 +238,7 @@ clean() {
     ${GMAKE} -C support clean
     ${GMAKE} -C lib clean
     ${GMAKE} -C lib clean-sapporo_light
-    ${GMAKE} -C src/amuse/community clean
+    for code in src/amuse_* ; do ${GMAKE} -C "${code}" clean ; done
     ${GMAKE} -C src/tests clean
 }
 
@@ -251,7 +251,7 @@ distclean() {
     ${GMAKE} -C support distclean
     ${GMAKE} -C lib distclean
     ${GMAKE} -C lib distclean-sapporo_light
-    ${GMAKE} -C src/amuse/community distclean
+    for code in src/amuse_* ; do ${GMAKE} -C "${code}" distclean ; done
     ${GMAKE} -C src/tests distclean
 }
 
@@ -268,14 +268,6 @@ else
 fi
 
 case ${CMD} in
-    clean )
-        clean
-        exit 0
-        ;;
-    distclean )
-        distclean
-        exit 0
-        ;;
     help )
         print_help
         exit 0
@@ -319,6 +311,14 @@ case ${CMD} in
         ;;
     uninstall )
         uninstall ${TARGETS}
+        ;;
+    clean )
+        clean
+        exit 0
+        ;;
+    distclean )
+        distclean
+        exit 0
         ;;
     * )
         print_invalid_command "${CMD}"

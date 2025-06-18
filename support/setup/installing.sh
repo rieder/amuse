@@ -93,7 +93,7 @@ install_framework() {
     (
         ${GMAKE} -C lib distclean && \
         ${GMAKE} -C lib install && \
-        cd src && pip --no-cache-dir --debug install .
+        cd src && pip --no-cache-dir install .
 
         echo $? >"../${ec_file}"
     ) 2>&1 | tee "${log_file}"
@@ -144,7 +144,7 @@ develop_framework() {
     (
         ${GMAKE} -C lib distclean && \
         ${GMAKE} -C lib install && \
-        cd src && pip -e install .
+        cd src && pip install -e .
 
         echo $? >"../${ec_file}"
     ) 2>&1 | tee "${log_file}"
@@ -256,6 +256,19 @@ install_all() {
     done
 
     printf '\n%b\n' "${COLOR_CYAN}*** Build results ***${COLOR_END}"
+
+    UNEXPECTED_FAILED_BUILDS=$(printf '%b' "${FAILED_BUILDS}" | grep -v mesa-r15140)
+    if [ "${UNEXPECTED_FAILED_BUILDS}" != "${FAILED_BUILDS}" ] ; then
+        printf '\n%b\n' "${COLOR_RED}amuse-mesa-r15140 failed to install${COLOR_END}"
+
+        printf '\nMESA r15140 failed to install because it can only be installed in\n'
+        printf 'develop mode. This is expected, if unfortunate. Please use\n\n'
+        printf '    ./setup develop amuse-mesa-r15140\n\n'
+        printf 'to install it.\n\n'
+
+        FAILED_BUILDS="${UNEXPECTED_FAILED_BUILDS}"
+    fi
+
     if [ "a${FAILED_BUILDS}" != "a" ] ; then
         printf '\nThe following packages failed to build:\n'
         printf '%b\n\n' "${COLOR_RED}${FAILED_BUILDS}${COLOR_END}"
