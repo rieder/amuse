@@ -29,11 +29,10 @@ src/metisse-$(VERSION): metisse.tar.gz
 
 
 # Building the code into a static library
-##### Remove anything not needed #####
 DEPFLAGS += $(STOPCOND_CFLAGS) $(STOPCONDMPI_CFLAGS) $(AMUSE_MPI_CFLAGS)
 DEPFLAGS += $(FORSOCKETS_CFLAGS) $(SIMPLE_HASH_CFLAGS) $(G6LIB_CFLAGS)
 DEPFLAGS += $(OPENMP_FFLAGS)
-FCFLAGS += $(DEPFLAGS)
+FCFLAGS += $(DEPFLAGS) -ffpe-summary=all -fbacktrace -fcheck=all -g -Wall
 
 LDLIBS += -lm $(STOPCOND_LIBS) $(STOPCONDMPI_LIBS) $(AMUSE_MPI_LIBS)
 LDLIBS += $(FORSOCKETS_LIBS)
@@ -47,7 +46,6 @@ src/METISSE/$(CODELIB): | src/METISSE/make
 
 
 # Building the workers
-##### Keep if Fortran worker #####
 metisse_worker.f90: interface.py
 	amusifier --type=f90 interface.py MetisseInterface -o $@
 
@@ -65,9 +63,7 @@ metisse_worker: interface.o metisse_worker.o storage.o src/METISSE/$(CODELIB)
 
 
 # Which packages contain which workers?
-##### Add and/or remove as needed #####
 amuse-metisse_contains: metisse_worker
-
 
 # Building and installing packages
 develop-%: %_contains

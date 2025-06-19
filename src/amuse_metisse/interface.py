@@ -10,8 +10,8 @@ from amuse.community import (
     remote_function,
 )
 from amuse.community.interface import se
-from amuse.datamodel import Particles, ParticlesSubset
-from amuse.units import units, constants
+
+from amuse.units import units
 
 
 # low level interface class
@@ -35,7 +35,7 @@ class MetisseInterface(
             self, name_of_the_worker="metisse_worker", **keyword_arguments
         )
         LiteratureReferencesMixIn.__init__(self)
-        self.model_time = 0.0 | units.julianyr
+        self.model_time = 0.0 | units.mega(units.julianyr)
 
     # Remote functions - getters and setters
     # Note that we should maybe use SI units rather than derived (MSun etc), at
@@ -47,7 +47,7 @@ class MetisseInterface(
 
     @remote_function(can_handle_array=True)
     def get_epoch(index_of_the_star="i"):
-        returns (epoch="d" | units.julianyr)
+        returns (epoch="d" | units.mega(units.julianyr))
 
     @remote_function(can_handle_array=True)
     def get_core_mass(index_of_the_star="i"):
@@ -71,7 +71,7 @@ class MetisseInterface(
 
     @remote_function(can_handle_array=True)
     def get_main_sequence_lifetime(index_of_the_star="i"):
-        returns (main_sequence_lifetime="d" | units.Myr)
+        returns (main_sequence_lifetime="d" | units.mega(units.julianyr))
 
     # getters and setters for tracks
     # metallicity_dir (string)
@@ -223,17 +223,12 @@ class Metisse(se.StellarEvolution):
         # self.stopping_conditions = StoppingConditions(self)
         # self.stopping_conditions.supernova_detection = code.StoppingCondition('supernova_detection')
         se.StellarEvolution.__init__(self, MetisseInterface(**options), **options)
+        self.model_time = 0.0 | units.mega(units.julianyr)
 
     # the definition of the state model of the code
     def define_state(self, handler):
-        # for example:
-        # handler.set_initial_state("UNINITIALIZED")
-        # handler.add_transition("!UNINITIALIZED!STOPPED", "END", "cleanup_code")
-        # handler.add_transition("END", "STOPPED", "stop", False)
-        # handler.add_transition(
-        #     "UNINITIALIZED", "INITIALIZED", "initialize_code")
-        # handler.add_method("STOPPED", "stop")
-        pass
+        se.StellarEvolution.define_state(self, handler)
+        handler.add_method('RUN', 'evolve_model')
 
     # the definition of any properties
     def define_properties(self, handler):
@@ -427,7 +422,7 @@ class Metisse(se.StellarEvolution):
         handler.add_method("particles", "evolve_for")
 
     def evolve_model(self, end_time=None, keep_synchronous=True):
-        print("evolve_model", end_time, keep_synchronous)
+        print(f"evolve_model {end_time=} {keep_synchronous=}")
         if not keep_synchronous:
             for particle in self.particles:
                 particle.evolve_one_step()
@@ -440,6 +435,6 @@ class Metisse(se.StellarEvolution):
         )
         print(f"{delta_time=}")
         for i, particle in enumerate(self.particles):
-            print(f"{i} {particle.age} {particle.mass}")
+            print(f"particle {i=} {particle.age=} {particle.mass=}")
             particle.evolve_for(particle.age + delta_time)
         self.model_time += delta_time
