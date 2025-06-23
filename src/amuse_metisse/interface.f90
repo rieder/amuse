@@ -27,6 +27,7 @@ contains
         ! Need to define this front end for METISSE
         call initialize_front_end("AMUSE")
         error = set_defaults()
+        call star_system%initialize()
 
         initialize_code = 0
     end function
@@ -81,7 +82,7 @@ contains
         write(*,*) "Calling commit_parameters"
 
         ! This will read the tracks-so need to have set the paths before
-        call METISSE_zcnsts(initial_Z, zpars, '', '', error)
+        call METISSE_zcnsts(initial_Z, zpars, error)
         if (error /= 0) return
 
         call assign_commons_main()
@@ -400,8 +401,8 @@ contains
         call star_system%get_age(index_of_the_star, age, error)
 
         call allocate_track(1, mass)
+        t => tarr(1)
         call evolv_metisse(mass, age+delta_t, error, 1)
-        call dealloc_track()
         if (error /= 0) then
             write(*,*) 'METISSE error: ', error
             return
@@ -425,6 +426,7 @@ contains
         call star_system%set_stellar_type(index_of_the_star, t%pars%phase, error)
         call star_system%set_co_core_mass(index_of_the_star, t%pars%McCO, error)
         call star_system%set_spin(index_of_the_star, t%pars%bhspin, error)
+        call dealloc_track()
     end function
 
     !function pevolve_for(index_of_the_star, delta_t)

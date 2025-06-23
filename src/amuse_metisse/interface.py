@@ -433,7 +433,7 @@ class Metisse(se.StellarEvolution):
             if end_time
             else 0.99*min(self.particles.time_step)
         )
-        print(f"{delta_time=}")
+        print(f"delta_time = {delta_time}")
         for i, particle in enumerate(self.particles):
             print(f"particle {i=} {particle.age=} {particle.mass=}")
             particle.evolve_for(particle.age + delta_time)

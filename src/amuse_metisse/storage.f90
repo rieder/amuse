@@ -42,6 +42,7 @@ module store_stars
     integer:: num_stars = 0  ! number of stars in the system
     integer:: next_star_id = 1  ! the id of the next star, should only ever increase
   contains
+    procedure, public:: initialize
     procedure, public:: new_star
     procedure, public:: remove_star
     procedure, private:: resize
