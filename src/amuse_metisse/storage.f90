@@ -190,19 +190,62 @@ contains
     do while (required_size .gt. new_capacity)
       new_capacity = max(100, int(new_capacity*1.1))
     end do
- 
-    if (.not. allocated(self%star_array) .or. new_capacity > current_size) then
+
+    if (required_size .lt. current_size) then
+      ! Reduce the size of the array
       if (allocated(self%star_array)) then
-        allocate(temp(current_size))
-        temp = self%star_array
         deallocate(self%star_array)
-      end if
-      allocate(self%star_array(new_capacity))
-      if (allocated(temp)) then
-        self%star_array(1:current_size) = temp
+      endif
+      allocate(self%star_array(required_size))
+    else
+      ! Increase the size of the array
+      if (.not. allocated(self%star_array)) then
+        allocate(self%star_array(required_size))
+      else
+        ! Allocate a temporary array to hold the new data
+        !type(star), allocatable:: temp(:)
+        allocate(temp(required_size))
+        ! Copy the old data to the temporary array
+        temp(1:current_size) = self%star_array
+        ! Deallocate the old memory
+        deallocate(self%star_array)
+        ! Allocate new memory for the array
+        allocate(self%star_array(required_size))
+        ! Copy the data from the temporary array to the new array
+        self%star_array = temp
+        ! Deallocate the temporary array
         deallocate(temp)
-      end if
-    end if
+      endif
+    endif
+ 
+    !if (.not. allocated(self%star_array) .or. new_capacity > current_size) then
+    !  write(*,*) "not allocated OR resizing needed"
+    !  call flush(6)
+    !  if (allocated(self%star_array)) then
+    !    write(*,*) "allocated but resizing needed"
+    !    call flush(6)
+    !    allocate(temp(current_size))
+    !    temp = self%star_array
+    !    deallocate(self%star_array)
+    !  end if
+    !  write(*,*) "allocating array of needed size (", new_capacity, ")"
+    !  call flush(6)
+    !  write(*,*) "allocated? ", allocated(self%star_array)
+    !  call flush(6)
+    !  if (.not. allocated(self%star_array)) then
+    !      allocate(self%star_array(new_capacity))
+    !  else
+    !      print *, "Error: Memory already allocated"
+    !      stop
+    !  endif
+    !  !allocate(self%star_array(new_capacity))
+    !  if (allocated(temp)) then
+    !    write(*,*) "copying data from temp"
+    !    call flush(6)
+    !    self%star_array(1:current_size) = temp
+    !    deallocate(temp)
+    !  end if
+    !end if
   
   end subroutine resize
 
