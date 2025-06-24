@@ -83,7 +83,10 @@ contains
 
         ! This will read the tracks-so need to have set the paths before
         call METISSE_zcnsts(initial_Z, zpars, error)
-        if (error /= 0) return
+        if (error /= 0) then
+            commit_parameters = 1
+            return
+        end if
 
         call assign_commons_main()
     end function
@@ -113,7 +116,8 @@ contains
         implicit none
         character(len = 256):: metallicity_dir_in
         integer:: set_metallicity_dir
-        METALLICITY_DIR = metallicity_dir_in
+        !METALLICITY_DIR = metallicity_dir_in
+        amuse_metallicity_dir = metallicity_dir_in
         set_metallicity_dir = 0
     end function
 
@@ -121,6 +125,8 @@ contains
         implicit none
         character(len = 256):: metallicity_dir_out
         integer:: get_metallicity_dir
+        ! Note: this is only accurate*after*commit_parameters!
+        ! Maybe solve by returning amuse_metallicity_dir*only*if state is INITIALIZED
         metallicity_dir_out = METALLICITY_DIR
         get_metallicity_dir = 0
     end function
@@ -129,7 +135,8 @@ contains
         implicit none
         character(len = 256):: metallicity_dir_he_in
         integer:: set_metallicity_dir_he
-        METALLICITY_DIR_HE = metallicity_dir_he_in
+        !METALLICITY_DIR_HE = metallicity_dir_he_in
+        amuse_metallicity_dir_he = metallicity_dir_he_in
         set_metallicity_dir_he = 0
     end function
 
@@ -137,6 +144,7 @@ contains
         implicit none
         character(len = 256):: metallicity_dir_he_out
         integer:: get_metallicity_dir_he
+        ! Note: this is only accurate*after*commit_parameters!
         metallicity_dir_he_out = METALLICITY_DIR_HE
         get_metallicity_dir_he = 0
     end function

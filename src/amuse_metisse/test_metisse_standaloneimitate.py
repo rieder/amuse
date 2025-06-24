@@ -33,12 +33,16 @@ def test_metisse_sun():
     instance = setup_metisse()
     star = Particles(1)
     star.mass = 4.7893208794726441 | units.MSun
+    # star.mass = 1.0 | units.MSun
 
     stars_in_metisse = instance.particles.add_particles(star)
-    assert stars_in_metisse[0].mass == 1.0 | units.MSun
+    print(instance.parameters)
+    # assert stars_in_metisse[0].mass == 1.0 | units.MSun
+    assert stars_in_metisse[0].mass == 4.7893208794726441 | units.MSun
     print(stars_in_metisse[0])
     print("Evolving...")
-    instance.evolve_model(10000.0 | units.yr)
+    # instance.evolve_model(1000.0 | units.yr)
+    instance.evolve_one_step(1)
     print(stars_in_metisse[0])
     print("Done")
     instance.stop()
@@ -74,8 +78,8 @@ def test_metisse_kroupa():
     instance.stop()
 
 
-# test_metisse_sun()
+test_metisse_sun()
 
-test_metisse_twostars()
+# test_metisse_twostars()
 
 # test_metisse_kroupa()
