@@ -435,7 +435,6 @@ class Metisse(se.StellarEvolution):
         )
         print(f"delta_time = {delta_time}")
         for i, particle in enumerate(self.particles):
-            print(f"particle {i=} {particle.age=} {particle.mass=}")
             particle.evolve_for(particle.age + delta_time)
         self.model_time += delta_time
 
