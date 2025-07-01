@@ -438,3 +438,13 @@ class Metisse(se.StellarEvolution):
             print(f"particle {i=} {particle.age=} {particle.mass=}")
             particle.evolve_for(particle.age + delta_time)
         self.model_time += delta_time
+
+    def define_methods(self, handler):
+        se.StellarEvolution.define_methods(self, handler)
+
+        # Metisse specific: uses Myr instead of yr
+        handler.add_method(
+            "evolve_for",
+            (handler.INDEX, units.mega(units.yr)),
+            (handler.ERROR_CODE,)
+        )
