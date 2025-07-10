@@ -1,8 +1,3 @@
-# standard amuse configuration include
-# config.mk will be made after ./configure has run
-AMUSE_DIR?=../../../../..
--include ${AMUSE_DIR}/config.mk
-
 ###################################################################
 
 CXX ?= g++
@@ -26,7 +21,7 @@ all: $(OBJS) $(EXEC) $(CODELIB)
 ###################################################################
 
 integrator_MS.exe: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(EXEC) $(OBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS) $(LIBS)
 
 libadaptb.a: $(OBJS)
 	rm -f $@

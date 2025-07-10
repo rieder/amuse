@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE phigrape
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-phigrape.yml
+      - 'src/amuse_phigrape/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-phigrape.yml
+      - 'src/amuse_phigrape/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build phigrape
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-phigrape
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test phigrape
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-phigrape
 
     - name: Archive build logs
       if: always()

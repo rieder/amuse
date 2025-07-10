@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE sphray
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-sphray.yml
+      - 'src/amuse_sphray/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-sphray.yml
+      - 'src/amuse_sphray/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build sphray
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-sphray
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test sphray
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-sphray
 
     - name: Archive build logs
       if: always()

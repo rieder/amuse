@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mocassin
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mocassin.yml
+      - 'src/amuse_mocassin/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mocassin.yml
+      - 'src/amuse_mocassin/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mocassin
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-mocassin
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test mocassin
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mocassin
 
     - name: Archive build logs
       if: always()

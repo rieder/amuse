@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE hermite-grx
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-hermite-grx.yml
+      - 'src/amuse_hermite_grx/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-hermite-grx.yml
+      - 'src/amuse_hermite_grx/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build hermite-grx
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-hermite-grx
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test hermite-grx
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-hermite-grx
 
     - name: Archive build logs
       if: always()

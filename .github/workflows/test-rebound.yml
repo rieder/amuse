@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE rebound
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-rebound.yml
+      - 'src/amuse_rebound/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-rebound.yml
+      - 'src/amuse_rebound/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build rebound
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-rebound
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test rebound
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-rebound
 
     - name: Archive build logs
       if: always()

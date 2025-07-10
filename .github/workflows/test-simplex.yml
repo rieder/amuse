@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE simplex
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-simplex.yml
+      - 'src/amuse_simplex/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-simplex.yml
+      - 'src/amuse_simplex/**'
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib healpix_cxx qhull pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
     - name: Configure OpenMPI
       if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build simplex
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-simplex
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test simplex
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-simplex
 
     - name: Archive build logs
       if: always()

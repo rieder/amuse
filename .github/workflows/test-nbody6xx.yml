@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE nbody6xx
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-nbody6xx.yml
+      - 'src/amuse_nbody6xx/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-nbody6xx.yml
+      - 'src/amuse_nbody6xx/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build nbody6xx
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-nbody6xx
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test nbody6xx
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-nbody6xx
 
     - name: Archive build logs
       if: always()

@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mi6
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mi6.yml
+      - 'src/amuse_mi6/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mi6.yml
+      - 'src/amuse_mi6/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mi6
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-mi6
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test mi6
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mi6
 
     - name: Archive build logs
       if: always()

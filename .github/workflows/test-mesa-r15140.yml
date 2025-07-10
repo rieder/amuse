@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mesa-r15140
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mesa-r15140.yml
+      - 'src/amuse_mesa_r15140/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mesa-r15140.yml
+      - 'src/amuse_mesa_r15140/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,13 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mesa-r15140
       run: |
-        ./setup install amuse-seba
+        ./setup develop amuse-mesa-r15140
 
-    - name: Ensure we test only the installed package
+    - name: Test mesa-r15140
       run: |
-        ./setup distclean
-
-    - name: Test seba
-      run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mesa-r15140
 
     - name: Archive build logs
       if: always()

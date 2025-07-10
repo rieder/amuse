@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mosse
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mosse.yml
+      - 'src/amuse_mosse/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mosse.yml
+      - 'src/amuse_mosse/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mosse
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-mosse
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test mosse
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mosse
 
     - name: Archive build logs
       if: always()

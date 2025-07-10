@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mpiamrvac
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mpiamrvac.yml
+      - 'src/amuse_mpiamrvac/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mpiamrvac.yml
+      - 'src/amuse_mpiamrvac/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mpiamrvac
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-mpiamrvac
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test mpiamrvac
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mpiamrvac
 
     - name: Archive build logs
       if: always()

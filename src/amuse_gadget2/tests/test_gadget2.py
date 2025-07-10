@@ -881,7 +881,7 @@ class TestGadget2(TestWithMPI):
         self.assertAlmostEqual(instance.dm_particles.z, [0., 0., 0.4] | units.kpc, places=6)
         instance.stop()
 
-    def test19(self):
+    def test19_noci(self):
         particles = new_plummer_model(31)
 
         instance = Gadget2(self.default_converter, number_of_workers=1)

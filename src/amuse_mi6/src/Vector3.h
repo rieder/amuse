@@ -114,7 +114,7 @@ class Vector3
   }
   
   inline Vector3& operator /= (const double b){
-    register double binv = 1.0/b;
+    const double binv = 1.0/b;
     v[0] *= binv; v[1] *= binv; v[2] *= binv;
     return *this;
   }

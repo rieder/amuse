@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE galactics
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-galactics.yml
+      - 'src/amuse_galactics/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-galactics.yml
+      - 'src/amuse_galactics/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build galactics
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-galactics
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test galactics
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-galactics
 
     - name: Archive build logs
       if: always()

@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE mikkola
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mikkola.yml
+      - 'src/amuse_mikkola/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-mikkola.yml
+      - 'src/amuse_mikkola/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build mikkola
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-mikkola
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test mikkola
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-mikkola
 
     - name: Archive build logs
       if: always()

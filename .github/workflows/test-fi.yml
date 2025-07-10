@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE fi
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-fi.yml
+      - 'src/amuse_fi/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-fi.yml
+      - 'src/amuse_fi/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build fi
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-fi
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test fi
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-fi
 
     - name: Archive build logs
       if: always()

@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE kepler-orbiters
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-kepler-orbiters.yml
+      - 'src/amuse_kepler_orbiters/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-kepler-orbiters.yml
+      - 'src/amuse_kepler_orbiters/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build kepler-orbiters
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-kepler-orbiters
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test kepler-orbiters
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-kepler-orbiters
 
     - name: Archive build logs
       if: always()

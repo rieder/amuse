@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE sakura
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-sakura.yml
+      - 'src/amuse_sakura/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-sakura.yml
+      - 'src/amuse_sakura/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build sakura
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-sakura
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test sakura
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-sakura
 
     - name: Archive build logs
       if: always()

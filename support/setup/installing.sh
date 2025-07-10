@@ -187,16 +187,20 @@ install_package() {
     check_package "${package}"
 
     if ! is_subset "amuse-framework" "${INSTALLED_PACKAGES}" ; then
+        save_cmd="${cmd}"
         save_package="${package}"
         install_framework
         package="${save_package}"
+        cmd="${save_cmd}"
     fi
 
     if is_subset "${package}" "${NEEDS_SAPPORO_LIGHT}" ; then
         if ! is_subset "sapporo-light" "${INSTALLED_PACKAGES}" ; then
+            save_cmd="${cmd}"
             save_package="${package}"
             install_sapporo_light
             package="${save_package}"
+            cmd="${save_cmd}"
         fi
     fi
 
@@ -207,9 +211,11 @@ install_package() {
         # If the code is e.g. CUDA-only, then there may not be a base package.
         if is_subset "${base_package}" "${EXTANT_PACKAGES}" ; then
             if ! is_subset "${base_package}" "${INSTALLED_PACKAGES}" ; then
+                save_cmd="${cmd}"
                 save_package="${package}"
                 install_package "${cmd}" "${base_package}" "${brief}"
                 package="${save_package}"
+                cmd="${save_cmd}"
             fi
         fi
     fi

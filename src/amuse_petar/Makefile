@@ -108,11 +108,16 @@ install-%: %_contains
 package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
 
+
+# The tests use up to 5 workers, each of which will use all the cores via OpenMP,
+# slowing things down enormously. By limiting the number of threads, the tests
+# run in a reasonable time at least on my 8C/16T laptop.
 test-%:
-	# The tests use up to 5 workers, each of which will use all the cores via OpenMP,
-	# slowing things down enormously. By limiting the number of threads, the tests
-	# run in a reasonable time at least on my 8C/16T laptop.
+ifneq ($(CI),)
+	cd packages/$* && OMP_NUM_THREADS=1 pytest -k 'not noci'
+else
 	cd packages/$* && OMP_NUM_THREADS=2 pytest
+endif
 
 
 # Cleaning up

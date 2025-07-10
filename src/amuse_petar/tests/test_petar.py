@@ -31,7 +31,7 @@ class TestPetarInterface(_TestGravitationalDynamicsInterface, TestWithMPI):
 
 
 class TestPetar(TestWithMPI):
-    def test_small_plummer_model(self):
+    def test_small_plummer_model_noci(self):
         particles = plummer.new_plummer_model(31)
 
         instance = Petar(number_of_workers=1)  # , debugger="xterm")

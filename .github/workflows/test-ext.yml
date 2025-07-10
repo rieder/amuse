@@ -1,16 +1,22 @@
-name: Test AMUSE seba
+name: Test AMUSE ic and ext
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-ext.yml
+      - src/amuse/couple
+      - src/amuse/ext
+      - src/amuse/ic
+      - src/amuse/plot
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-ext.yml
+      - src/amuse/couple
+      - src/amuse/ext
+      - src/amuse/ic
+      - src/amuse/plot
   workflow_dispatch:
 
 jobs:
@@ -43,7 +49,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' scipy pytest
 
     - name: Configure OpenMPI
       if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -51,6 +57,7 @@ jobs:
         mkdir -p "$HOME/.openmpi"
         echo "btl_tcp_if_include = lo" >>"$HOME/.openmpi/mca-params.conf"
         echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
+        echo "rmaps_default_mapping_policy = :oversubscribe" >>"$HOME/.openmpi/mca-params.conf"
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -58,17 +65,23 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build framework
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-framework
 
-    - name: Ensure we test only the installed package
+    - name: Install required codes
+      run: |
+        ./setup install amuse-bhtree amuse-bse amuse-evtwin amuse-fi amuse-fractalcluster amuse-gadget2 amuse-galactics amuse-halogen amuse-hermite amuse-hop amuse-kepler amuse-mesa-r2208 amuse-ph4 amuse-phigrape amuse-seba amuse-sse
+
+    - name: Ensure we test only the installed packages
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test ext
+      env:
+        PYTEST_OPTS: "-s -v -x"
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-ext
 
     - name: Archive build logs
       if: always()

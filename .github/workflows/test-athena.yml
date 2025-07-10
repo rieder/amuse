@@ -1,16 +1,16 @@
-name: Test AMUSE seba
+name: Test AMUSE athena
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-athena.yml
+      - 'src/amuse_athena/**'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - .github/workflows/test-athena.yml
+      - 'src/amuse_athena/**'
   workflow_dispatch:
 
 jobs:
@@ -58,17 +58,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build athena
       run: |
-        ./setup install amuse-seba
+        ./setup install amuse-athena
 
     - name: Ensure we test only the installed package
       run: |
         ./setup distclean
 
-    - name: Test seba
+    - name: Test athena
       run: |
-        ./setup test amuse-seba
+        ./setup test amuse-athena
 
     - name: Archive build logs
       if: always()
