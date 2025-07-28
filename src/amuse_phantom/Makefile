@@ -9,7 +9,7 @@ support/config.mk:
 
 
 # Downloading the code
-VERSION = efe92518e411205fdcbc3e3261419c412befdc6d
+VERSION = 4c7499e2641b6d59b790dc71c30e819515bd4bfe
 
 phantom.tar.gz:
 	$(DOWNLOAD) https://github.com/rieder/phantom/archive/$(VERSION).tar.gz >$@
