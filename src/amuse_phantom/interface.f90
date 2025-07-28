@@ -1,4 +1,5 @@
 module PhantomInterface
+    use AmusePhantom
 
 contains
 
@@ -489,18 +490,18 @@ contains
       double precision :: mass, x, y, z, vx, vy, vz, radius
       integer :: new_dm_particle
       call amuse_new_dm_particle(index_of_the_particle, mass, x, y, z, &
-                                 vx, vy, vz, radius)
+                                 vx, vy, vz)
       new_dm_particle = 0
    end function
 
    function new_sink_particle(index_of_the_particle, mass, x, y, z, vx, vy, vz, &
-                              radius, h_smooth)
+                              radius, accretion_radius, h_smooth)
       implicit none
       integer :: index_of_the_particle
-      double precision :: mass, x, y, z, vx, vy, vz, radius, h_smooth
+      double precision :: mass, x, y, z, vx, vy, vz, radius, accretion_radius, h_smooth
       integer :: new_sink_particle
       call amuse_new_sink_particle(index_of_the_particle, mass, x, y, z, &
-                                   vx, vy, vz, radius, h_smooth)
+                                   vx, vy, vz, radius, accretion_radius, h_smooth)
       new_sink_particle = 0
    end function
 

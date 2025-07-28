@@ -9,15 +9,14 @@ support/config.mk:
 
 
 # Downloading the code
-VERSION = ca6907f5f9a95f866b1d7e520cc356ab8cec8dd0
+VERSION = efe92518e411205fdcbc3e3261419c412befdc6d
 
-src/phantom.zip:
-	mkdir -p src
-	$(DOWNLOAD) https://github.com/rieder/phantom/archive/$(VERSION).zip >$@
+phantom.tar.gz:
+	$(DOWNLOAD) https://github.com/rieder/phantom/archive/$(VERSION).tar.gz >$@
 
-src/phantom: src/phantom.zip
-	unzip $<
-	mv phantom-$(VERSION) src/phantom
+src: phantom.tar.gz
+	tar xf $<
+	mv phantom-$(VERSION) src
 
 
 # Building the code into a static library
@@ -25,25 +24,31 @@ FCFLAGS += $(STOPCOND_CFLAGS) $(FORSOCKETS_CFLAGS) $(OPENMP_FCFLAGS)
 LDLIBS += -lm $(STOPCOND_LIBS) $(FORSOCKETS_LIBS)
 LDFLAGS += $(OPENMP_FCFLAGS)
 
-CODELIB = src/phantom/bin/libphantom-amuse.a
+CODELIB = src/bin/libphantom-amuse.a
 
 .PHONY: $(CODELIB)
-$(CODELIB): | src/phantom
-	$(MAKE) -C src/phantom libphantom-amuse SETUP=amuse SYSTEM=gfortran OPENMP=yes
+$(CODELIB): | src
+	$(MAKE) -C src -j 1 libphantom-amuse SETUP=amuse SYSTEM=gfortran OPENMP=yes
 
 
 # Building the workers
+
+INTERFACE_FCFLAGS = $(FCFLAGS) -Isrc/build -Lsrc/bin -lphantom-amuse 
+
 phantom_worker.f90: interface.py
 	amusifier --type=f90 interface.py PhantomInterface -o $@
 
 phantom_worker.o: phantom_worker.f90
 	$(MPIFC) -c -o $@ $(FCFLAGS) $<
 
-phantom_worker: interface.o phantom_worker.o $(CODELIB)
-	$(MPIFC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+phantom_worker: $(CODELIB) interface.o phantom_worker.o
+	$(MPIFC) -o $@ $(LDFLAGS) $^ $(LDLIBS) $(INTERFACE_FCFLAGS)
 
-%.o: %.f90
-	$(MPIFC) -o $@ -c $(FCFLAGS) $<
+interface.o: interface.f90
+	$(MPIFC) -o $@ -c $(INTERFACE_FCFLAGS) $<
+
+%.o: %.f90 $(CODELIB)
+	$(MPIFC) -o $@ -c $(FCFLAGS) -Isrc/build $<
 
 
 # Which packages contain which workers?
@@ -69,10 +74,12 @@ test-%:
 # Cleaning up
 .PHONY: clean
 clean:
-	$(MAKE) -C src/phantom clean
+	-$(MAKE) -C src clean
 	rm -rf *.o *.mod *worker*
 
 .PHONY: distclean
 distclean: clean
+	-$(MAKE) -C src distclean
 	rm -f support/config.mk support/config.log support/config.status
 	rm -rf support/autom4te.cache
+

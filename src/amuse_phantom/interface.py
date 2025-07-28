@@ -35,6 +35,8 @@ class PhantomInterface(
         .. [#] ADS:2018PASA...35...31P (Price et al., 2018, PASA, Volume 35, id.e031 82 pp)
     """
 
+    use_modules = ["StoppingConditions", "PhantomInterface"]
+
     def __init__(self, **options):
         CodeInterface.__init__(
             self,
@@ -83,6 +85,10 @@ class PhantomInterface(
             function.addParameter(x, dtype='float64', direction=function.IN)
         function.addParameter(
             'radius', dtype='float64', direction=function.IN, default=0.01,
+            # default should be h_acc
+        )
+        function.addParameter(
+            'accretion_radius', dtype='float64', direction=function.IN, default=0.01,
             # default should be h_acc
         )
         function.addParameter(
