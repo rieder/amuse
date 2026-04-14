@@ -8,7 +8,7 @@ from amuse.ic.plummer import new_plummer_sphere
 from amuse.units import nbody_system
 from amuse.units import units
 
-from amuse.units.quantities import is_quantity
+from amuse.community import *
 from amuse.support.interface import InCodeComponentImplementation
 
 from amuse.io import read_set_from_file, write_set_to_file
@@ -630,7 +630,7 @@ class TestDistributedParticles(TestWithMPI):
 
         self.assertEqual(x[2:6].mass, [3, 10, 11, 12])
 
-    def test10_noci(self):
+    def test10(self):
         x = DistributedParticles(
             size=40,
             number_of_workers=4
@@ -760,7 +760,7 @@ class TestDistributedParticles(TestWithMPI):
         self.assertEqual(y.index, x.index)
         self.assertEqual(y.mass, x.mass)
 
-    def test17_noci(self):
+    def test17(self):
         test_results_path = self.get_path_to_results()
         filebase = os.path.join(test_results_path, "test_distributed_sets")
         for i in [0, 1]:
@@ -789,7 +789,7 @@ class TestDistributedParticles(TestWithMPI):
 
 # number of workers > number of files
 # still problematic, because of non-existing attributes if nothing read
-    def test18_noci(self):
+    def test18(self):
         test_results_path = self.get_path_to_results()
         filebase = os.path.join(test_results_path, "test_distributed_sets")
         for i in [0, 1]:
@@ -816,7 +816,7 @@ class TestDistributedParticles(TestWithMPI):
         self.assertEqual(x.index, z.index)
         self.assertEqual(x.mass, z.mass)
 
-    def test19_noci(self):
+    def test19(self):
         from .test_distributed_particles import distributed_king_generator
         from amuse.ic.kingmodel import MakeKingModel
 
