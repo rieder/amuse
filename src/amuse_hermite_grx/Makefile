@@ -24,11 +24,10 @@ src/Hermite_GRX: | hermite_grx.tar.gz src
 
 # Building the code into a static library
 DEPFLAGS += $(STOPCOND_CFLAGS)
-CFLAGS += $(DEPFLAGS) -pthread -std=c++11
+CFLAGS += $(DEPFLAGS) -pthread
 LDFLAGS += -pthread
 
 LDLIBS += $(STOPCOND_LIBS)
-$(info libs: $(LDLIBS) sc: $(STOPCOND_LIBS))
 
 CODELIB = src/Hermite_GRX/src/libhermite_grx.a
 

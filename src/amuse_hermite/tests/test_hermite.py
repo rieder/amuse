@@ -579,7 +579,7 @@ class TestHermite(TestWithMPI):
 
         instance.stop()
 
-    def test16_noci(self):
+    def test16(self):
         particles = new_plummer_model(200)
         particles.scale_to_standard()
         instance = Hermite()
