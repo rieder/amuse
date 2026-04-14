@@ -48,42 +48,33 @@ from amuse.ext.spherical_model import (
     new_spherical_particle_distribution
 )
 
+
+def _placeholder(e):
+    class _placeholder(object):
+        def __init__(self, *arg, **kwargs):
+            raise e
+    return _placeholder
+
+
 try:
     from amuse.ext.halogen_model import new_halogen_model
-except ImportError:
-    def new_halogen_model():
-        print(
-            "Error - Halogen not installed. Install it with 'pip install "
-            "amuse-halogen'."
-        )
-        return -1
+except ImportError as e:
+    locals()["new_halogen_model"] = _placeholder(e)
+
+
 try:
     from amuse.ext.galactics_model import new_galactics_model
-except ImportError:
-    def new_galactics_model():
-        print(
-            "Error - Galactics not installed. Install it with 'pip install "
-            "amuse-galactics'."
-        )
-        return -1
+except ImportError as e:
+    locals()["new_galactics_model"] = _placeholder(e)
+
+
 try:
     from amuse.ext.star_to_sph import (
         convert_stellar_model_to_SPH, pickle_stellar_model,
     )
-except ImportError:
-    def convert_stellar_model_to_SPH():
-        print(
-            "Error - Gadget2 not installed. Install it with 'pip install "
-            "amuse-gadget2'."
-        )
-        return -1
-
-    def pickle_stellar_model():
-        print(
-            "Error - Gadget2 not installed. Install it with 'pip install "
-            "amuse-gadget2'."
-        )
-        return -1
+except ImportError as e:
+    locals()["convert_stellar_model_to_SPH"] = _placeholder(e)
+    locals()["pickle_stellar_model"] = _placeholder(e)
 
 
 _community_codes = [
@@ -127,15 +118,6 @@ _community_codes = [
     ]
 
 
-def _placeholder(name):
-    class _placeholder(object):
-        def __init__(self, *arg, **kwargs):
-            raise Exception(
-                "failed import, code {0} not available, maybe it needs to be "
-                "(pip) installed?".format(name))
-    return _placeholder
-
-
 for _name in _community_codes:
     _interfacename = _name+"Interface"
     # future fix: _interfacename = _name.title()+"Interface"
@@ -149,10 +131,10 @@ for _name in _community_codes:
         locals()[_name] = getattr(_interface, _name)
         locals()[_interfacename] = getattr(_interface, _interfacename)
         locals()[_standardisedname] = getattr(_interface, _standardisedname)
-    except ImportError:
-        locals()[_name] = _placeholder(_packagename)
-        locals()[_interfacename] = _placeholder(_packagename)
-        locals()[_standardisedname] = _placeholder(_packagename)
+    except ImportError as e:
+        locals()[_name] = _placeholder(e)
+        locals()[_interfacename] = _placeholder(e)
+        locals()[_standardisedname] = _placeholder(e)
 
 
 def vector(value=[], unit=None):

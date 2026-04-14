@@ -711,6 +711,8 @@ HEALPIX_CXX_LIBS
 HEALPIX_CXX_CFLAGS
 QHULL_FLAGS
 QHULL_LIBS
+LIBZ_LIBS
+LIBZ_CFLAGS
 HDF5_TYPE
 HDF5_FLIBS
 HDF5_FFLAGS
@@ -2861,6 +2863,19 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+    amuse_le_vars="SHELL CC CXX FC F77 MPICC MPICXX MPIFC CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LIBS OMPI_CC OMPI_CXX OMPI_FC OMPI_CPPFLAGS OMPI_LDFLAGS OMPI_LIBS"
+
+    printf "%s\n" "=== Shell environment ==="
+
+    for amuse_le_var in ${amuse_le_vars}
+    do
+        eval "amuse_le_val=\${$amuse_le_var}"
+        printf "%s\n" "${amuse_le_var}=${amuse_le_val}"
+    done
+    printf "%s\n" "=== End shell environment ==="
+
+
 # Pick up Conda env or virtualenv
 
     if test "x$VIRTUAL_ENV" != x
@@ -2880,7 +2895,6 @@ then :
 
         # Conda does not set FCFLAGS, so we copy from FFLAGS here
         FCFLAGS="$FFLAGS"
-        LDFLAGS="$LDFLAGS -L${CONDA_PREFIX}/lib -Wl,-rpath,${CONDA_PREFIX}/lib"
         # Conda pkg-config includes this already, but in case we have one from
         # the system...
         PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${CONDA_PREFIX}/lib/pkgconfig"
@@ -3746,11 +3760,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -3792,11 +3806,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5969,6 +5983,65 @@ printf "%s\n" "#define HAVE_HDF5 1" >>confdefs.h
 
     fi
 fi
+
+
+    amuse_libz_save_libs="$LIBS"
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libz" >&5
+printf %s "checking for libz... " >&6; }
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+    LIBS="-lz"
+
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+            #include <zlib.h>
+
+int
+main (void)
+{
+
+            z_stream strm;
+            deflateInit(&strm, 0);
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+
+        FOUND_LIBZ="yes"
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+else $as_nop
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+
 
 
     amuse_lib_qhull_save_libs="$LIBS"

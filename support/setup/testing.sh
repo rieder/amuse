@@ -7,7 +7,7 @@ ensure_pytest() {
             printf '%s\n\n' "Please activate a conda environment or virtual environment first."
         elif [ "a${ENV_TYPE}" = "aconda" ] ; then
             printf '\n%s\n' "Please use"
-            printf '\n    %b\n' "conda install pytest"
+            printf '\n    %b\n' "conda install -c conda-forge --override-channels pytest"
             printf '\n%s\n\n' "to install pytest, then try again."
         else
             printf '\n%s\n' "Please use"

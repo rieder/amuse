@@ -30,8 +30,10 @@ detect_environments() {
     fi
 
     if [ "a${CONDA_DEFAULT_ENV}" != "a" ] ; then
-        ENV_TYPE="conda"
-        ENV_NAME="${CONDA_DEFAULT_ENV}"
+        if [ "a${CONDA_DEFAULT_ENV}" != "abase" ] ; then
+            ENV_TYPE="conda"
+            ENV_NAME="${CONDA_DEFAULT_ENV}"
+        fi
     fi
 }
 
@@ -77,6 +79,30 @@ detect_installed_packages() {
 }
 
 
+# Determine whether we have a Conda environment with mixed packages
+#
+# Users of Anaconda have the Anaconda channels set by default, and if they then add
+# conda-forge and start installing packages will too often end up with some packages
+# from one source and some from the other. This leads to some very weird errors.
+#
+# This checks whether everything is installed either from conda-forge or by pip, and
+# sets MIXED_CONDA_PACKAGES to a list of packages that are not from conda-forge or pip.
+# If we're not in a conda environment or everything is fine, then MIXED_CONDA_PACKAGES
+# will be an empty string.
+check_mixed_conda_packages() {
+    MIXED_CONDA_PACKAGES=""
+    if [ "a${ENV_TYPE}" = "aconda" ] ; then
+        ALIEN_PACKAGES="$(echo "${CONDA_LIST}" | tr '^' '\n' | grep -v '^#.*\|conda-forge\|pypi' | cut -d ' ' -f 1,4)"
+        if [ "a${ALIEN_PACKAGES}" != "a" ] ; then
+            MIXED_CONDA_PACKAGES=''
+            for p in ${ALIEN_PACKAGES} ; do
+                MIXED_CONDA_PACKAGES="${MIXED_CONDA_PACKAGES} ${p}"
+            done
+        fi
+    fi
+}
+
+
 # Determine if we have the required features to build the framework
 #
 # This uses the following variables:
@@ -91,7 +117,7 @@ detect_installed_packages() {
 # DISABLED_PACKAGES_TEXT - adds amuse-framework if features are missing
 #
 check_build_framework() {
-    missing_features=$(filter_out "${FEATURES}" "c c++ fortran python python-dev install mpi")
+    missing_features=$(filter_out "${FEATURES}" "c c++ fortran python python-dev gmake install mpi")
 
     if [ "a${missing_features}" = "a" ] ; then
         installed="$(is_installed amuse-framework)"
@@ -212,6 +238,7 @@ find_packages() {
 analyse_environment() {
     detect_environments
     detect_installed_packages
+    check_mixed_conda_packages
     check_build_framework
     check_build_sapporo_light
     find_packages

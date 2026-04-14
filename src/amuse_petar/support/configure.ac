@@ -1,6 +1,8 @@
 AC_CONFIG_AUX_DIR([shared])
 AC_CONFIG_MACRO_DIRS([shared/m4])
 
+AMUSE_LOG_ENVVARS()
+
 AC_INIT([amuse-petar], [1.0])
 
 # Pick up Conda env or virtualenv

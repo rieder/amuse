@@ -12,7 +12,7 @@ from amuse.rfi.core import LegacyFunctionSpecification
 # note: angle units can be added (unit.rad) - however breaks current scripts
 
 
-class BarAndSpiralsInterface(CodeInterface, CommonCodeInterface):
+class GalaxiaInterface(CodeInterface, CommonCodeInterface):
     """
     Galactic model of the Milky Way. The components of the Galaxy are:
 
@@ -90,7 +90,7 @@ class BarAndSpiralsInterface(CodeInterface, CommonCodeInterface):
 
     """
 
-    use_modules = ['BarAndSpiralsInterface']
+    use_modules = ['GalaxiaInterface']
 
     def __init__(self, **options):
         CodeInterface.__init__(self, name_of_the_worker="galaxia_worker", **options)
@@ -900,19 +900,19 @@ class BarAndSpiralsInterface(CodeInterface, CommonCodeInterface):
         pass
 
 
-class BarAndSpiralsDoc(object):
+class GalaxiaDoc(object):
     def __get__(self, instance, owner):
         return instance.interface_doc+"\n\n"+instance.parameters.__doc__
 
 
-class BarAndSpirals3D(CommonCode, GravityFieldCode):
+class Galaxia(CommonCode, GravityFieldCode):
     NBODY = object()
 
-    __doc__ = BarAndSpiralsDoc()
+    __doc__ = GalaxiaDoc()
 
     def __init__(self, unit_converter=None,  **options):
         self.unit_converter = unit_converter
-        legacy_interface = BarAndSpiralsInterface(**options)
+        legacy_interface = GalaxiaInterface(**options)
         self.interface_doc = legacy_interface.__doc__
         CommonCode.__init__(self, legacy_interface, **options)
 
@@ -1292,7 +1292,3 @@ class BarAndSpirals3D(CommonCode, GravityFieldCode):
 
     def get_density_at_point(self, x, y, z):
         return self.get_local_density(self.parameters.time, x, y, z)
-
-
-Barandspirals3d = BarAndSpirals3D
-Galaxia = BarAndSpirals3D

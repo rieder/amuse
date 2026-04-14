@@ -1,24 +1,22 @@
-name: Test AMUSE seba
+# This workflow will install AMUSE and SeBa and run SeBa tests with a single version of Python
+
+name: Build and test SeBa
 
 on:
   push:
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
+      - src/amuse_seba
   pull_request:
-    branches:
-      - main
     paths:
-      - .github/workflows/test-seba.yml
-      - 'src/amuse_seba/**'
-  workflow_dispatch:
+      - src/amuse_seba
 
 jobs:
   test:
+    name: Test SeBa on ${{ matrix.os }}
+
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -43,37 +41,44 @@ jobs:
 
     - name: Install dependencies
       run: |
-        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake openmpi gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
-    - name: Configure OpenMPI
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        mkdir -p "$HOME/.openmpi"
-        echo "btl_tcp_if_include = lo" >>"$HOME/.openmpi/mca-params.conf"
-        echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
+        #    - name: Configure OpenMPI
+        #      run: |
+        #        mkdir -p "$HOME/.openmpi"
+        #        echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
+        #        echo "mpi_yield_when_idle = true" >>"$HOME/.openmpi/mca-params.conf"
+        #        mkdir -p "$HOME/.prte"
+        #        echo "rmaps_default_mapping_policy = :oversubscribe" >>"$HOME/.prte/mca-params.conf"
+        #        echo "prte_if_include = lo" >>"$HOME/.prte/mca-params.conf"
 
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 100
         fetch-tags: true
 
-    - name: Build seba
+    - name: Build SeBa
       run: |
         ./setup install amuse-seba
 
-    - name: Ensure we test only the installed package
-      run: |
-        ./setup distclean
-
-    - name: Test seba
+    - name: Test SeBa
+      #      env:
+      #        OMPI_MCA_rmaps_base_oversubscribe: 1
+      #        PRTE_MCA_rmaps_base_oversubscribe: 1
+      #        PRTE_MCA_rmaps_default_mapping_policy: ":oversubscribe"
+      #        OMPI_MCA_btl_tcp_if_include: lo
+      #        OMPI_MCA_mpi_yield_when_idle: 1
+      #        OMPI_MCA_pmix_server_max_wait: 10
       run: |
         ./setup test amuse-seba
 
+    - name: Save build logs
+      run: |
+        tar czf logs-${{ matrix.os }}.tar.gz support/logs
+
     - name: Archive build logs
-      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: logs-${{ matrix.os }}
-        path: ${{ github.workspace }}/support/logs/
-        if-no-files-found: warn
+        name: logs-${{ matrix.os }}.tar.gz
+        path: logs-${{ matrix.os }}.tar.gz

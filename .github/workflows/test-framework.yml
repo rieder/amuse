@@ -2,9 +2,11 @@ name: Test AMUSE framework
 
 on:
   push:
+    branches:
+     - main
   pull_request:
     branches:
-      - main
+     - main
   workflow_dispatch:
 
 jobs:
@@ -35,52 +37,46 @@ jobs:
         conda info
         conda list
 
-    - name: Install dependencies
+    - name: Install dependencies (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
-        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake openmpi gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
-    - name: Configure OpenMPI
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: Install dependencies (macOS)
+      if: ${{ startsWith(matrix.os, 'macos') }}
       run: |
-        mkdir -p "$HOME/.openmpi"
-        echo "btl_tcp_if_include = lo" >>"$HOME/.openmpi/mca-params.conf"
-        echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
-        #    These help with debugging, but produce lots of output
-        # echo "mpi_yield_when_idle = true" >>"$HOME/.openmpi/mca-params.conf"
-        # echo "mca_base_verbose = stdout,level:9" >> "$HOME/.openmpi/mca-params.conf"
-        # echo "mpi_comm_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        # echo "btl_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        # echo "hwloc_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        # echo "if_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        # echo "pmix_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        #
-        #    These are for OpenMPI 5, which I can't get to work
-        # mkdir -p "$HOME/.prte"
-        # echo "rmaps_default_mapping_policy = :oversubscribe" >>"$HOME/.prte/mca-params.conf"
-        # echo "prte_if_include = lo,eth0" >>"$HOME/.prte/mca-params.conf"
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake mpich gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 100
         fetch-tags: true
 
     - name: Build framework
       run: |
         ./setup install amuse-framework
 
-    - name: Ensure we test only the installed package
-      run: |
-        ./setup distclean
-
     - name: Test framework
+      env:
+        OMPI_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_default_mapping_policy: ":oversubscribe"
+        OMPI_MCA_mpi_yield_when_idle: 1
+        PRTE_MCA_mpi_yield_when_idle: 1
+        OMPI_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_if_include: lo,eth0
+        OMPI_MCA_pmix_server_max_wait: 10
       run: |
         ./setup test amuse-framework
 
+    - name: Save build logs
+      run: |
+        tar czf logs-${{ matrix.os }}.tar.gz support/logs
+
     - name: Archive build logs
-      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: logs-${{ matrix.os }}
-        path: ${{ github.workspace }}/support/logs/
-        if-no-files-found: warn
+        name: logs-${{ matrix.os }}.tar.gz
+        path: logs-${{ matrix.os }}.tar.gz

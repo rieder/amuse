@@ -16,7 +16,7 @@ available from every popular package manager. In your Conda environment,
 
 .. code-block:: bash
 
-    conda install git
+    conda install -c conda-forge --override-channels git
 
 will get you sorted. Next, you can get a local git repository with AMUSE in it using
 

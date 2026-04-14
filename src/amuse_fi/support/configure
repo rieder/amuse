@@ -2480,6 +2480,18 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+    amuse_le_vars="SHELL CC CXX FC F77 MPICC MPICXX MPIFC CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LIBS OMPI_CC OMPI_CXX OMPI_FC OMPI_CPPFLAGS OMPI_LDFLAGS OMPI_LIBS"
+
+    printf "%s\n" "=== Shell environment ==="
+
+    for amuse_le_var in ${amuse_le_vars}
+    do
+        eval "amuse_le_val=\${$amuse_le_var}"
+        printf "%s\n" "${amuse_le_var}=${amuse_le_val}"
+    done
+    printf "%s\n" "=== End shell environment ==="
+
+
 # Pick up Conda env or virtualenv
 
     if test "x$VIRTUAL_ENV" != x
@@ -2499,7 +2511,6 @@ then :
 
         # Conda does not set FCFLAGS, so we copy from FFLAGS here
         FCFLAGS="$FFLAGS"
-        LDFLAGS="$LDFLAGS -L${CONDA_PREFIX}/lib -Wl,-rpath,${CONDA_PREFIX}/lib"
         # Conda pkg-config includes this already, but in case we have one from
         # the system...
         PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${CONDA_PREFIX}/lib/pkgconfig"

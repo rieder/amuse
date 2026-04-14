@@ -17,10 +17,7 @@ from os.path import exists
 from collections import namedtuple
 from docutils import nodes
 from amuse.support import exceptions
-try:
-    from amuse._version import version as amuse_version
-except ImportError:
-    amuse_version = "unknown version"
+from amuse._version import __version__ as amuse_version
 
 import amuse
 
@@ -283,11 +280,11 @@ class LiteratureReferencesMixIn(object):
             version = importlib.import_module(
                 '.._version',
                 cls.__module__
-            ).version
+            ).__version__
         except (ImportError, ValueError):
             try:
-                from amuse.version import version
-                version = f"framework {version}"
+                from amuse._version import __version__
+                version = f"framework {__version__}"
             except ImportError:
                 version = "unknown version"
         return version

@@ -84,14 +84,13 @@ def _make_support(code_dir: Path, language: str, variables: Dict[str, str]) -> N
     for tmpl, path in tmpls_paths.items():
         _instantiate_template(tmpl, support_dir / path.format(**variables), variables)
 
-    # TODO: this needs to be updated when we move the codes out of community/
-    shared_base = code_dir / ".." / ".." / ".." / "support" / "shared"
+    shared_base = code_dir / ".." / ".." / "support" / "shared"
     shared_dir = support_dir / "shared"
     if shared_base.exists():
         # We're probably inside the AMUSE tree, so we make a symlink like for the other
         # embedded codes. This avoids having to update many copies of e.g. a broken m4
         # macro.
-        shared_dir.symlink_to(shared_base)
+        shared_dir.symlink_to(Path("..") / ".." / ".." / "support" / "shared")
     else:
         shared_dir.mkdir()
         for src, dst in _files_support.items():
@@ -125,7 +124,8 @@ def _make_packages(code_dir: Path, code: str, variables: Dict[str, str]) -> None
     def make_package(pkg_type: str, suffix: str) -> None:
         pkg_dir = code_dir / "packages" / f"amuse-{code}{suffix}"
         pkg_dir.mkdir()
-        (pkg_dir / code).symlink_to("../..", True)
+        module = 'amuse_' + code
+        (pkg_dir / module).symlink_to("../..", True)
 
         _instantiate_template(
                 "amuse-code.amuse_deps",

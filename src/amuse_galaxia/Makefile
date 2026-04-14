@@ -18,7 +18,7 @@ interface.o: interface.f90
 	$(FC) $(FFLAGS) $(LDLIBS) -c -o $@ $<
 
 galaxia_worker.f90: interface.py
-	amusifier --type=f90 interface.py BarAndSpiralsInterface -o $@
+	amusifier --type=f90 interface.py GalaxiaInterface -o $@
 
 galaxia_worker.o: galaxia_worker.f90 interface.o
 	$(MPIFC) -c $(FFLAGS) $<

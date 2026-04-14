@@ -3,6 +3,8 @@ AC_CONFIG_MACRO_DIRS([shared/m4])
 
 AC_INIT([amuse-brutus], [1.0])
 
+AMUSE_LOG_ENVVARS()
+
 # Pick up Conda env or virtualenv
 AMUSE_VENV()
 

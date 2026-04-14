@@ -3,6 +3,8 @@ AC_CONFIG_MACRO_DIRS([shared/m4])
 
 AC_INIT([amuse-mesa_r15140], [1.0])
 
+AMUSE_LOG_ENVVARS()
+
 # Pick up Conda env or virtualenv
 AMUSE_VENV()
 
@@ -68,6 +70,7 @@ AC_SUBST(OPENMP_FCFLAGS)
 
 AX_LAPACK()
 AX_LIB_HDF5()
+AMUSE_LIBZ()
 
 AC_LANG_POP([Fortran])
 

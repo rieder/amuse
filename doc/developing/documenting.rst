@@ -14,7 +14,7 @@ It's easiest to install the required packages using Conda:
 
 .. code-block:: bash
 
-    conda install jupyter sphinx make numpy sphinx_rtd_theme matplotlib rst2pdf
+    conda install -c conda-forge --override-channels jupyter sphinx make numpy sphinx_rtd_theme matplotlib rst2pdf
 
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
 

@@ -3,9 +3,10 @@ AC_CONFIG_MACRO_DIRS([shared/m4])
 
 AC_INIT([amuse-evtwin], [1.0])
 
+AMUSE_LOG_ENVVARS()
+
 # Pick up Conda env or virtualenv
 AMUSE_VENV()
-
 
 # Find the compiler(s)
 AC_PROG_FC()

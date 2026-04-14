@@ -104,16 +104,21 @@ print_environment_step() {
 
 To install any packages, you need to create and activate a Conda environment
 or a Python virtualenv. If you have an environment into which you'd like to
-install AMUSE, you should activate it now. To create a new Conda environment,
-use
+install AMUSE, then you should activate it now.
 
-    conda create -n Amuse-env
+To create a new Conda environment, use
+
+    conda create --channel conda-forge --override-channels -n Amuse-env
 
 Then you activate it using
 
     conda activate Amuse-env
 
 You can name the environment anything you like instead of my-amuse-env.
+
+Note that installing packages other than conda itself in the (base) environment
+is not supported by conda, and this installer will refuse to do so. Please make
+a specific conda environment for your project as described above.
 
 To create a Python virtualenv, use
 
@@ -131,6 +136,25 @@ Once you have an environment active, type
     ./setup
 
 again to continue."
+}
+
+
+print_mixed_packages() {
+    # Note that MIXED_CONDA_PACKAGES starts with a space
+    printf '%b\n' "${BOLD}${COLOR_YELLOW}* (error) Fix mixed-source packages *${COLOR_END}${END_BOLD}
+
+Installation is disabled because packages from mixed sources were found in your Conda
+environment. This can cause some very weird problems. AMUSE is designed and tested with
+packages from conda-forge. The following packages were not installed from conda-forge:
+
+   ${MIXED_CONDA_PACKAGES}
+
+To reinstall them from conda-forge, you can try:
+
+    conda install --channel conda-forge --override-channels${MIXED_CONDA_PACKAGES}
+
+If you're sure you know what you're doing, then you can disable this check by setting
+the environment variable AMUSE_ENABLE_MIXED_PACKAGES to 1 and running ./setup again."
 }
 
 
@@ -152,7 +176,7 @@ To do that, use
         if [ "a${HAVE_PYPI_PIP}" != "a" ] ; then
             printf '    %s\n' 'python3 -m pip uninstall pip'
         fi
-        printf '    %s\n' 'conda install -c conda-forge pip wheel'
+        printf '    %s\n' 'conda install -c conda-forge --override-channels pip wheel'
     fi
 
     printf '\n%b\n' "and then run

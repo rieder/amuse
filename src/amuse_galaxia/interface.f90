@@ -1,4 +1,4 @@
-module BarAndSpiralsInterface
+module GalaxiaInterface
   !GALACTIC POTENTIAL. IT HAS BAR AND SPIRAL ARMS
   !THE MODELS ARE IN 2D OR 3D. 
   !THE TOTAL FORCE AND POTENTIAL  IS MEASURED
@@ -950,7 +950,7 @@ module BarAndSpiralsInterface
       end function get_tidal_radius
           
         
-end module BarAndSpiralsInterface
+end module GalaxiaInterface
 
 !_____________________ALL SOUBRUTINES___________________________
 
@@ -960,7 +960,7 @@ subroutine total_force(t, xk1, yk, zk,ffx, ffy, ffz)
   !-----------------------------------------------------------------------
   !     Computes the total force in the model
   !-----------------------------------------------------------------------
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
   double precision :: xk1, yk, zk, ffx, ffy, ffz,  tmt, T, tmtbra
   double precision :: fax= 0.d0, fay= 0.d0, faz= 0.d0
@@ -1078,7 +1078,7 @@ subroutine forax(t,x,y,z,px,py,pz)
    !-----------------------------------------------------------------------
    ! first derivatives of the bulge and disc potentials
    !-----------------------------------------------------------------------
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real*8 :: x,y,z,pxd,pyd,pzd,pxb,pyb,pzb,px,py,pz,xp(3),pxh,pyh,pzh
    real*8 :: aux1,t,tmt
@@ -1111,7 +1111,7 @@ subroutine forax(t,x,y,z,px,py,pz)
  end subroutine forax
 
 SUBROUTINE FORBULGE(X1,Y1,Z1,PX,PY,PZ)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       !DIMENSION X(3)
       AM1=G*MB1 
@@ -1128,7 +1128,7 @@ SUBROUTINE FORBULGE(X1,Y1,Z1,PX,PY,PZ)
 
 
 SUBROUTINE FORDISK(X1,Y1,Z1,PX,PY,PZ)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       !DIMENSION X(3)
           
@@ -1148,7 +1148,7 @@ SUBROUTINE FORDISK(X1,Y1,Z1,PX,PY,PZ)
     END SUBROUTINE FORDISK
 
 SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       !DIMENSION X(3)
 
@@ -1192,7 +1192,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
 !       Restriction : A > B > C >= 0
 !       Parameters via common parsb
 !*******************************************************************
-   use BarAndSpiralsInterface 
+   use GalaxiaInterface 
    IMPLICIT NONE
    REAL*8:: X1,Y1,Z1,PX,PY,PZ
    REAL*8:: XQ(3)
@@ -1249,7 +1249,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
  ! selects model given by spiral_model   
 
  subroutine force_sp(t, x_sp, y_sp, z_sp, fx_sp, fy_sp, fz_sp)
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real*8 :: t, x_sp, y_sp, z_sp, fx_sp, fy_sp, fz_sp
    real(8) :: fvec(3)
@@ -1301,7 +1301,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
 
      SUBROUTINE force_lepine(t, x_sp, y_sp, z_sp, ftx_sp, fty_sp, ftz_sp)
 
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
 
       double precision :: t, x_sp, y_sp, z_sp, ftx_sp, fty_sp, ftz_sp
       double precision :: fx_sp1, fy_sp1, fz_sp1, fx_sp2, fy_sp2, fz_sp2
@@ -1333,7 +1333,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
 
 
     SUBROUTINE FORBRA(X1,Y1,Z1,FBRX,FBRY,FBRZ)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       double precision :: X1,Y1,Z1, R,PHI1, termz, COC1, COC2, SUM
       double precision :: FUNF, FUNG, DFDR, DGDR, FACS, FACC, epss
       double precision :: frbr, ffibr,fbrx,fbry,fbrz
@@ -1364,7 +1364,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
 
 
     SUBROUTINE FORBRA2(X1,Y1,Z1,FBRX,FBRY,FBRZ)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       double precision :: X1,Y1,Z1, R,PHI1, termz, COC1, COC2, SUM
       double precision :: FUNF, FUNG, DFDR, DGDR, FACS, FACC, epss
       double precision :: frbr, ffibr,fbrx,fbry,fbrz
@@ -1396,7 +1396,7 @@ SUBROUTINE FORHALO(X1,Y1,Z1,PX,PY,PZ)
 
 !______________________log spiral force__________________________________
 subroutine force_log_spiral(x1,y1,z1,fx1,fy1,fz1)
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   double precision:: x1,y1,z1,fx1,fy1,fz1, phi1, R
   double precision:: fm, k, expFactor, kDer
   double precision:: FR, Fphi, Fz, sigma2
@@ -1459,7 +1459,7 @@ subroutine total_potential(t,x,y,z,pot)
   !**********************************************************************
   ! returns the potential of the model
   !**********************************************************************
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
   double precision :: pot,POTA,POTB,POTSP,tmt,t,x,y,z, potential, tmtbra
   double precision :: theta, xsp, ysp, zsp
@@ -1539,7 +1539,7 @@ end subroutine total_potential
 
  !__________________________________Axi potential__________________________
 subroutine potax (t,x, y, z, pot)
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real*8 :: x,y,z,pot,POTBU,POTDI,POTHA
    real*8 :: aux1,t, tmt
@@ -1564,7 +1564,7 @@ subroutine potax (t,x, y, z, pot)
 
 
 SUBROUTINE POTBULGE(X1,Y1,Z1,POT)
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
   !DIMENSION X(3)    
   AM1=G*MB1
@@ -1577,7 +1577,7 @@ END SUBROUTINE POTBULGE
 
 
 SUBROUTINE POTDISK(X1,Y1,Z1,POT)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       !DIMENSION X(3)
       
@@ -1594,7 +1594,7 @@ SUBROUTINE POTDISK(X1,Y1,Z1,POT)
 
 
 SUBROUTINE POTHALO(X1,Y1,Z1,POT)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       !DIMENSION X(3)
       
@@ -1631,7 +1631,7 @@ SUBROUTINE POTHALO(X1,Y1,Z1,POT)
 ! a>b>c>=0
 ! NOTE: parameters of the potential must be given via common PARSB
 !**********************************************************************
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        IMPLICIT NONE
        REAL*8:: X1,Y1,Z1,POT
        REAL*8:: XQ(3)
@@ -1693,7 +1693,7 @@ END SUBROUTINE POTBAR
 
 
      SUBROUTINE pot_sp(t, X1, Y1,Z1, POT)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT NONE 
       double precision :: t, X1, Y1,Z1, POT
       
@@ -1719,7 +1719,7 @@ END SUBROUTINE POTBAR
 
 
     SUBROUTINE POTBRA(X1, Y1,Z1, POTBR)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       double precision:: X1, Y1, Z1, R, PHI1, termz, AMP, FASE, POTBR, epss
       
       R=DSQRT(X1*X1+Y1*Y1)
@@ -1737,7 +1737,7 @@ END SUBROUTINE POTBAR
     END SUBROUTINE POTBRA
 
     SUBROUTINE POTBRA2(X1, Y1,Z1, POTBR)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       double precision:: X1, Y1, Z1, R, PHI1, termz, AMP, FASE, POTBR, epss
       
       R=DSQRT(X1*X1+Y1*Y1)
@@ -1773,7 +1773,7 @@ END SUBROUTINE POTBAR
     !   omega= ombra_m4 (can be changed in the script)
 
     SUBROUTINE pot_lepine(t, X1, Y1,Z1, POTBR)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       implicit none
       double precision:: t, X1, Y1, Z1, R, POTBR, potsp1
       double precision :: theta1
@@ -1797,7 +1797,7 @@ END SUBROUTINE POTBAR
 !______________________logaritmic spiral potential_________________
 subroutine pot_log_spiral(x1,y1,z1, potential)
 
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   double precision:: x1,y1,z1, phi1, R, potential
   double precision:: fm, expFactor,k, sigma2
   sigma2= sigma*sigma
@@ -1828,7 +1828,7 @@ subroutine total_stellar_potential(t,x,y,z,pot)
   ! returns the potential of the stellar component. This is to compute
   ! Local density.
   !**********************************************************************
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
   real(8) :: pot,POTA,POTB,POTSA,tmt,t,x,y,z, tmtbra
   real(8) :: theta, xsp, ysp, zsp
@@ -1898,7 +1898,7 @@ subroutine total_stellar_potential(t,x,y,z,pot)
 end subroutine total_stellar_potential
 
 subroutine potax_stellar(t,x, y, z, pot)
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real(8) :: x,y,z,pot,POTBU,POTDI,POTHA
    real(8) :: aux1,t, tmt
@@ -1915,7 +1915,7 @@ subroutine potax_stellar(t,x, y, z, pot)
 
 
  subroutine local_density(t, x1,y1,z1, density)
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real*8 :: t, x1,y1,z1, dx, dy, dz, density, stellar_phi
    real*8 :: pot, pot1xx, pot2xx, pot1yy, pot2yy, pot1zz, pot2zz
@@ -1973,7 +1973,7 @@ subroutine potax_stellar(t,x, y, z, pot)
 
 !__________________________ DERIVATIVE OF THE AXI FORCE___________________
 subroutine der_forax (t,x, y, z, der_force)
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    real*8 :: x,y,z,der_force,der_fbu,der_fdisk,der_fhalo
    real*8 :: aux1,t, tmt
@@ -1992,7 +1992,7 @@ subroutine der_forax (t,x, y, z, der_force)
 
 ! second derivative of the bulge potential 
 SUBROUTINE DER_FORBULGE(x1,y1,z1,der_force)
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   IMPLICIT DOUBLE PRECISION (A-H,O-Z) 
  
   AM1=G*MB1
@@ -2004,7 +2004,7 @@ END SUBROUTINE DER_FORBULGE
 
 !Second derivative of the disk potential
 SUBROUTINE DER_FORDISK(X1,Y1,Z1,der_force)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       
       AM2= G*MD     
@@ -2021,7 +2021,7 @@ SUBROUTINE DER_FORDISK(X1,Y1,Z1,der_force)
 
 !Second derivative of the halo  
 SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
-      use BarAndSpiralsInterface
+      use GalaxiaInterface
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       
       AM3= G*MH
@@ -2043,7 +2043,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        !**********************************************************************
        ! returns the effective potential of the model
        !**********************************************************************
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8 :: x1,y1,z1,pot,POTA,POTB, t,tmt
        
@@ -2155,7 +2155,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
    !     TS defines time in which the spiral is a maximum
       !     SIGMA_S defines the duration of the spiral arm
    !----------------------------------------------------------------------
-   use BarAndSpiralsInterface
+   use GalaxiaInterface
    implicit none
    double precision:: T,TMTBRA
    integer:: i
@@ -2261,7 +2261,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 !-----------------------------------------------------------------------
 ! potential for spiral arms -- eqn. (8) CG02
 
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2312,7 +2312,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 ! z_sa= h_sp
    
 
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2380,7 +2380,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 ! mass density of SA from CG02 model
 !  calculate numerically from Poisson's equation
   
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2447,7 +2447,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 !  rho(r,phi,z) = rho_A(r,z) cos(gamma)
 !  gamma = N*[phi - phi_p(r0) - ln(r/r0)/tan(alpha)]
   
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2486,7 +2486,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 ! mass density of SA from CG02 model
 !  eq. (10) from CG02
   
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2534,7 +2534,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 ! mass density of SA from CG02 model
 !  eqs. from appendix
 
-  use BarAndSpiralsInterface
+  use GalaxiaInterface
   implicit none
 
   real(8), intent(in)  :: t,rvec(3)
@@ -2720,7 +2720,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        ! xflag = 1 (x1, y1, z1) are in a corotating system 
        ! xflag =2 (x1, y1, z1) are in an inertial system
        !-----------------------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8:: x1,y1,z1, vc, T, PX,PY,PZ,R, force
        real*8:: angle, xr,yr,zr, fx,fy,fz
@@ -2754,7 +2754,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        !-----------------------------------------------------------------------
        ! circular velocity corresponding to the A&S 
        !-----------------------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8:: x1,y1,z1, vc, T, PX,PY,PZ,R, force
        
@@ -2773,7 +2773,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        !-----------------------------------------------------------------------
        !epicyclic frecuency corresponding to the A&S 
        !-----------------------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8:: x1,y1,z1,k, T, omega, der_force
        
@@ -2787,7 +2787,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
 
 
      subroutine compute_tidal_derivatives(t, x1,y1,z1, FFxx, FFyy, FFzz, FFxy, FFxz, FFyz)
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8:: x1,y1,z1,dx, dy, dz, t
        real*8:: FFxx, FFyy, FFzz, FFxy, FFxz, FFyz
@@ -2831,7 +2831,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        !flag = 1 (x1, y1, z1) are in a corotating system 
        !flag =2 (x1, y1, z1) are in an inertial system
        !-----------------------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        
        real*8:: x1,y1,z1,dx, dy, dz, t, angle
@@ -2885,7 +2885,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        ! x1, y1, z1 are defined in that system
        !flag =2 computation in an inertial frame
        !--------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        integer, parameter:: N=3, LDVL=1, LDVR=1 
        integer :: LDA, ok
@@ -2925,7 +2925,7 @@ SUBROUTINE DER_FORHALO(X1,Y1,Z1,der_force)
        !Mc is an input corresponding to
        !the initial mass of the cluster 
        !--------------------------------------------------------
-       use BarAndSpiralsInterface
+       use GalaxiaInterface
        implicit none
        real*8:: t, x1,y1,z1, rt, Mc, phi_bar
        real*8:: lambda1, lambda2, lambda3, lambdamax

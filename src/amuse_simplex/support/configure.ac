@@ -3,6 +3,8 @@ AC_CONFIG_MACRO_DIRS([shared/m4])
 
 AC_INIT([amuse-simplex], [1.0])
 
+AMUSE_LOG_ENVVARS()
+
 # Pick up Conda env or virtualenv
 AMUSE_VENV()
 
@@ -27,6 +29,7 @@ AX_MPI()
 
 AX_PATH_GSL(1.0, [FOUND_GSL=yes])
 AX_LIB_HDF5()
+AMUSE_LIBZ()
 AMUSE_LIB_QHULL()
 AMUSE_LIB_HEALPIX_CXX()
 

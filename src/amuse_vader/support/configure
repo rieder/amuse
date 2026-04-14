@@ -691,7 +691,6 @@ MPI_CFLAGS
 MPICC
 DOWNLOAD
 CURL
-WGET
 RANLIB
 AR
 target_os
@@ -2798,6 +2797,19 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+    amuse_le_vars="SHELL CC CXX FC F77 MPICC MPICXX MPIFC CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LIBS OMPI_CC OMPI_CXX OMPI_FC OMPI_CPPFLAGS OMPI_LDFLAGS OMPI_LIBS"
+
+    printf "%s\n" "=== Shell environment ==="
+
+    for amuse_le_var in ${amuse_le_vars}
+    do
+        eval "amuse_le_val=\${$amuse_le_var}"
+        printf "%s\n" "${amuse_le_var}=${amuse_le_val}"
+    done
+    printf "%s\n" "=== End shell environment ==="
+
+
 # Pick up Conda env or virtualenv
 
     if test "x$VIRTUAL_ENV" != x
@@ -2817,7 +2829,6 @@ then :
 
         # Conda does not set FCFLAGS, so we copy from FFLAGS here
         FCFLAGS="$FFLAGS"
-        LDFLAGS="$LDFLAGS -L${CONDA_PREFIX}/lib -Wl,-rpath,${CONDA_PREFIX}/lib"
         # Conda pkg-config includes this already, but in case we have one from
         # the system...
         PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${CONDA_PREFIX}/lib/pkgconfig"
@@ -4424,11 +4435,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -4470,11 +4481,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -4772,108 +4783,6 @@ fi
 # Find something to download things with
 
     if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}wget", so it can be a program name with args.
-set dummy ${ac_tool_prefix}wget; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_WGET+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$WGET"; then
-  ac_cv_prog_WGET="$WGET" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_WGET="${ac_tool_prefix}wget"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-WGET=$ac_cv_prog_WGET
-if test -n "$WGET"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $WGET" >&5
-printf "%s\n" "$WGET" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_WGET"; then
-  ac_ct_WGET=$WGET
-  # Extract the first word of "wget", so it can be a program name with args.
-set dummy wget; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_ac_ct_WGET+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$ac_ct_WGET"; then
-  ac_cv_prog_ac_ct_WGET="$ac_ct_WGET" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_WGET="wget"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_WGET=$ac_cv_prog_ac_ct_WGET
-if test -n "$ac_ct_WGET"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_ct_WGET" >&5
-printf "%s\n" "$ac_ct_WGET" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-  if test "x$ac_ct_WGET" = x; then
-    WGET=""
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    WGET=$ac_ct_WGET
-  fi
-else
-  WGET="$ac_cv_prog_WGET"
-fi
-
-    if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}curl", so it can be a program name with args.
 set dummy ${ac_tool_prefix}curl; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -4976,24 +4885,16 @@ else
 fi
 
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for a wget or curl to download files with" >&5
-printf %s "checking for a wget or curl to download files with... " >&6; }
-    if test "x$WGET" != "x"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for a tool to download files with" >&5
+printf %s "checking for a tool to download files with... " >&6; }
+    if test "x$CURL" != "x"
     then
-        # The MESA SDK server rejects wget, this is the official work-around
-        DOWNLOAD="$WGET --progress=bar:force:noscroll --user-agent='' -O -"
+        DOWNLOAD="$CURL -L"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
     else
-        if test "x$CURL" != "x"
-        then
-            DOWNLOAD="$CURL -L"
-            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-        else
-            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-        fi
     fi
 
 
