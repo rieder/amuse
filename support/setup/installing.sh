@@ -83,7 +83,7 @@ install_framework() {
             fi
         done
         if [ -n "${to_install}" ] ; then
-            conda install -y ${to_install}
+            conda install -c conda-forge --override-channels -y ${to_install}
         fi
     fi
 
