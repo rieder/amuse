@@ -7,7 +7,7 @@ ensure_pytest() {
             printf '%s\n\n' "Please activate a conda environment or virtual environment first."
         elif [ "a${ENV_TYPE}" = "aconda" ] ; then
             printf '\n%s\n' "Please use"
-            printf '\n    %b\n' "conda install -c conda-forge --override-channels pytest"
+            printf '\n    %b\n' "conda install pytest"
             printf '\n%s\n\n' "to install pytest, then try again."
         else
             printf '\n%s\n' "Please use"
@@ -50,6 +50,7 @@ test_framework() {
             cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed' ${PYTEST_OPTS}
         else
             cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed and not noci' ${PYTEST_OPTS}
+
         fi
 
         echo $? >"../../${ec_file}"
@@ -80,7 +81,7 @@ test_amuse_ext() {
     log_file="$(log_file test amuse-ext)"
 
     (
-        cd src/tests && pytest ext_tests ticket_tests --import-mode=append ${PYTEST_OPTS} -s -v -x -k "not noci and ${bad_ext_tests}"
+        cd src/tests && pytest ext_tests --import-mode=append ticket_tests ${PYTEST_OPTS}  -k "${bad_ext_tests}"
 
         echo $? >"../../${ec_file}"
     ) 2>&1 | tee "${log_file}"
