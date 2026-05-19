@@ -76,7 +76,7 @@ class StarHRPlotter:
         self.scatter2 = None
         self.name = name
         self.extension = extension
-        self.ndigit = 4
+        self.ndigit = 6
 
 
     def make_movie(self, start, end):
@@ -93,7 +93,13 @@ class StarHRPlotter:
             stars = read_set_from_file(filename)
             size = 4 * stars.radius.value_in(units.RSun)**0.5
             x, y, color = templum_to_xyz(stars.temperature, stars.luminosity)
-            self.ax.set_title(f"Snapshot {i}")
+            try:
+                age = set(stars.age.value_in(units.Myr))
+                if len(age) == 1:
+                    age = age.pop()
+                self.ax.set_title(f"Snapshot {i} ({age:.2f} Myr)")
+            except:
+                self.ax.set_title(f"Snapshot {i}")
             self.scatter.set_offsets(np.array([x, y,]).T)
             self.scatter.set_sizes(size)
             self.scatter.set_facecolors(color)
