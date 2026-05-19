@@ -212,6 +212,7 @@ class jdata {
     void spec_output(const char *s = NULL);
     void to_com();
     real get_tnext();
+    int get_nj_max();
 
     // In gpu.cc:
 

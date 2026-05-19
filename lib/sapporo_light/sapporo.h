@@ -103,6 +103,7 @@ extern "C"
 {
   int  get_device_count();
   cudaError_t host_evaluate_gravity(sapporo_multi_struct);
+  int g6_get_nj_max_();
 }
 
 class sapporo {
@@ -169,7 +170,7 @@ public:
 
     predict = false;
     nj_modified = 0;
-    
+
     device.address_j = NULL;
 
     device.t_j   = NULL;
@@ -182,6 +183,7 @@ public:
     device.acc_i = NULL;
     device.vel_i = NULL;
     device.jrk_i = NULL;
+
     
   };
   ~sapporo() {};
@@ -189,6 +191,7 @@ public:
   int open(int cluster_id);
   int close(int cluster_id);
   int get_n_pipes();
+  int get_nj_max() const;
   int set_ti(int cluster_id, double ti);
 
   int set_j_particle(int cluster_id,

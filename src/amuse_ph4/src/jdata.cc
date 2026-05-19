@@ -34,6 +34,7 @@
 
 #ifdef GPU
 #include "grape.h"
+#include "sapporo.h"
 #endif
 
 // AMUSE STOPPING CONDITIONS SUPPORT
@@ -1152,4 +1153,13 @@ real jdata::get_tnext()
     if (!sched) return 0;
     int ndum;
     return sched->get_list(NULL, ndum);
+}
+
+int jdata::get_nj_max()
+{
+#ifdef GPU
+    return g6_get_nj_max_();
+#else
+    return std::numeric_limits<int>::max();
+#endif
 }

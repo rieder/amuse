@@ -8,6 +8,7 @@ from amuse.units import units
 import os
 from pathlib import Path
 import time
+import sys
 
 
 class ForTesting(InCodeComponentImplementation):
@@ -120,7 +121,9 @@ class TestASync(TestWithMPI):
             self.assertEqual(x[0].result(), x[1])
         instance1.stop()
         instance2.stop()
-        self.assertTrue(t2-t1 < 2.)
+        # Do not run this test on MacOS runners, since they seem very slow.
+        if sys.platform != "darwin":
+            self.assertTrue(t2-t1 < 2.)
 
     def test8(self):
         from threading import Thread

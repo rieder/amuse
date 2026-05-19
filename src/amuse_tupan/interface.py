@@ -1,10 +1,10 @@
 
-
 from amuse.community import *
 from amuse.community.interface.gd import GravitationalDynamicsInterface
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import SinglePointGravityFieldInterface
 from amuse.community.interface.gd import GravityFieldCode
+from amuse.datamodel.particles import Particle, Particles
 from amuse.rfi.core import PythonCodeInterface
 
 import sys
@@ -38,7 +38,7 @@ class TupanImplementation(object):
         self.integrator_method = "sia21h.dkd"
         self.pn_order = 0
         self.clight = None
-        self.particles = []
+        self.particles = Particles()
         self.particles_initialized = False
 
     def initialize_code(self):
@@ -60,43 +60,53 @@ class TupanImplementation(object):
         return 0
 
     def commit_particles(self):
-        num = len(self.particles)
-        ps = ParticleSystem(nstars=num)
+        ps = ParticleSystem(nstars=len(self.particles))
         for (i, p) in enumerate(self.particles):
-            ps.id[i] = i
+            ps.id[i] = p.id
             ps.mass[i] = p.mass
             ps.radius[i] = p.radius   # XXX: 'radius' is not yet used in Tupan.
             ps.eps2[i] = self.eps2/2
-            ps.rx[i] = p.rx
-            ps.ry[i] = p.ry
-            ps.rz[i] = p.rz
+            ps.rx[i] = p.x
+            ps.ry[i] = p.y
+            ps.rz[i] = p.z
             ps.vx[i] = p.vx
             ps.vy[i] = p.vy
             ps.vz[i] = p.vz
-        self.integrator = Integrator(self.eta,
-                                     self.time_begin,
-                                     ps,
-                                     method=self.integrator_method,
-                                     pn_order=self.pn_order,
-                                     clight=self.clight)
+
+        self.integrator = Integrator(
+            self.eta,
+            self.time_begin,
+            ps,
+            method=self.integrator_method,
+            pn_order=self.pn_order,
+            clight=self.clight
+        )
         return 0
 
     def synchronize_model(self):
         return 0
 
-    def new_particle(self, index_of_the_particle,
-                     mass, radius, x, y, z, vx, vy, vz):
-        ps = ParticleSystem(nstars=1)
-        ps.mass[0] = mass
-        ps.radius[0] = radius
-        ps.rx[0] = x
-        ps.ry[0] = y
-        ps.rz[0] = z
-        ps.vx[0] = vx
-        ps.vy[0] = vy
-        ps.vz[0] = vz
-        self.particles.append(ps)
-        index_of_the_particle.value = len(self.particles)-1
+    def new_particle(
+        self,
+        index_of_the_particle,
+        mass,
+        radius,
+        x, y, z,
+        vx, vy, vz,
+    ):
+        ps = Particle()
+        ps.id = len(self.particles)
+        ps.mass = mass
+        ps.radius = radius
+        ps.x = x
+        ps.y = y
+        ps.z = z
+        ps.vx = vx
+        ps.vy = vy
+        ps.vz = vz
+        index_of_the_particle.value = ps.id
+        self.particles.add_particle(ps)
+
         return 0
 
     def set_state(self, index_of_the_particle,
@@ -562,18 +572,6 @@ class Tupan(GravitationalDynamics, GravityFieldCode):
 
     def define_methods(self, handler):
         GravitationalDynamics.define_methods(self, handler)
-
-        handler.add_method(
-            "get_eta",
-            (),
-            (handler.NO_UNIT, handler.ERROR_CODE,)
-        )
-
-        handler.add_method(
-            "set_eta",
-            (handler.NO_UNIT,),
-            (handler.ERROR_CODE,)
-        )
 
         handler.add_method(
             "get_time",

@@ -7,11 +7,6 @@ from io import StringIO
 from amuse.support.core import late
 from amuse.support import exceptions
 
-try:
-    import pkg_resources
-except ImportError:
-    pkg_resources = None
-
 
 class GlobalOptions:
     INSTANCE = None
@@ -21,11 +16,6 @@ class GlobalOptions:
         self.overriden_options = {}
 
     def load(self, preloadfp=None):
-        if pkg_resources is not None:
-            if pkg_resources.resource_exists("amuse", "amuserc"):
-                resourcerc = pkg_resources.resource_filename("amuse", "amuserc")
-                self.config.read(resourcerc)
-
         rootrc = os.path.join(self.amuse_rootdirectory, self.rcfilename)
         self.config.read(rootrc)
 

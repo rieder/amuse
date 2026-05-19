@@ -49,6 +49,9 @@ extern "C" {
     return grav.calc_lasthalf2(*cluster_id, *nj, *ni,
 			       index, xi, vi, *eps2, h2, acc, jerk, pot, inn);
   }
+  int g6_get_nj_max_() {
+    return grav.get_nj_max();
+  }
   
   int g6_initialize_jp_buffer_(int* cluster_id, int* buf_size) {return 0;}
   int g6_flush_jp_buffer_(int* cluster_id) {return 0;}
@@ -80,4 +83,3 @@ extern "C" {
 			     
 
 }
-

@@ -24,8 +24,11 @@ build_%:
 build_%/makefile_options: makefile_options_% | build_%
 	cp makefile_options_$* $@
 
-build_%/$(CODELIB) build_%/allvars.o &: build_%/makefile_options FORCE
+build_%/$(CODELIB): build_%/makefile_options FORCE
 	$(MAKE) -C build_$* -f ../src/Makefile -j $(CPU_COUNT) all VPATH=../src
+
+build_%/allvars.o: build_%/$(CODELIB) FORCE
+	@true
 
 
 # Load code configuration

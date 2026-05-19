@@ -3,8 +3,7 @@ name = "amuse-tupan"
 dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "amuse-framework",
-    "amuse_tupan"
+    "amuse-framework"
 ]
 
 [build-system]
@@ -44,4 +43,3 @@ pythonpath = ["amuse_tupan/tests/"]
 testpaths = ["amuse_tupan/tests"]
 
 addopts = "--import-mode=append"    # test the installed package
-

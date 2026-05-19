@@ -65,6 +65,11 @@ void sapporo::send_j_particles_to_device(int ignore) {
     dev_struct &dev = device;
     
     int nj = address_j.size();
+
+    if (nj > nj_max) {
+      fprintf(stdout, "ERROR: nj = %d exceeds GPU capacity nj_max = %d\n", nj, nj_max);
+      abort;
+    }
     
     CUDA_SAFE_CALL(cudaMemcpy( dev.address_j,      &address_j[0], nj * sizeof(int),    cudaMemcpyHostToDevice));
     CUDA_SAFE_CALL(cudaMemcpy( &dev.t_j  [nj_max], &t_j[0],       nj * sizeof(DS2),    cudaMemcpyHostToDevice));

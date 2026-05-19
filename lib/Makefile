@@ -1,5 +1,5 @@
 .PHONY: Makefile
-LIBS = $(filter-out Makefile sapporo_light, $(wildcard *))
+AMUSE_LIBS = $(filter-out Makefile sapporo_light, $(wildcard *))
 
 
 # We build sapporo_light separately and only on demand, because it needs CUDA and we
@@ -10,9 +10,9 @@ LIBS = $(filter-out Makefile sapporo_light, $(wildcard *))
 
 
 .PHONY: install uninstall clean distclean
-install uninstall clean distclean: $(LIBS)
+install uninstall clean distclean: $(AMUSE_LIBS)
 
-.PHONY: $(LIBS)
-$(LIBS):
+.PHONY: $(AMUSE_LIBS)
+$(AMUSE_LIBS):
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 

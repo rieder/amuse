@@ -936,3 +936,9 @@ int get_id_of_updated_particle(int index, int * index_of_particle, int * status)
     *status = jd->UpdatedParticles[index].status;
     return 0;
 }
+
+int get_nj_max(int * value)
+{
+  *value = jd->get_nj_max();
+  return 0;
+}

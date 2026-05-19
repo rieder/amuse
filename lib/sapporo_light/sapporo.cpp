@@ -270,3 +270,8 @@ int sapporo::get_ngb_list(int cluster_id,
     sort(nbl, nbl + min(nblen, maxlength));
     return overflow;
 }
+
+int sapporo::get_nj_max() const
+{
+    return nj_max;
+}
