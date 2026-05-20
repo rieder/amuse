@@ -9,24 +9,14 @@ support/config.mk:
 
 
 # Downloading the code
-##### Remove if not needed #####
 VERSION = 121257ede5486660d9eb5fbb23b2c377f02ae465
 
 metisse.tar.gz:
-	##### Modify URL as needed #####
 	$(DOWNLOAD) https://github.com/TeamMETISSE/METISSE/archive/$(VERSION).tar.gz >$@
 
-PATCHES := $(file < patches/series)
-PATCHES := $(patsubst %,%,$(PATCHES))    # replace newlines with spaces
-
 src/metisse-$(VERSION): metisse.tar.gz
-	##### Modify as needed #####
 	tar xf $<
 	mv metisse-$(VERSION) src
-	##### Apply patches here, if needed #####
-	#patch <patch.patch
-	#for p in $(PATCHES) ; do patch -p1 <patches/$$p ; done
-
 
 # Building the code into a static library
 DEPFLAGS += $(STOPCOND_CFLAGS) $(STOPCONDMPI_CFLAGS) $(AMUSE_MPI_CFLAGS)
@@ -39,7 +29,6 @@ LDLIBS += $(FORSOCKETS_LIBS)
 
 CODELIB := libmetisse.a
 
-##### Modify build command as needed #####
 .PHONY: src/METISSE/$(CODELIB)
 src/METISSE/$(CODELIB): | src/METISSE/make
 	$(MAKE) -C src/METISSE/make libmetisse
@@ -52,7 +41,7 @@ metisse_worker.f90: interface.py
 storage.o: storage.f90
 	$(MPIFC) -c -o $@ $(FCFLAGS) $<
 
-metisse_worker.o: metisse_worker.f90 storage.o
+metisse_worker.o: metisse_worker.f90 storage.o | src
 	$(MPIFC) -c -o $@ $(FCFLAGS) $<
 
 metisse_worker: interface.o metisse_worker.o storage.o src/METISSE/$(CODELIB)
@@ -84,11 +73,12 @@ test-%:
 # Cleaning up
 .PHONY: clean
 clean:
-	$(MAKE) -C src clean
+	-$(MAKE) -C src clean
 	rm -rf *.o *.mod *worker*
 
 .PHONY: distclean
 distclean: clean
+	-$(MAKE) -C src distclean
 	rm -f support/config.mk support/config.log support/config.status
 	rm -rf support/autom4te.cache
 
