@@ -9,7 +9,7 @@ support/config.mk:
 
 
 # Downloading the code
-VERSION = 121257ede5486660d9eb5fbb23b2c377f02ae465
+VERSION = 1b79dba5cdb7ac801d4ff24e746a22ad2e566f7c
 
 metisse.tar.gz:
 	$(DOWNLOAD) https://github.com/TeamMETISSE/METISSE/archive/$(VERSION).tar.gz >$@
