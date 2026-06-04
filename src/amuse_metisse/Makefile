@@ -14,7 +14,7 @@ VERSION = 121257ede5486660d9eb5fbb23b2c377f02ae465
 metisse.tar.gz:
 	$(DOWNLOAD) https://github.com/TeamMETISSE/METISSE/archive/$(VERSION).tar.gz >$@
 
-src/metisse-$(VERSION): metisse.tar.gz
+src: metisse.tar.gz
 	tar xf $<
 	mv metisse-$(VERSION) src
 
@@ -29,9 +29,10 @@ LDLIBS += $(FORSOCKETS_LIBS)
 
 CODELIB := libmetisse.a
 
-.PHONY: src/METISSE/$(CODELIB)
-src/METISSE/$(CODELIB): | src/METISSE/make
-	$(MAKE) -C src/METISSE/make libmetisse
+.PHONY: src/$(CODELIB)
+
+src/$(CODELIB): | src/make
+	$(MAKE) -C src/make libmetisse
 
 
 # Building the workers
@@ -44,11 +45,11 @@ storage.o: storage.f90
 metisse_worker.o: metisse_worker.f90 storage.o | src
 	$(MPIFC) -c -o $@ $(FCFLAGS) $<
 
-metisse_worker: interface.o metisse_worker.o storage.o src/METISSE/$(CODELIB)
-	$(MPIFC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
-
 %.o: %.f90
-	$(MPIFC) -c -o $@ $(FCFLAGS) -Isrc/METISSE/make $<
+	$(MPIFC) -c -o $@ $(FCFLAGS) -Isrc/make $<
+
+metisse_worker: storage.o src/$(CODELIB) interface.o metisse_worker.o
+	$(MPIFC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 
 # Which packages contain which workers?
@@ -73,12 +74,12 @@ test-%:
 # Cleaning up
 .PHONY: clean
 clean:
-	-$(MAKE) -C src clean
+	-$(MAKE) -C src/make clean
 	rm -rf *.o *.mod *worker*
 
 .PHONY: distclean
 distclean: clean
-	-$(MAKE) -C src distclean
+	-$(MAKE) -C src/make distclean
 	rm -f support/config.mk support/config.log support/config.status
 	rm -rf support/autom4te.cache
 

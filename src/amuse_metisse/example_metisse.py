@@ -72,6 +72,7 @@ def setup_metisse(metallicity_dir=None, metallicity_dir_he=None, **kwargs):
     # instance = Metisse(redirection="none")
     instance = Metisse()
 
+    print(f"Setting parameters: {metallicity_dir=}, {metallicity_dir_he=}")
     instance.parameters.metallicity_dir = metallicity_dir
     instance.parameters.metallicity_dir_he = metallicity_dir_he
 
@@ -175,9 +176,9 @@ def main():
     args = new_argument_parser().parse_args()
     np.random.seed(args.seed)
 
-    # test_metisse_sun()
-    # test_metisse_twostars()
-    # test_metisse_kroupa()
+    # test_metisse_sun(**vars(args))
+    # test_metisse_twostars(**vars(args))
+    # test_metisse_kroupa(**vars(args))
     evolve_stars_metisse(start=0, **vars(args))
 
 
