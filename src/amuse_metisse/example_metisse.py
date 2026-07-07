@@ -78,7 +78,7 @@ def setup_metisse(metallicity_dir=None, metallicity_dir_he=None, **kwargs):
 
     instance.parameters.wd_mass_scheme = "Modified_mestel"
     instance.parameters.bhns_mass_scheme = "Belczynski2008"
-    instance.parameters.initial_metallicity = 0.02
+    instance.parameters.metallicity = 0.02
 
     # instance.commit_parameters()
     return instance

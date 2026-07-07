@@ -132,7 +132,7 @@ class MetisseInterface(
         returns ()
 
     # getters and setters for parameters
-    # initial_metallicity(real)
+    # metallicity(real)
     # wd_mass_scheme (string, 256)
     # use_initial_final_mass_relation(bool)
     # bhns_mass_scheme (string, 256)
@@ -140,11 +140,11 @@ class MetisseInterface(
     # allow_electron_capture (bool)
 
     @remote_function
-    def get_initial_metallicity():
-        returns (initial_metallicity="d")
+    def get_metallicity():
+        returns (metallicity="d")
 
     @remote_function
-    def set_initial_metallicity(initial_metallicity="d"):
+    def set_metallicity(metallicity="d"):
         returns ()
 
     @remote_function
@@ -293,10 +293,10 @@ class Metisse(se.StellarEvolution):
         # allow_electron_capture
 
         handler.add_method_parameter(
-            "get_initial_metallicity",
-            "set_initial_metallicity",
-            "initial_metallicity",
-            "Initial metallicity",
+            "get_metallicity",
+            "set_metallicity",
+            "metallicity",
+            "(initial) metallicity",
             default_value=-1.0,
             must_set_before_get=True,
         )

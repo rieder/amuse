@@ -218,27 +218,27 @@ contains
     end function
 
     ! setters/getters for parameters
-    ! initial_metallicity(real)
+    ! metallicity(real)
     ! wd_mass_scheme (string, 256)
     ! use_initial_final_mass_relation(bool)
     ! bhns_mass_scheme (string, 256)
     ! max_ns_mass (real)
     ! allow_electron_capture (bool)
 
-    function set_initial_metallicity(initial_metallicity_in)
+    function set_metallicity(metallicity_in)
         implicit none
-        real(c_double):: initial_metallicity_in
-        integer:: set_initial_metallicity
-        initial_Z = initial_metallicity_in
-        set_initial_metallicity = 0
+        real(c_double):: metallicity_in
+        integer:: set_metallicity
+        initial_Z = metallicity_in
+        set_metallicity = 0
     end function
 
-    function get_initial_metallicity(initial_metallicity_out)
+    function get_metallicity(metallicity_out)
         implicit none
-        real(c_double):: initial_metallicity_out
-        integer:: get_initial_metallicity
-        initial_metallicity_out = initial_Z
-        get_initial_metallicity = 0
+        real(c_double):: metallicity_out
+        integer:: get_metallicity
+        metallicity_out = initial_Z
+        get_metallicity = 0
     end function
 
     function set_wd_mass_scheme(wd_mass_scheme_in)
@@ -573,14 +573,6 @@ contains
         call star_system%get_mass(index_of_the_star, mass, get_mass)
     end function
 
-    function get_metallicity(metallicity)
-        implicit none
-        real(c_double):: metallicity
-        integer:: get_metallicity
-        ! what to do here depends on whether metallicity can be set for individual stars or only globally
-        get_metallicity = 0
-    end function
-
     function get_epoch(index_of_the_star, epoch)
         implicit none
         integer:: index_of_the_star
@@ -683,13 +675,6 @@ contains
         double precision:: mass
         integer:: get_initial_mass
         call star_system%get_initial_mass(index_of_the_star, mass, get_initial_mass)
-    end function
-
-    function set_metallicity(metallicity)
-        implicit none
-        real(c_double):: metallicity
-        integer:: set_metallicity
-        set_metallicity = 0
     end function
 
 end module
