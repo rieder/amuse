@@ -375,12 +375,39 @@ contains
     ! particle management:
     ! new_particle, delete_particle
 
-    function new_particle(index_of_the_particle, mass)
+    function new_particle(index_of_the_star, mass)
         implicit none
-        integer, intent(inout):: index_of_the_particle
+        integer, intent(inout):: index_of_the_star
         real(c_double), intent(inout):: mass
         integer:: new_particle
-        index_of_the_particle = star_system%new_star(mass)
+        integer:: error
+        type(track), pointer:: t
+        
+        index_of_the_star = star_system%new_star(mass)
+        call allocate_track(1, mass)  ! allocates tarr. mass is ignored...
+        t => tarr(1)
+        call evolv_metisse(mass, 0.0_c_double, error, 1)
+        call dealloc_track()
+        call star_system%set_mass(index_of_the_star, t%pars%mass, error)
+        call star_system%set_age( &
+            index_of_the_star, &
+            t%pars%age, &  ! METISSE uses Myr internally, we store years
+            error)
+        call star_system%set_time_step( &
+            index_of_the_star, &
+            t%pars%dt, &
+            error)
+        !write(*,*) "Lum: ", t%pars%luminosity
+        call star_system%set_luminosity(index_of_the_star, t%pars%luminosity, error)
+        call star_system%set_temperature(index_of_the_star, t%pars%Teff, error)
+        call star_system%set_radius(index_of_the_star, t%pars%radius, error)
+        call star_system%set_epoch(index_of_the_star, t%pars%epoch, error)
+        call star_system%set_core_mass(index_of_the_star, t%pars%core_mass, error)
+        call star_system%set_core_radius(index_of_the_star, t%pars%core_radius, error)
+        call star_system%set_stellar_type(index_of_the_star, t%pars%phase, error)
+        call star_system%set_co_core_mass(index_of_the_star, t%pars%McCO, error)
+        call star_system%set_spin(index_of_the_star, t%pars%bhspin, error)
+        
     end function
 
     function delete_star(index_of_the_star)
