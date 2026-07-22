@@ -140,6 +140,36 @@ def evolve_stars_with_metisse(stars, age, **kwargs):
     return stars_after_evolution
 
 
+def evolve_stars_with_metisse_channel(stars, age, **kwargs):
+    instance = setup_metisse(**kwargs)
+    stars.mass = stars.mass_initial  # !!! PAY ATTENTION HERE !!!
+    stars_in_metisse = instance.particles.add_particles(stars)
+    if age > 0 | units.Myr:
+        instance.evolve_model(age)
+    print(stars[0])
+    stars_in_metisse.new_channel_to(stars).copy_attributes(
+        [
+            "mass",
+            "luminosity",
+            "temperature",
+            "radius",
+        ]
+    )
+    print(stars[0])
+    # import matplotlib.pyplot as plt
+    # plt.scatter(
+    #     stars.mass.value_in(units.MSun),
+    #     stars.stellar_type.value_in(units.stellar_type),
+    # )
+    # ax = plt.gca()
+    # ax.set_xscale("log")
+    # #ax.set_yscale("log")
+    # plt.show()
+    # stars_after_evolution = stars_in_metisse.copy()
+    instance.stop()
+    return stars
+
+
 def evolve_stars_metisse(
     number_of_stars=100,
     time_end=100.0 | units.Myr,
@@ -171,6 +201,78 @@ def evolve_stars_metisse(
         )
         i += 1
 
+def evolve_stars_metisse_channels(
+    number_of_stars=100,
+    time_end=100.0 | units.Myr,
+    number_of_steps=100,
+    mass_min=0.1 | units.MSun,
+    mass_max=100.0 | units.MSun,
+    **kwargs
+):
+    mass = np.logspace(
+        np.log10(mass_min.value_in(units.MSun)),
+        np.log10(mass_max.value_in(units.MSun)),
+        number_of_stars
+    ) | units.MSun
+    stars = Particles(number_of_stars)
+    stars.mass_initial = mass
+
+    times = np.logspace(
+        np.log10((time_end / (number_of_steps**1.5)).value_in(units.Myr)),
+        np.log10(time_end.value_in(units.Myr)),
+        number_of_steps
+    ) | units.Myr
+    i = 0
+    stars = evolve_stars_with_metisse_channel(stars, 0 | units.Myr, **kwargs)
+    for  time in times:
+        print(f"Evolving to time: {time}")
+        stars = evolve_stars_with_metisse_channel(stars, time, **kwargs)
+        # stars_metisse.age = time
+        write_set_to_file(
+            stars, f"stars3_metisse_{i:06d}.amuse"
+        )
+        i += 1
+
+def evolve_stars_metisse_continuous(
+    number_of_stars=100,
+    time_end=100.0 | units.Myr,
+    number_of_steps=100,
+    mass_min=0.1 | units.MSun,
+    mass_max=100.0 | units.MSun,
+    **kwargs
+):
+    """
+    Set up METISSE once and keep evolving the stars
+    """
+    mass = np.logspace(
+        np.log10(mass_min.value_in(units.MSun)),
+        np.log10(mass_max.value_in(units.MSun)),
+        number_of_stars
+    ) | units.MSun
+    stars = Particles(number_of_stars)
+    stars.mass_initial = mass
+    stars.mass = mass
+
+    times = np.logspace(
+        np.log10((time_end / (number_of_steps**1.5)).value_in(units.Myr)),
+        np.log10(time_end.value_in(units.Myr)),
+        number_of_steps
+    ) | units.Myr
+    i = 0
+    evo = setup_metisse(**kwargs)
+    stars_in_metisse = evo.particles.add_particles(stars)
+    channel_from_evo = stars_in_metisse.new_channel_to(stars)
+    channel_from_evo.copy()
+    for time in times:
+        print(f"Evolving to time: {time}")
+        evo.evolve_model(time)
+        channel_from_evo.copy()
+        # stars_metisse.age = time
+        write_set_to_file(
+            stars, f"stars6_metisse_{i:06d}.amuse"
+        )
+        i += 1
+
 
 def main():
     args = new_argument_parser().parse_args()
@@ -179,7 +281,13 @@ def main():
     # test_metisse_sun(**vars(args))
     # test_metisse_twostars(**vars(args))
     # test_metisse_kroupa(**vars(args))
-    evolve_stars_metisse(start=0, **vars(args))
+    # evolve_stars_metisse(start=0, **vars(args))
+    # evolve_stars_metisse_channels(start=0, **vars(args))
+    evolve_stars_metisse_continuous(start=0, **vars(args))
+
+    # TODO:
+    # METISSE tracks have a minimum mass, below that mass channels return zeros
+    # So need to be able to return what this minimum (and maximum) mass is.
 
 
 if __name__ == "__main__":

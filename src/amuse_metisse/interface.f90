@@ -431,14 +431,12 @@ contains
         type(track), pointer:: t
         evolve_for = 0
 
-        write(*,*) 'evolving star ', index_of_the_star, ' for ', delta_t
         call star_system%get_initial_mass(index_of_the_star, mass, error)
         call star_system%get_age(index_of_the_star, age, error)
 
         call allocate_track(1, mass)
         t => tarr(1)
         call evolv_metisse(mass, age+delta_t, error, 1)
-        call dealloc_track()
         if (error /= 0) then
             write(*,*) 'METISSE error: ', error
             return
@@ -452,7 +450,6 @@ contains
             index_of_the_star, &
             t%pars%dt, &
             error)
-        write(*,*) "Lum: ", t%pars%luminosity
         call star_system%set_luminosity(index_of_the_star, t%pars%luminosity, error)
         call star_system%set_temperature(index_of_the_star, t%pars%Teff, error)
         call star_system%set_radius(index_of_the_star, t%pars%radius, error)
@@ -462,6 +459,7 @@ contains
         call star_system%set_stellar_type(index_of_the_star, t%pars%phase, error)
         call star_system%set_co_core_mass(index_of_the_star, t%pars%McCO, error)
         call star_system%set_spin(index_of_the_star, t%pars%bhspin, error)
+        call dealloc_track()
     end function
 
     !function pevolve_for(index_of_the_star, delta_t)
@@ -525,9 +523,7 @@ contains
             write(*,*) "reaching end of the nuclear time scale, setting time step to: ", time_step
             evolve_one_step = 2  ! 2: reached end of the nuclear time scale
         end if
-        write(*,*) "evolving star ", index_of_the_star, " for ", time_step
         call evolv_metisse(mass, age+time_step, error, 1)
-        write(*,*) "evolved star ", index_of_the_star
         if (error == 0) then
             call star_system%set_mass(index_of_the_star, t%pars%mass, error)
             call star_system%set_age( &
@@ -538,7 +534,6 @@ contains
                 index_of_the_star, &
                 t%pars%dt, &
                 error)
-            write(*,*) "Lum: ", t%pars%luminosity
             call star_system%set_luminosity(index_of_the_star, t%pars%luminosity, error)
             call star_system%set_temperature(index_of_the_star, t%pars%Teff, error)
             call star_system%set_radius(index_of_the_star, t%pars%radius, error)

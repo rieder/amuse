@@ -422,7 +422,6 @@ class Metisse(se.StellarEvolution):
         handler.add_method("particles", "evolve_for")
 
     def evolve_model(self, end_time=None, keep_synchronous=True):
-        print(f"evolve_model {end_time=} {keep_synchronous=}")
         if not keep_synchronous:
             for particle in self.particles:
                 particle.evolve_one_step()
@@ -433,9 +432,9 @@ class Metisse(se.StellarEvolution):
             if end_time
             else 0.99*min(self.particles.time_step)
         )
-        print(f"delta_time = {delta_time}")
         for i, particle in enumerate(self.particles):
-            particle.evolve_for(particle.age + delta_time)
+            delta_time = end_time - particle.age
+            particle.evolve_for(delta_time)
         self.model_time += delta_time
 
     def define_methods(self, handler):
