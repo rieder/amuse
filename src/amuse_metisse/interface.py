@@ -7,8 +7,6 @@ import os
 from amuse.community import (
     CodeInterface,
     LiteratureReferencesMixIn,
-    # LegacyFunctionSpecification,
-    # legacy_function,
     remote_function,
 )
 from amuse.community.interface import se
@@ -38,8 +36,12 @@ class MetisseInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
         self.model_time = 0.0 | units.mega(units.julianyr)
-        self.set_metallicity_dir(f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Hydrogen")
-        self.set_metallicity_dir_he(f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Helium")
+        self.set_metallicity_dir(
+            f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Hydrogen"
+        )
+        self.set_metallicity_dir_he(
+            f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Helium"
+        )
 
     # Remote functions - getters and setters
     # Note that we should maybe use SI units rather than derived (MSun etc), at

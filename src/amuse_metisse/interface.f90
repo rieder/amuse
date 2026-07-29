@@ -79,8 +79,6 @@ contains
 
         commit_parameters = 0
 
-        write(*,*) "Calling commit_parameters"
-
         ! This will read the tracks-so need to have set the paths before
         call METISSE_zcnsts(initial_Z, zpars, error)
         if (error /= 0) then
@@ -397,7 +395,6 @@ contains
             index_of_the_star, &
             t%pars%dt, &
             error)
-        !write(*,*) "Lum: ", t%pars%luminosity
         call star_system%set_luminosity(index_of_the_star, t%pars%luminosity, error)
         call star_system%set_temperature(index_of_the_star, t%pars%Teff, error)
         call star_system%set_radius(index_of_the_star, t%pars%radius, error)

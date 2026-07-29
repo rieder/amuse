@@ -116,8 +116,8 @@ contains
     integer:: i
 
     self%num_stars = self%num_stars+1
-    write(*,*) "adding new star  ! so resizing to ", self%num_stars
-    call flush(6)
+    !write(*,*) "adding new star  ! so resizing to ", self%num_stars
+    !call flush(6)
     call self%resize(self%num_stars)
     i = self%num_stars
     new_id = self%next_star_id
@@ -158,8 +158,8 @@ contains
           self%star_array(i:self%num_stars-1) = self%star_array(i+1:self%num_stars)
         end if
         self%num_stars = self%num_stars-1
-        write(*,*) "resizing to ", self%num_stars
-        call flush(6)
+        !write(*,*) "resizing to ", self%num_stars
+        !call flush(6)
         call self%resize(self%num_stars)
         exit
       end if
@@ -633,7 +633,6 @@ contains
     real(c_double), intent(in):: luminosity
     integer:: error
     call set_property_double(self, id, 'luminosity', luminosity, error)
-    write(*,*) 'luminosity', luminosity
   end subroutine
 
   subroutine set_main_sequence_lifetime(self, id, main_sequence_lifetime, error)
