@@ -2,6 +2,8 @@
 Interface for metisse
 """
 
+import os
+
 from amuse.community import (
     CodeInterface,
     LiteratureReferencesMixIn,
@@ -36,6 +38,8 @@ class MetisseInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
         self.model_time = 0.0 | units.mega(units.julianyr)
+        self.set_metallicity_dir(f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Hydrogen")
+        self.set_metallicity_dir_he(f"{os.path.dirname(__file__)}/data/sample_tracks_solarZ/Helium")
 
     # Remote functions - getters and setters
     # Note that we should maybe use SI units rather than derived (MSun etc), at
@@ -245,15 +249,13 @@ class Metisse(se.StellarEvolution):
         #     default_value = <default value>
         # )
 
-        
-
         # Track parameters
         handler.add_method_parameter(
             "get_metallicity_dir",
             "set_metallicity_dir",
             "metallicity_dir",
             "Location of the tracks",
-            default_value="./",
+            default_value=f"{os.path.dirname(__file__)}/data/Hydrogen",
             must_set_before_get=True,
         )
 
@@ -262,7 +264,7 @@ class Metisse(se.StellarEvolution):
             "set_metallicity_dir_he",
             "metallicity_dir_he",
             "Location of the He tracks",
-            default_value="./",
+            default_value=f"{os.path.dirname(__file__)}/data/Helium",
             must_set_before_get=True,
         )
 
